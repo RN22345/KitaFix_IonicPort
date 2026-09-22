@@ -1,0 +1,69 @@
+name: Deploy demo (GitHub Pages)
+
+# Publishes the app as a PROJECT page at
+#   https://<owner>.github.io/KitaFix_IonicPort/
+# This coexists with the user site repo (<owner>.github.io) - they are separate
+# sites. The app runs against the hosted Supabase project (see environment.ts).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build for Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Enable GitHub Pages (create the site if needed)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with the project-page base href
+        run: npx ng build --base-href "/KitaFix_IonicPort/"
+
+      # Deep links: GitHub Pages has no SPA rewrite, so a copy of index.html is
+      # served for unknown paths. .nojekyll stops Jekyll from ignoring files.
+      - name: Add SPA fallback and .nojekyll
+        run: |
+          cp dist/customer/browser/index.html dist/customer/browser/404.html
+          touch dist/customer/browser/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/customer/browser
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -96,11 +96,44 @@ How you would do it then (for reference, not implemented):
 Until a real consumer exists, the path-alias + monorepo approach is simpler,
 faster to integrate, and easier to grade.
 
-## 5. Optional next step: a live demo (GitHub Pages)
+## 5. Live demo (GitHub Pages)
 
-A static demo link is a nicer "developer-friendly" win than packages. It is not
-set up yet because the Angular router needs an SPA fallback (`404.html`) and a
-`--base-href` for the Pages subpath. If the group wants it, add a
-`deploy-pages.yml` workflow that builds with
-`ng build --base-href /KitaFix_IonicPort/` and copies `index.html` to `404.html`.
-Ask the maintainer before enabling it, since it publishes the app publicly.
+Enabled. `.github/workflows/deploy-pages.yml` builds the app and publishes it as
+a **project page**:
+
+```
+https://<owner>.github.io/KitaFix_IonicPort/
+```
+
+Notes:
+
+- Project pages are per repository, so this coexists with any user site repo
+  (`<owner>.github.io`) - they are separate sites, no conflict.
+- The workflow builds with `--base-href "/KitaFix_IonicPort/"`, copies
+  `index.html` to `404.html` (SPA deep-link fallback, since Pages has no
+  rewrite rules) and adds `.nojekyll`.
+- It runs on every push to `main`. If Pages was never enabled, the
+  `configure-pages` step with `enablement: true` turns it on using the workflow
+  token; otherwise enable it once in Settings -> Pages -> Source: GitHub Actions.
+- The published demo talks to the **hosted Supabase** project (real login via the
+  temporary `/dev-login` screen). Anyone with a demo account can use it, so treat
+  the demo as public test data.
+
+To turn the demo off: delete the workflow file (and disable Pages in
+Settings -> Pages).
+
+### Other free static hosts (if Pages is ever not enough)
+
+Angular output in `dist/customer/browser` is plain static files. All of these
+work, each needs the same base-href + SPA rewrite treatment:
+
+| Host | Free tier | SPA rewrites | Notes |
+| --- | --- | --- | --- |
+| Netlify | yes | `_redirects` or `netlify.toml` | drag-and-drop deploy or Git integration |
+| Cloudflare Pages | yes | `_redirects` | fast, no card |
+| Vercel | yes | `vercel.json` | Git integration, previews per PR |
+| Firebase Hosting | yes | `firebase.json` | Google account |
+| Surge.sh | yes | `200.html` fallback | `npx surge dist/customer/browser` |
+
+If the group wants one of these, add a `deploy-<host>.yml` workflow that builds
+with the correct base href and uploads `dist/customer/browser`.
