@@ -7,7 +7,12 @@ integrate into one working app (see
 
 [![CI](https://github.com/RN22345/KitaFix_IonicPort/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RN22345/KitaFix_IonicPort/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/RN22345/KitaFix_IonicPort?sort=semver)](https://github.com/RN22345/KitaFix_IonicPort/releases)
+[![Demo](https://img.shields.io/badge/demo-live-0b6e4f)](https://rn22345.github.io/KitaFix_IonicPort/)
 [![Node](https://img.shields.io/badge/node-22.x-43853d)](https://nodejs.org)
+
+> **Live demo:** https://rn22345.github.io/KitaFix_IonicPort/ (runs the customer
+> app against the hosted database - sign in with a demo account, see
+> [`docs/Hosted_Project.md`](docs/Hosted_Project.md)).
 
 ## Start here
 
