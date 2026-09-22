@@ -1,0 +1,59 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>My repairs</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-segment [value]="filter()" (ionChange)="onFilterChange($event)">
+    <ion-segment-button value="all">All</ion-segment-button>
+    <ion-segment-button value="active">Active</ion-segment-button>
+    <ion-segment-button value="history">History</ion-segment-button>
+  </ion-segment>
+
+  @if (error(); as message) {
+    <ion-note color="danger" class="error-note">{{ message }}</ion-note>
+  }
+
+  @if (loading()) {
+    <div class="center">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (visibleRepairs().length === 0) {
+    <div class="empty-state">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <p>
+        @switch (filter()) {
+          @case ('active') {
+            You have no active repairs.
+          }
+          @case ('history') {
+            No finished repairs yet.
+          }
+          @default {
+            No bookings yet. Create your first booking from the New booking tab.
+          }
+        }
+      </p>
+    </div>
+  } @else {
+    @for (repair of visibleRepairs(); track repair.id) {
+      <app-repair-card
+        [repair]="repair"
+        [showActions]="true"
+        (cancel)="confirmCancel($event)"
+        (reschedule)="openReschedule($event)"
+      ></app-repair-card>
+    }
+  }
+</ion-content>
+
+<app-reschedule-modal
+  [(isOpen)]="rescheduleOpen"
+  [repair]="selectedRepair()"
+  (done)="onRescheduled()"
+></app-reschedule-modal>

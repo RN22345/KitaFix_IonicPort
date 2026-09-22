@@ -1,0 +1,188 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>New booking</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <!-- Device -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Device</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-input
+          label="Brand"
+          labelPlacement="stacked"
+          placeholder="Samsung, iPhone, Xiaomi..."
+          formControlName="device_brand"
+        ></ion-input>
+        @if (isInvalid('device_brand')) {
+          <ion-note color="danger">Device brand is required.</ion-note>
+        }
+
+        <ion-input
+          label="Model"
+          labelPlacement="stacked"
+          placeholder="Galaxy A54, iPhone 13..."
+          formControlName="device_model"
+        ></ion-input>
+        @if (isInvalid('device_model')) {
+          <ion-note color="danger">Device model is required.</ion-note>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- What is wrong -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>What is wrong?</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="none" class="issues">
+          @for (issue of issues; track issue.key) {
+            <ion-item>
+              <ion-checkbox [formControlName]="issue.key" justify="space-between" labelPlacement="end">
+                <div class="issue-label">
+                  <span class="issue-name">{{ issue.label }}</span>
+                  <ion-note>{{ issue.hint }}</ion-note>
+                </div>
+              </ion-checkbox>
+            </ion-item>
+          }
+        </ion-list>
+        @if (hasNoIssueError()) {
+          <ion-note color="danger">Please tick at least one issue.</ion-note>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Service and technician -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Service</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-select
+          label="Repair service"
+          labelPlacement="stacked"
+          placeholder="Pick a service"
+          interface="popover"
+          formControlName="service_id"
+        >
+          @for (service of services(); track service.id) {
+            <ion-select-option [value]="service.id">
+              {{ service.name }} - {{ money(service.base_price) }}
+            </ion-select-option>
+          }
+        </ion-select>
+        @if (isInvalid('service_id')) {
+          <ion-note color="danger">Please pick a service.</ion-note>
+        }
+
+        <ion-select
+          label="Preferred technician (optional)"
+          labelPlacement="stacked"
+          interface="popover"
+          formControlName="technician_id"
+        >
+          <ion-select-option value="">Any available technician</ion-select-option>
+          @for (technician of technicians(); track technician.id) {
+            <ion-select-option [value]="technician.id">
+              {{ technician.full_name }}
+            </ion-select-option>
+          }
+        </ion-select>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Where and when -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>When and where</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-select
+          label="Branch"
+          labelPlacement="stacked"
+          interface="popover"
+          formControlName="location"
+          (ionChange)="onLocationChange()"
+        >
+          @for (location of locations; track location) {
+            <ion-select-option [value]="location">{{ location }}</ion-select-option>
+          }
+        </ion-select>
+
+        <ion-datetime
+          presentation="date"
+          [min]="minDate"
+          [value]="selectedDate()"
+          (ionChange)="onDateChange($event)"
+        ></ion-datetime>
+        @if (isInvalid('booking_date')) {
+          <ion-note color="danger">Please pick a date that is not in the past.</ion-note>
+        }
+
+        <ion-item lines="none" class="slot-item">
+          <ion-select
+            label="Time"
+            labelPlacement="stacked"
+            placeholder="Pick a free hour"
+            interface="popover"
+            [value]="form.controls.booking_time.value"
+            [disabled]="loadingSlots() || freeSlots().length === 0"
+            (ionChange)="onTimeChange($event)"
+          >
+            @for (slot of freeSlots(); track slot) {
+              <ion-select-option [value]="slot">{{ slot }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        @if (loadingSlots()) {
+          <div class="inline-loading">
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>Checking available hours...</span>
+          </div>
+        } @else if (freeSlots().length === 0) {
+          <ion-note color="warning">
+            No free hours left that day at this branch. Try another date.
+          </ion-note>
+        }
+        @if (isInvalid('booking_time')) {
+          <ion-note color="danger">Please pick a time.</ion-note>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Estimated price (recommended feature) -->
+    <ion-card class="estimate">
+      <ion-card-content>
+        <div class="row">
+          <span>Service base</span>
+          <span>{{ money(estimate().base) }}</span>
+        </div>
+        <div class="row">
+          <span>Issue fees</span>
+          <span>{{ money(estimate().issueFees) }}</span>
+        </div>
+        <div class="row total">
+          <span>Estimated total</span>
+          <span>{{ money(estimate().total) }}</span>
+        </div>
+        <ion-note>Final price is confirmed by the shop after inspection.</ion-note>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button type="submit" expand="block" [disabled]="saving()" class="submit">
+      @if (saving()) {
+        <ion-spinner name="dots"></ion-spinner>
+      } @else {
+        <ion-icon slot="start" name="save-outline"></ion-icon>
+        Book repair
+      }
+    </ion-button>
+  </form>
+</ion-content>

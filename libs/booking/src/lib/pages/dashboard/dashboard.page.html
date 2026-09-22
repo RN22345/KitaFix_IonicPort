@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>KitaFix</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (error(); as message) {
+    <ion-card color="danger" class="error-card">
+      <ion-card-content>
+        <p>{{ message }}</p>
+        <ion-button fill="outline" color="light" size="small" (click)="retry()">
+          <ion-icon slot="start" name="refresh-outline"></ion-icon>
+          Retry
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <ion-card class="welcome">
+    <ion-card-content>
+      <h2>Hello, {{ name() }}!</h2>
+      <p>
+        Book a repair for your device, then follow its status here until the technician
+        finishes.
+      </p>
+      <ion-button expand="block" (click)="goToNewBooking()">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        New booking
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="number">{{ counts().pending }}</span>
+      <span class="label">Pending</span>
+    </div>
+    <div class="stat">
+      <span class="number">{{ counts().in_progress + counts().testing }}</span>
+      <span class="label">In shop</span>
+    </div>
+    <div class="stat">
+      <span class="number">{{ counts().completed }}</span>
+      <span class="label">Completed</span>
+    </div>
+  </div>
+
+  <h3 class="section-title">Upcoming and ongoing</h3>
+
+  @if (loading()) {
+    <div class="center">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (upcoming().length === 0) {
+    <div class="empty-state">
+      <ion-icon name="construct-outline"></ion-icon>
+      <p>No active repairs right now.</p>
+      <ion-button size="small" (click)="goToNewBooking()">Book your first repair</ion-button>
+    </div>
+  } @else {
+    @for (repair of upcoming(); track repair.id) {
+      <app-repair-card [repair]="repair"></app-repair-card>
+    }
+  }
+
+  <ion-button expand="block" fill="clear" (click)="goToMyRepairs()">
+    See all my repairs
+  </ion-button>
+</ion-content>

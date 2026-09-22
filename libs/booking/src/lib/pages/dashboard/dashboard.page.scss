@@ -1,0 +1,84 @@
+.welcome {
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  color: var(--ion-color-primary-contrast);
+  margin: 0 0 1rem;
+}
+
+.welcome h2 {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
+.welcome p {
+  margin: 0 0 1rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.welcome ion-button {
+  --background: var(--ion-color-primary-contrast);
+  --color: var(--ion-color-primary);
+  --border-radius: 12px;
+  font-weight: 600;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.8rem 0.4rem;
+  border-radius: 14px;
+  background: var(--ion-color-light);
+}
+
+.stat .number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+}
+
+.stat .label {
+  font-size: 0.78rem;
+  color: var(--ion-color-medium);
+}
+
+.section-title {
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--ion-color-medium);
+}
+
+.empty-state ion-icon {
+  font-size: 2.2rem;
+  color: var(--ion-color-primary);
+}
+
+.error-card p {
+  margin: 0 0 0.5rem;
+}

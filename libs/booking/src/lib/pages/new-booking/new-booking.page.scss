@@ -1,0 +1,78 @@
+ion-card {
+  border-radius: 14px;
+}
+
+ion-card-title {
+  font-size: 1rem;
+}
+
+ion-card-content ion-note {
+  display: block;
+  padding-top: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.issues {
+  padding: 0;
+  background: transparent;
+}
+
+.issues ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.issue-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.issue-name {
+  font-size: 0.95rem;
+}
+
+.issue-label ion-note {
+  padding: 0;
+  font-size: 0.78rem;
+}
+
+ion-datetime {
+  border-radius: 12px;
+  margin: 0.75rem 0;
+  --background: var(--ion-color-light);
+}
+
+.slot-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.inline-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ion-color-medium);
+  font-size: 0.85rem;
+  padding-top: 0.35rem;
+}
+
+.estimate .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.15rem 0;
+  font-size: 0.95rem;
+}
+
+.estimate .row.total {
+  font-weight: 700;
+  font-size: 1.05rem;
+  border-top: 1px solid var(--ion-color-light-shade);
+  margin-top: 0.35rem;
+  padding-top: 0.5rem;
+}
+
+.submit {
+  margin: 0.5rem 0 2rem;
+  --border-radius: 14px;
+  height: 48px;
+}
