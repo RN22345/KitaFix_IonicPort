@@ -1,0 +1,22 @@
+# CODEOWNERS
+# GitHub requests a review from these owners automatically on pull requests.
+# Replace the placeholder handles with your team's GitHub usernames and add
+# one line per module owner (Module Plan v4, rule R1: one owner per module).
+#
+# Pattern                  Owner(s)
+
+# Fallback: repo maintainer reviews anything not matched below.
+*                          @RN22345
+
+# --- Team 2 (Booking & Scheduling) - current owner ---------------------------
+/libs/booking/             @RN22345
+/supabase/migrations/0020_team2_booking.sql   @RN22345
+
+# --- Shared contract ---------------------------------------------------------
+/libs/shared-types/        @RN22345
+/src/                      @RN22345
+
+# --- Other teams: uncomment and add handles when they join -------------------
+# /libs/identity/          @team1-handle
+# /libs/repair-ops/        @team3-handle
+# /libs/insights/          @team4-handle

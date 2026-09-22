@@ -1,0 +1,21 @@
+# Normalize line endings for a mixed Windows/macOS/Linux team.
+# Git stores LF in the repo; everyone checks out LF so there are no false diffs.
+* text=auto eol=lf
+
+# Binary assets are never converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
+*.zip binary
+
+# Keep generated/lock files out of merge conflicts.
+package-lock.json -diff linguist-generated
+dist/** linguist-generated
+libs/shared-types/src/lib/database.generated.ts linguist-generated

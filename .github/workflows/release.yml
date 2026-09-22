@@ -1,0 +1,45 @@
+name: Release
+
+# Cut a release by pushing a version tag, e.g.
+#   git tag -a v0.2.0 -m "v0.2.0" && git push origin v0.2.0
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the customer app
+        run: npm run build
+
+      - name: Package the build
+        run: |
+          cd dist/customer
+          zip -r "../../kitafix-customer-${{ github.ref_name }}.zip" .
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            "kitafix-customer-${{ github.ref_name }}.zip" \
+            --title "KitaFix Ionic port ${{ github.ref_name }}" \
+            --generate-notes

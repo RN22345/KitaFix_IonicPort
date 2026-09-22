@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Module Plan v4 (rules, ownership, definition of done)
+    url: https://github.com/RN22345/KitaFix_IonicPort/blob/main/docs/KitaFix_Module_Plan_v4.md
+    about: Read this first. It defines what each team owns and the module rules.
+  - name: Getting started (clone, run, push)
+    url: https://github.com/RN22345/KitaFix_IonicPort/blob/main/docs/Getting_Started.md
+    about: How to set the project up and contribute.
