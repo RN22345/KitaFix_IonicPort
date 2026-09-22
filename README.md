@@ -52,13 +52,16 @@ cancelled, etc.). Refreshing the browser resets the data.
 
 ## Run it against the real Supabase database
 
-1. Follow `docs/Database_Setup.md` (local Supabase + migrations + demo accounts).
-2. Put the local `API URL` and `anon key` in `src/environments/environment.ts`
-   and set `useMockData: false`.
-3. `npm start`. The app now logs in through Supabase Auth and reads `repairs`,
-   `technicians` (Team 1) and `services` (Team 3) from Postgres.
+Already configured: `src/environments/environment.ts` points at the shared hosted
+project (`useMockData: false`, anon key filled in).
 
-Nothing else changes: same screens, same repository interface.
+1. Demo accounts and project details: `docs/Hosted_Project.md`.
+2. `npm start`, sign in (the temporary `/dev-login` screen) with them.
+3. The app reads `repairs`, `technicians` (Team 1) and `services` (Team 3) from
+   Postgres, and every booking rule is enforced by the database.
+
+For the offline finals demo, set `useMockData: true` and reload - nothing else
+changes: same screens, same repository interface.
 
 ## Module contract summary
 

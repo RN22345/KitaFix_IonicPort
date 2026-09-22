@@ -3,6 +3,34 @@
 How to go from the `.ts` placeholders to the real Postgres database.
 You need **Docker Desktop** running for local Supabase.
 
+## 0. Hosted project (already set up - use this by default)
+
+A shared hosted project already exists and the app in this repo points at it
+(see `docs/Hosted_Project.md` for refs, demo accounts and security notes).
+
+| Item | Value |
+| --- | --- |
+| Project ref | `pkfataaehrjdipdbrthz` |
+| API URL | `https://pkfataaehrjdipdbrthz.supabase.co` |
+| Migration status | 0001, 0002, 0020, 0090 applied + `seed_demo_data.sql` |
+| App config | `src/environments/environment.ts`, `useMockData: false` |
+
+Migrations were applied with the **Management API** (access token only, no DB
+password). To regenerate the contract from the live database:
+
+```powershell
+# Option A - Supabase CLI (needs the DB password)
+npx supabase link --project-ref pkfataaehrjdipdbrthz
+npx supabase gen types typescript --linked > libs/shared-types/src/lib/database.generated.ts
+
+# Option B - Management API (personal access token only)
+$env:SUPABASE_ACCESS_TOKEN = 'sbp_...'
+node kf_gen_types.mjs pkfataaehrjdipdbrthz libs/shared-types/src/lib/database.generated.ts
+```
+
+The rest of this document is the local/Docker path (useful for an offline
+demo or a clean reset).
+
 ## 1. Start a local Supabase
 
 From `KitaFix_Booking/`:

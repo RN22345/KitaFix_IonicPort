@@ -15,6 +15,12 @@ run it. Full walkthrough with screenshots-level detail is in
 | `seed_demo_data.sql` | Small demo dataset (run by hand after signup). | NO - local demo only |
 | `queries.sql` | Every query the module runs, as raw SQL, for testing by hand. | Handy reference |
 
+## Hosted project (already provisioned)
+
+The migrations in this folder are already applied to the shared hosted project
+`pkfataaehrjdipdbrthz` and the demo data is loaded. Details, accounts and
+security notes: `../docs/Hosted_Project.md`.
+
 ## Commands
 
 Run everything from the `KitaFix_Booking` folder (the CLI needs Docker Desktop).

@@ -107,7 +107,7 @@ export class SupabaseRepairsRepository extends RepairsRepository {
     const { data, error } = await this.db.rpc('get_taken_slots', {
       p_location: location,
       p_date: bookingDate,
-      p_exclude_repair: excludeRepairId ?? null,
+      p_exclude_repair: excludeRepairId,
     });
 
     if (error) {

@@ -1,9 +1,16 @@
 /**
- * KitaFix shared-types (placeholder for the generated Supabase types).
+ * KitaFix shared-types - the contract every team may import.
  *
- * In the merged group repo this library is generated with:
- *   npx supabase gen types typescript --local > libs/shared-types/src/index.ts
- *
- * It is the ONLY library every team may import (Module Plan v4, section 8).
+ * database.generated.ts = raw `supabase gen types` output from the live project.
+ * database.types.ts    = readable aliases used by the app.
  */
 export * from './lib/database.types';
+
+export type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+  Enums,
+  CompositeTypes,
+} from './lib/database.generated';
+export { Constants } from './lib/database.generated';

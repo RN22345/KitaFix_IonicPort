@@ -2,23 +2,24 @@
  * ONE place for the Supabase URL and key (old build trap: the connection
  * string was copied into 7 files, 1 of them wrong).
  *
- * MODE 1 - offline demo (default):
+ * MODE 1 - offline demo (no internet):
  *   useMockData: true -> libs/booking uses the .ts placeholder data.
- *   npm start works with no internet and no Supabase.
+ *   npm start works anywhere, no Supabase needed.
  *
- * MODE 2 - real database:
- *   1. go through docs/Database_Setup.md once,
- *   2. put the local (or hosted) URL + anon key below,
- *   3. set useMockData to false and restart.
+ * MODE 2 - real database (default, points at the shared hosted project):
+ *   useMockData: false -> Supabase Auth + Postgres.
+ *   Offline demo tip: flip it back to true (and reload) for the no-internet run.
  */
 export const environment = {
   production: false,
-  useMockData: true,
 
-  /** Example local Supabase: http://127.0.0.1:54321 */
-  supabaseUrl: '',
-  /** Local anon key comes from `npx supabase status`. Never put the service_role key here. */
-  supabaseAnonKey: '',
+  useMockData: false,
+
+  /** Shared hosted project (ap-south-1). */
+  supabaseUrl: 'https://pkfataaehrjdipdbrthz.supabase.co',
+  /** anon key: safe to ship in a client app, protected by RLS. Never the service_role key. */
+  supabaseAnonKey:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrZmF0YWFlaHJqZGlwZGJydGh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMzcyMTUsImV4cCI6MjEwNTYxMzIxNX0.dY9AOv1ZA3TQz-MY_M_Wj1COEQ7aDkjLWTWAdznOAKY',
 
   /** Branches shown in the booking form (availability is per location). */
   locations: ['Main Branch - Downtown', 'North Mall Branch'] as string[],
