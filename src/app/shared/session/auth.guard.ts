@@ -11,6 +11,10 @@ import { environment } from '../../../environments/environment';
  * Real mode: read the Supabase Auth session -> otherwise go to /dev-login.
  */
 export const authGuard: CanActivateFn = async () => {
+  // inject() must be called before the first await, otherwise Angular throws
+  // NG0203 (no injection context after an async boundary).
+  const router = inject(Router);
+
   if (environment.useMockData) {
     return true;
   }
@@ -25,5 +29,5 @@ export const authGuard: CanActivateFn = async () => {
     // Supabase not configured yet: fall through to the dev login screen.
   }
 
-  return inject(Router).createUrlTree(['/dev-login']);
+  return router.createUrlTree(['/dev-login']);
 };
