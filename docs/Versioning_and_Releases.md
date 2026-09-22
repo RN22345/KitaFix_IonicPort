@@ -115,6 +115,10 @@ Notes:
 - It runs on every push to `main`. If Pages was never enabled, the
   `configure-pages` step with `enablement: true` turns it on using the workflow
   token; otherwise enable it once in Settings -> Pages -> Source: GitHub Actions.
+- One-time setup gotcha: a workflow token often **cannot create** the Pages site
+  (it fails with `Resource not accessible by integration`). If that happens,
+  enable it manually once: Settings -> Pages -> Build and deployment ->
+  Source: `GitHub Actions`, then re-run the workflow.
 - The published demo talks to the **hosted Supabase** project (real login via the
   temporary `/dev-login` screen). Anyone with a demo account can use it, so treat
   the demo as public test data.
