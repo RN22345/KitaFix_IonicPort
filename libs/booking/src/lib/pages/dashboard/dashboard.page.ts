@@ -13,6 +13,8 @@ import {
   IonSearchbar,
   IonSpinner,
 } from '@ionic/angular';
+import { BOOKING_CONFIG } from '../../data-access/config';
+import { getSupabaseClient } from '../../data-access/supabase-client';
 import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
 
@@ -25,6 +27,7 @@ import {
   notificationsOutline,
   construct,
   refreshOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -51,6 +54,7 @@ import {
 export class DashboardPage implements OnInit {
   private readonly booking = inject(RepairsService);
   private readonly router = inject(Router);
+  private readonly config = inject(BOOKING_CONFIG);
 
   readonly currentUser = this.booking.currentUser;
   readonly loading = this.booking.loading;
@@ -79,6 +83,7 @@ export class DashboardPage implements OnInit {
       notificationsOutline,
       construct,
       refreshOutline,
+      logOutOutline,
     });
   }
 
@@ -125,5 +130,21 @@ export class DashboardPage implements OnInit {
 
   goToMyRepairs(): void {
     void this.router.navigateByUrl('/tabs/my-repairs');
+  }
+
+  /**
+   * Sign out of Supabase, then reload on the login screen so no repairs or
+   * profile of the previous user stay in memory.
+   */
+  async signOut(): Promise<void> {
+    try {
+      if (!this.config.useMockData) {
+        const db = getSupabaseClient(this.config.supabaseUrl, this.config.supabaseAnonKey);
+        await db.auth.signOut();
+      }
+    } finally {
+      await this.router.navigateByUrl('/dev-login', { replaceUrl: true });
+      window.location.reload();
+    }
   }
 }
