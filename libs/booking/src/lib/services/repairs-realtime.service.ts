@@ -19,7 +19,11 @@ export class RepairsRealtimeService {
   private readonly config = inject(BOOKING_CONFIG);
   private channel: RealtimeChannel | null = null;
 
-  watchCustomer(customerId: string, onChange: (repair: Repair) => void): void {
+  watchCustomer(
+    customerId: string,
+    onChange: (repair: Repair) => void,
+    onDelete?: (repairId: string) => void,
+  ): void {
     if (this.config.useMockData) {
       return;
     }
@@ -37,7 +41,15 @@ export class RepairsRealtimeService {
           filter: `customer_id=eq.${customerId}`,
         },
         (payload) => {
-          const row = (payload.new ?? payload.old) as unknown as Repair;
+          // A DELETE only carries the primary key in `old`; never treat it as a full row.
+          if (payload.eventType === 'DELETE') {
+            const removedId = (payload.old as { id?: string } | null)?.id;
+            if (removedId) {
+              onDelete?.(removedId);
+            }
+            return;
+          }
+          const row = payload.new as unknown as Repair;
           if (row?.id) {
             onChange(row);
           }

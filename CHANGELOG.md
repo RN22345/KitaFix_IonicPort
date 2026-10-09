@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Changed (Team 2 - UI/UX makeover, moodboard palette)
+- Global theme now uses the KitaFix palette (blue `#0B5ED7`, green `#00C896`, ice `#E6F1FF`, navy `#0F172A`) with Poppins; tab bar restyled.
+- My Repairs redesigned: hero header, search, filter counts, loading skeletons, "Book again" on finished repairs.
+- Repair cards redesigned with a status colour stripe.
+- New My Devices page (`/tabs/my-devices`), built from the customer's own repair history.
+- Dashboard search now filters My Repairs; the bell lists real status changes pushed by Realtime.
+- Fixed: a Realtime delete re-added a broken row; a booking could appear twice if the Realtime insert arrived first; hours that already passed today could still be picked.
+
 ### Changed (Team 2 - contract change, rule R10)
 - New Booking is now a 4-step flow with a free-text `issue_description` instead of the six issue checkboxes.
 - Migration `0021_team2_issue_description.sql` adds `repairs.issue_description` (nullable, max 500) and relaxes `repairs_at_least_one_issue`. It must be applied to the hosted project before `useMockData: false` bookings work. `libs/shared-types` was updated by hand to match; regenerate it after applying 0021.

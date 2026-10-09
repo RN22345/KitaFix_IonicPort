@@ -8,16 +8,60 @@
 @import '@ionic/angular/css/flex-utils.css';
 
 :root {
-  --ion-color-primary: #0b6e4f;
-  --ion-color-primary-rgb: 11, 110, 79;
+  /* KitaFix palette (moodboard): blue #0B5ED7, light blue #2E7DFF, green #00C896,
+     light green #7EE787, ice #E6F1FF, navy #0F172A. */
+  --ion-color-primary: #0b5ed7;
+  --ion-color-primary-rgb: 11, 94, 215;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #0a6146;
-  --ion-color-primary-tint: #237d61;
+  --ion-color-primary-shade: #0a53be;
+  --ion-color-primary-tint: #2468dc;
+
+  --ion-color-secondary: #00c896;
+  --ion-color-secondary-rgb: 0, 200, 150;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #00b085;
+  --ion-color-secondary-tint: #1acea1;
+
+  --ion-color-success: #00a67c;
+  --ion-color-success-rgb: 0, 166, 124;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #009270;
+  --ion-color-success-tint: #1aaf8a;
+
+  --ion-background-color: #f5f9ff;
+  --ion-background-color-rgb: 245, 249, 255;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-toolbar-background: #ffffff;
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-color: #7b8aa3;
+  --ion-tab-bar-color-selected: #0b5ed7;
+}
+
+ion-tab-bar {
+  --border: 1px solid rgba(15, 23, 42, 0.06);
+  padding-top: 4px;
+  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.06);
+}
+
+ion-tab-button {
+  font-weight: 500;
+  --ripple-color: rgba(11, 94, 215, 0.15);
+}
+
+ion-toast {
+  --border-radius: 14px;
+}
+
+ion-alert {
+  --border-radius: 18px;
 }
 
 body {
-  background: var(--ion-background-color, #f5f6f8);
+  background: var(--ion-background-color, #f5f9ff);
 }
 
 // Poppins (SIL OFL, see src/assets/fonts/poppins/OFL.txt). Paths resolve from this file.

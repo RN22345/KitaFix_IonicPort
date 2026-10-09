@@ -117,7 +117,7 @@
                 class="chip"
                 [class.selected]="values().booking_time === slot"
                 [attr.aria-checked]="values().booking_time === slot"
-                [disabled]="isTaken(slot)"
+                [disabled]="isUnavailable(slot)"
                 (click)="pickSlot(slot)"
               >
                 {{ slot }}

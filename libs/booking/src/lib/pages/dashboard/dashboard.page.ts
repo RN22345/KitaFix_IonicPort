@@ -56,6 +56,9 @@ export class DashboardPage implements OnInit {
   readonly loading = this.booking.loading;
   readonly error = this.booking.error;
   readonly counts = this.booking.statusCounts;
+  readonly search = this.booking.searchTerm;
+  readonly notifications = this.booking.notifications;
+  readonly unreadCount = this.booking.unreadCount;
 
   readonly name = computed(() => this.currentUser()?.full_name.split(' ')[0] ?? 'there');
   readonly initial = computed(() => this.name().charAt(0).toUpperCase());
@@ -75,8 +78,8 @@ export class DashboardPage implements OnInit {
       person,
       notificationsOutline,
       construct,
-          refreshOutline,
-                        });
+      refreshOutline,
+    });
   }
 
   /** Repairs that are not finished yet (dashboard preview, max 3). */
@@ -98,6 +101,22 @@ export class DashboardPage implements OnInit {
 
   retry(): void {
     void this.booking.retryLoad();
+  }
+
+  onSearch(event: Event): void {
+    const value = (event as CustomEvent<{ value?: string | null }>).detail?.value;
+    this.search.set(value ?? '');
+  }
+
+  /** Enter in the search box: show the matching repairs. */
+  goToSearch(): void {
+    if (this.search().trim()) {
+      void this.router.navigateByUrl('/tabs/my-repairs');
+    }
+  }
+
+  markAllRead(): void {
+    this.booking.markAllNotificationsRead();
   }
 
   goToNewBooking(): void {

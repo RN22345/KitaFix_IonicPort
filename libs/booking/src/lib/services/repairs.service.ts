@@ -3,12 +3,21 @@ import { RepairStatus } from '@kitafix/shared-types';
 import { BookingDraft } from '../models/booking-draft.model';
 import { BookingError, bookingErrorMessage } from '../models/booking-error';
 import { ServiceOption, TechnicianOption } from '../models/catalog.model';
-import { Repair } from '../models/repair.model';
+import { Repair, shortRepairId, statusMeta } from '../models/repair.model';
 import { RepairsRepository } from '../data-access/repositories/repairs.repository';
 import { ServicesGateway } from '../data-access/gateways/services.gateway';
 import { TechniciansGateway } from '../data-access/gateways/technicians.gateway';
 import { CurrentUserService } from '../data-access/session/current-user.service';
 import { RepairsRealtimeService } from './repairs-realtime.service';
+
+/** One entry in the dashboard bell (a status change pushed from the shop). */
+export interface RepairNotification {
+  id: string;
+  repairId: string;
+  message: string;
+  at: string;
+  read: boolean;
+}
 
 /**
  * Facade used by the three booking screens.
@@ -29,6 +38,10 @@ export class RepairsService {
   readonly error = signal<string | null>(null);
   readonly technicianOptions = signal<TechnicianOption[]>([]);
   readonly serviceOptions = signal<ServiceOption[]>([]);
+  /** Text typed in the dashboard search box; My Repairs filters by it. */
+  readonly searchTerm = signal('');
+  readonly notifications = signal<RepairNotification[]>([]);
+  readonly unreadCount = computed(() => this.notifications().filter((item) => !item.read).length);
 
   readonly statusCounts = computed<Record<RepairStatus, number>>(() => {
     const counts: Record<RepairStatus, number> = {
@@ -64,7 +77,11 @@ export class RepairsService {
     try {
       const user = await this.currentUserService.load();
       await Promise.all([this.refreshMyRepairs(), this.loadPickers()]);
-      this.realtime.watchCustomer(user.id, (repair) => this.applyRealtimeRepair(repair));
+      this.realtime.watchCustomer(
+        user.id,
+        (repair) => this.applyRealtimeRepair(repair),
+        (repairId) => this.myRepairs.update((repairs) => repairs.filter((item) => item.id !== repairId)),
+      );
     } catch (error) {
       this.error.set(bookingErrorMessage(error));
     } finally {
@@ -103,7 +120,8 @@ export class RepairsService {
       throw new BookingError('NOT_ALLOWED', 'You must be signed in before booking a repair.');
     }
     const created = await this.repository.create(draft, user.id);
-    this.myRepairs.update((repairs) => [created, ...repairs]);
+    // The realtime INSERT can arrive before this call returns: never add the row twice.
+    this.myRepairs.update((repairs) => [created, ...repairs.filter((item) => item.id !== created.id)]);
     return created;
   }
 
@@ -137,8 +155,16 @@ export class RepairsService {
     );
   }
 
+  markAllNotificationsRead(): void {
+    this.notifications.update((items) => items.map((item) => ({ ...item, read: true })));
+  }
+
   /** Realtime update from the database (or nothing in mock mode). */
   private applyRealtimeRepair(repair: Repair): void {
+    const previous = this.myRepairs().find((item) => item.id === repair.id);
+    if (previous && previous.status !== repair.status) {
+      this.pushNotification(repair);
+    }
     this.myRepairs.update((repairs) => {
       const index = repairs.findIndex((item) => item.id === repair.id);
       if (index === -1) {
@@ -148,5 +174,17 @@ export class RepairsService {
       copy[index] = repair;
       return copy;
     });
+  }
+
+  private pushNotification(repair: Repair): void {
+    const label = statusMeta(repair.status).label.toLowerCase();
+    const entry: RepairNotification = {
+      id: crypto.randomUUID(),
+      repairId: repair.id,
+      message: `${repair.device_brand} ${repair.device_model} (${shortRepairId(repair.id)}) is now ${label}.`,
+      at: new Date().toISOString(),
+      read: false,
+    };
+    this.notifications.update((items) => [entry, ...items].slice(0, 20));
   }
 }

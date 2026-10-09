@@ -1,0 +1,52 @@
+<ion-content [fullscreen]="true">
+  <section class="hero">
+    <button type="button" class="back" aria-label="Back to home" (click)="back()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+    <h1>My devices</h1>
+    <p class="hero-sub">Devices you have brought in before.</p>
+  </section>
+
+  <div class="body">
+    @if (error(); as message) {
+      <p class="error-note">{{ message }}</p>
+      <ion-button size="small" fill="outline" (click)="retry()">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Retry
+      </ion-button>
+    }
+
+    @if (loading() && devices().length === 0) {
+      @for (placeholder of [1, 2]; track placeholder) {
+        <div class="device skeleton" aria-hidden="true">
+          <ion-skeleton-text [animated]="true" style="width: 50%; height: 1.1rem"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 70%"></ion-skeleton-text>
+        </div>
+      }
+    } @else if (devices().length === 0) {
+      <div class="empty-state">
+        <ion-icon name="phone-portrait-outline"></ion-icon>
+        <p>No devices yet. They appear here after your first booking.</p>
+        <ion-button size="small" (click)="newBooking()">
+          Book your first repair
+        </ion-button>
+      </div>
+    } @else {
+      @for (device of devices(); track device.key) {
+        <article class="device">
+          <div class="icon-wrap" aria-hidden="true">
+            <ion-icon name="phone-portrait-outline"></ion-icon>
+          </div>
+          <div class="info">
+            <h3>{{ device.brand }} {{ device.model }}</h3>
+            <p>
+              {{ device.visits }} {{ device.visits === 1 ? 'visit' : 'visits' }} - last:
+              {{ lastVisit(device) }}
+            </p>
+          </div>
+          <ion-button size="small" fill="outline" (click)="bookAgain(device)">Book again</ion-button>
+        </article>
+      }
+    }
+  </div>
+</ion-content>
