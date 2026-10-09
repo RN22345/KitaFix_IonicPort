@@ -3,15 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
   IonContent,
-  IonHeader,
+  IonIcon,
   IonInput,
   IonNote,
   IonSpinner,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular';
 import { getSupabaseClient } from '@kitafix/booking';
 import { environment } from '../../../environments/environment';
@@ -22,91 +18,35 @@ import { environment } from '../../../environments/environment';
  * This page exists so Team 2 can test the real Supabase database before the
  * identity module is finished. It is never shown in mock mode (the guard lets
  * mock sessions straight through).
+ *
+ * Styled after the KitaFix moodboard login. Markup lives in
+ * dev-login.page.html, styles in dev-login.page.scss.
  */
 @Component({
   selector: 'app-dev-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    FormsModule,
-    IonButton,
-    IonCard,
-    IonCardContent,
-    IonContent,
-    IonHeader,
-    IonInput,
-    IonNote,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
-  ],
-  template: `
-    <ion-header>
-      <ion-toolbar color="warning">
-        <ion-title>Dev login (Team 2 only)</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content class="ion-padding">
-      <ion-card>
-        <ion-card-content>
-          <p class="hint">
-            Temporary sign-in for testing the real database. The real Login screen
-            belongs to Team 1 (libs/identity).
-          </p>
-
-          <ion-input
-            label="Email"
-            labelPlacement="stacked"
-            type="email"
-            placeholder="customer@kitafix.test"
-            [(ngModel)]="email"
-          ></ion-input>
-
-          <ion-input
-            label="Password"
-            labelPlacement="stacked"
-            type="password"
-            [(ngModel)]="password"
-          ></ion-input>
-
-          @if (error(); as message) {
-            <ion-note color="danger">{{ message }}</ion-note>
-          }
-
-          <ion-button expand="block" [disabled]="loading()" (click)="signIn()">
-            @if (loading()) {
-              <ion-spinner name="dots"></ion-spinner>
-            } @else {
-              Sign in
-            }
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </ion-content>
-  `,
-  styles: [
-    `
-      .hint {
-        color: var(--ion-color-medium);
-        font-size: 0.9rem;
-      }
-      ion-note {
-        display: block;
-        padding: 0.5rem 0;
-      }
-      ion-button {
-        margin-top: 0.75rem;
-      }
-    `,
-  ],
+  imports: [FormsModule, IonButton, IonContent, IonIcon, IonInput, IonNote, IonSpinner],
+  templateUrl: './dev-login.page.html',
+  styleUrl: './dev-login.page.scss',
 })
 export class DevLoginPage {
+
   private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly showPassword = signal(false);
   email = '';
   password = '';
+
+  togglePassword(): void {
+    this.showPassword.update((visible) => !visible);
+  }
+
+  /** Forgot password / Sign up belong to Team 1's identity module. */
+  teamOneOnly(): void {
+    this.error.set('Forgot password and Sign up come with Team 1\u2019s Login screen.');
+  }
 
   async signIn(): Promise<void> {
     if (!this.email || !this.password) {

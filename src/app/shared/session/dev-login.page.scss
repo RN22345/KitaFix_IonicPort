@@ -1,0 +1,265 @@
+/* KitaFix moodboard tokens */
+:host {
+  --kf-blue: #0b5ed7;
+  --kf-blue-bright: #2e7dff;
+  --kf-green: #00c896;
+  --kf-green-light: #7ee787;
+  --kf-ice: #e6f1ff;
+  --kf-navy: #0f172a;
+
+  --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  font-family: var(--kf-font);
+  color: var(--kf-navy);
+}
+
+ion-content {
+  --background: #fff;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto;
+  width: 127px;
+}
+
+.page {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  overflow: hidden;
+}
+
+/* Corner shapes from the moodboard login */
+.shape {
+  position: absolute;
+  pointer-events: none;
+}
+
+.shape-top {
+  top: -90px;
+  right: -90px;
+  width: 220px;
+  height: 220px;
+  border-radius: 40px;
+  transform: rotate(35deg);
+  background: linear-gradient(135deg, var(--kf-green-light), var(--kf-green));
+  opacity: 0.85;
+}
+
+.shape-bottom-left {
+  bottom: -110px;
+  left: -110px;
+  width: 240px;
+  height: 240px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--kf-green), var(--kf-green-light));
+}
+
+.shape-bottom-right {
+  bottom: -120px;
+  right: -120px;
+  width: 260px;
+  height: 260px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--kf-blue-bright), var(--kf-blue));
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  font-family: var(--kf-font);
+}
+
+/* Brand block */
+.brand {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.mark {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--kf-blue), var(--kf-green));
+  box-shadow: 0 8px 20px rgb(11 94 215 / 25%);
+}
+
+.wordmark {
+  margin: 0.6rem 0 0;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--kf-blue);
+
+  span {
+    color: var(--kf-green);
+  }
+}
+
+.tagline {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--kf-navy);
+  opacity: 0.7;
+}
+
+/* Heading */
+.welcome {
+  margin-bottom: 1.25rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--kf-navy);
+    opacity: 0.65;
+  }
+
+  .dev-flag {
+    display: inline-block;
+    margin-top: 0.6rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--kf-blue);
+    background: var(--kf-ice);
+    opacity: 1;
+  }
+}
+
+/* Inputs */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  padding: 0 0.9rem;
+  min-height: 52px;
+  border: 1px solid #d5e2f5;
+  border-radius: 14px;
+  background: #f7faff;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &:focus-within {
+    border-color: var(--kf-blue-bright);
+    box-shadow: 0 0 0 3px rgb(46 125 255 / 18%);
+  }
+
+  > ion-icon {
+    flex: none;
+    font-size: 1.15rem;
+    color: var(--kf-blue);
+  }
+
+  ion-input {
+    --padding-start: 0;
+    --padding-end: 0;
+    --color: var(--kf-navy);
+    --placeholder-color: #7b8aa3;
+    --placeholder-opacity: 1;
+    font-family: var(--kf-font);
+    font-size: 0.9rem;
+    min-height: 50px;
+  }
+}
+
+.eye {
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0.25rem;
+  border: 0;
+  background: none;
+  color: #7b8aa3;
+  font-size: 1.15rem;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--kf-blue-bright);
+    border-radius: 6px;
+  }
+}
+
+.error {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+}
+
+/* Primary action */
+.sign-in {
+  --background: var(--kf-blue);
+  --background-hover: var(--kf-blue-bright);
+  --background-activated: var(--kf-blue);
+  --border-radius: 14px;
+  --box-shadow: 0 8px 18px rgb(11 94 215 / 28%);
+  height: 50px;
+  margin: 0.5rem 0 0;
+  font-family: var(--kf-font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Secondary links */
+.link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--kf-font);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--kf-blue);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--kf-blue-bright);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.forgot {
+  display: block;
+  margin: 1rem auto 0;
+}
+
+.signup {
+  margin: 2rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--kf-navy);
+  opacity: 0.85;
+
+  .accent {
+    margin-left: 0.2rem;
+    font-weight: 600;
+    color: var(--kf-green);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field {
+    transition: none;
+  }
+}

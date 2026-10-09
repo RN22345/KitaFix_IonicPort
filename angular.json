@@ -17,7 +17,10 @@
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "styles": ["src/global.scss"]
+            "styles": ["src/global.scss"],
+             "assets": [
+              { "glob": "**/*", "input": "src/assets", "output": "assets" }
+            ]
           },
           "configurations": {
             "production": {
@@ -47,6 +50,6 @@
     }
   },
   "cli": {
-    "analytics": "db291ab0-0ec6-48a6-9353-5b1392879a1f"
+    "analytics": false
   }
 }

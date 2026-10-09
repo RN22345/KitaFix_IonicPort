@@ -1,0 +1,70 @@
+<ion-content [fullscreen]="true">
+  <div class="page">
+    <span class="shape shape-top" aria-hidden="true"></span>
+    <span class="shape shape-bottom-left" aria-hidden="true"></span>
+    <span class="shape shape-bottom-right" aria-hidden="true"></span>
+
+    <main class="panel">
+      <header class="brand">
+        <img src="../../../assets/logo-light.png" alt="KitaFix logo" class="logo" />
+        <h1 class="wordmark">Kita<span>Fix</span></h1>
+        <p class="tagline">Book &bull; Repair &bull; Track</p>
+      </header>
+
+      <section class="welcome">
+        <h2>Welcome back</h2>
+        <p>Sign in to continue to your account.</p>
+      </section>
+
+      <div class="field">
+        <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        <ion-input
+          type="email"
+          aria-label="Email address"
+          placeholder="customer@kitafix.test"
+          autocomplete="email"
+          [(ngModel)]="email"
+        ></ion-input>
+      </div>
+
+      <div class="field">
+        <ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon>
+        <ion-input
+          aria-label="Password"
+          placeholder="Password"
+          autocomplete="current-password"
+          [type]="showPassword() ? 'text' : 'password'"
+          [(ngModel)]="password"
+          (keyup.enter)="signIn()"
+        ></ion-input>
+        <button
+          type="button"
+          class="eye"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          (click)="togglePassword()"
+        >
+          <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </div>
+
+      @if (error(); as message) {
+        <ion-note class="error" color="danger" role="alert">{{ message }}</ion-note>
+      }
+
+      <ion-button class="sign-in" expand="block" shape="round" [disabled]="loading()" (click)="signIn()">
+        @if (loading()) {
+          <ion-spinner name="dots"></ion-spinner>
+        } @else {
+          Sign in
+        }
+      </ion-button>
+
+      <button type="button" class="link forgot" (click)="teamOneOnly()">Forgot password?</button>
+
+      <p class="signup">
+        Don&rsquo;t have an account?
+        <button type="button" class="link accent" (click)="teamOneOnly()">Sign up</button>
+      </p>
+    </main>
+  </div>
+</ion-content>

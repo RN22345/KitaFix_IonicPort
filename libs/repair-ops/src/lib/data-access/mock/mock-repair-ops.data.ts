@@ -9,6 +9,7 @@ const base = {
   issue_camera: false,
   issue_audio: false,
   issue_software: false,
+  issue_description: null,
   staff_notes: null,
   confirmed_by: null,
   confirmed_at: null,

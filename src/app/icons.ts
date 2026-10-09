@@ -1,5 +1,11 @@
+
+
 import { addIcons } from 'ionicons';
 import {
+  mailOutline, 
+  lockClosedOutline, 
+  eyeOutline, 
+  eyeOffOutline,
   addCircleOutline,
   alertCircleOutline,
   buildOutline,
@@ -19,6 +25,11 @@ import {
   saveOutline,
   speedometerOutline,
   timeOutline,
+  arrowBackOutline, 
+  checkmarkOutline, 
+  phonePortraitOutline,
+  batteryHalfOutline, 
+  waterOutline,
 } from 'ionicons/icons';
 
 /**
@@ -46,5 +57,14 @@ export function registerIcons(): void {
     'save-outline': saveOutline,
     'speedometer-outline': speedometerOutline,
     'time-outline': timeOutline,
+    'mail-outline': mailOutline,
+    'lock-closed-outline': lockClosedOutline,
+    'eye-outline': eyeOutline,
+    'eye-off-outline': eyeOffOutline,
+    'arrow-back-outline': arrowBackOutline,
+    'checkmark-outline': checkmarkOutline,
+    'phone-portrait-outline': phonePortraitOutline,
+    'battery-half-outline': batteryHalfOutline,
+    'water-outline': waterOutline,
   });
 }
