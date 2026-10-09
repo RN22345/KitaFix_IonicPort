@@ -62,6 +62,31 @@ import { ServiceCatalogService } from '../../services/service-catalog.service';
   `,
   styles: [
     `
+      :host {
+        --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --ion-color-primary: #0b5ed7;
+        --ion-color-primary-rgb: 11, 94, 215;
+        --ion-color-primary-contrast: #ffffff;
+        --ion-color-primary-contrast-rgb: 255, 255, 255;
+        --ion-color-primary-shade: #0a4cad;
+        --ion-color-primary-tint: #2e7dff;
+        font-family: var(--kf-font);
+      }
+      ion-title,
+      ion-button,
+      ion-card,
+      ion-content,
+      ion-note,
+      ion-label,
+      p,
+      span,
+      strong,
+      .head,
+      .price,
+      .actions,
+      .empty {
+        font-family: var(--kf-font);
+      }
       .head { display: flex; justify-content: space-between; }
       .price { font-weight: 600; color: var(--ion-color-primary); }
       .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }

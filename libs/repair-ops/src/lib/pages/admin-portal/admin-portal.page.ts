@@ -64,6 +64,31 @@ import { RepairOpsService } from '../../services/repair-ops.service';
   `,
   styles: [
     `
+      :host {
+        --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --ion-color-primary: #0b5ed7;
+        --ion-color-primary-rgb: 11, 94, 215;
+        --ion-color-primary-contrast: #ffffff;
+        --ion-color-primary-contrast-rgb: 255, 255, 255;
+        --ion-color-primary-shade: #0a4cad;
+        --ion-color-primary-tint: #2e7dff;
+        font-family: var(--kf-font);
+      }
+      ion-title,
+      ion-button,
+      ion-card,
+      ion-content,
+      ion-note,
+      ion-label,
+      p,
+      span,
+      strong,
+      b,
+      .cards,
+      .row,
+      .center {
+        font-family: var(--kf-font);
+      }
       .cards { display: grid; grid-template-columns: repeat(3, 1fr); }
       .cards ion-card { margin: 4px; }
       .cards span { display: block; font-size: 0.75rem; color: var(--ion-color-medium); }
