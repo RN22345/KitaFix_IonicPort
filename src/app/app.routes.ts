@@ -28,6 +28,6 @@ export const routes: Routes = [
     path: 'dev-login',
     loadComponent: () => import('./shared/session/dev-login.page').then((m) => m.DevLoginPage),
   },
-   { path: '', redirectTo: 'tabs/admin-portal', pathMatch: 'full' },
-  { path: '**', redirectTo: 'tabs/admin-portal' },
+  { path: '', redirectTo: 'tabs', pathMatch: 'full' },
+  { path: '**', redirectTo: 'tabs' },
 ];
