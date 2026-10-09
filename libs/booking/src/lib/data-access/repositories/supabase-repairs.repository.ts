@@ -55,6 +55,7 @@ export class SupabaseRepairsRepository extends RepairsRepository {
       issue_camera: draft.issues.includes('issue_camera'),
       issue_audio: draft.issues.includes('issue_audio'),
       issue_software: draft.issues.includes('issue_software'),
+      issue_description: draft.issue_description.trim(),
     };
 
     const { data, error } = await this.db.from('repairs').insert(payload).select('*').single();

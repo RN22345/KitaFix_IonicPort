@@ -57,6 +57,15 @@ export function issueLabels(repair: Repair): string[] {
 }
 
 /**
+ * What to show as "the problem" on a repair: the customer's own description, or for
+ * older bookings (made with the checkboxes) the ticked issue labels.
+ */
+export function problemSummary(repair: Repair): string {
+  const description = repair.issue_description?.trim();
+  return description || issueLabels(repair).join(', ');
+}
+
+/**
  * Customer cancel rule (see docs/Booking_Rule.md).
  * The same rule is enforced in the database by the update guard trigger, so the
  * app can only make the button nicer - the database is the source of truth.
