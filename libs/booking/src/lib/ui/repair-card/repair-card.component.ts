@@ -6,7 +6,7 @@ import {
   canCustomerReschedule,
   formatBookingDate,
   formatTime,
-  issueLabels,
+  problemSummary,
   shortRepairId,
 } from '../../models/repair.model';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
@@ -43,9 +43,9 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
           <ion-icon name="location-outline"></ion-icon>
           <span>{{ repair().location }}</span>
         </div>
-        <div class="detail">
+        <div class="detail problem">
           <ion-icon name="construct-outline"></ion-icon>
-          <span>{{ issues().join(', ') }}</span>
+          <span>{{ problem() }}</span>
         </div>
 
         @if (showActions()) {
@@ -97,6 +97,22 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
         color: var(--ion-color-step-600, #666);
         font-size: 0.92rem;
       }
+      /* The problem text can be several lines: keep the icon at the top and clamp to 3 lines. */
+      .problem {
+        align-items: flex-start;
+      }
+      .problem ion-icon {
+        flex: none;
+        margin-top: 0.15rem;
+      }
+      .problem span {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+      }
       .actions {
         display: flex;
         gap: 0.5rem;
@@ -114,7 +130,8 @@ export class RepairCardComponent {
 
   readonly canCancel = computed(() => canCustomerCancel(this.repair()));
   readonly canReschedule = computed(() => canCustomerReschedule(this.repair()));
-  readonly issues = computed(() => issueLabels(this.repair()));
+  /** Customer's description, or the ticked issue labels for older bookings. */
+  readonly problem = computed(() => problemSummary(this.repair()));
   readonly dateLabel = computed(() => formatBookingDate(this.repair().booking_date));
   readonly timeLabel = computed(() => formatTime(this.repair().booking_time));
   readonly shortId = computed(() => shortRepairId(this.repair().id));
