@@ -63,6 +63,7 @@ export type Database = {
           issue_battery: boolean
           issue_camera: boolean
           issue_charging: boolean
+          issue_description: string | null
           issue_screen: boolean
           issue_software: boolean
           location: string
@@ -87,6 +88,7 @@ export type Database = {
           issue_battery?: boolean
           issue_camera?: boolean
           issue_charging?: boolean
+          issue_description?: string | null
           issue_screen?: boolean
           issue_software?: boolean
           location: string
@@ -111,6 +113,7 @@ export type Database = {
           issue_battery?: boolean
           issue_camera?: boolean
           issue_charging?: boolean
+          issue_description?: string | null
           issue_screen?: boolean
           issue_software?: boolean
           location?: string

@@ -1,18 +1,31 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonContent,
-  IonHeader,
   IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
+  IonSearchbar,
   IonSpinner,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular';
 import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
+
+import { addIcons } from 'ionicons';
+import {
+  calendar,
+  time,
+  phonePortrait,
+  person,
+  notificationsOutline,
+  construct,
+  refreshOutline,
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,12 +35,15 @@ import { RepairCardComponent } from '../../ui/repair-card/repair-card.component'
     IonCard,
     IonCardContent,
     IonContent,
-    IonHeader,
     IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonPopover,
+    IonSearchbar,
     IonSpinner,
-    IonTitle,
-    IonToolbar,
     RepairCardComponent,
+    RouterLink,
   ],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',
@@ -42,6 +58,26 @@ export class DashboardPage implements OnInit {
   readonly counts = this.booking.statusCounts;
 
   readonly name = computed(() => this.currentUser()?.full_name.split(' ')[0] ?? 'there');
+  readonly initial = computed(() => this.name().charAt(0).toUpperCase());
+
+  readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  });
+
+  constructor() {
+    addIcons({
+      calendar,
+      time,
+      phonePortrait,
+      person,
+      notificationsOutline,
+      construct,
+          refreshOutline,
+                        });
+  }
 
   /** Repairs that are not finished yet (dashboard preview, max 3). */
   readonly upcoming = computed(() =>

@@ -13,7 +13,6 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonDatetime,
   IonFooter,
@@ -68,8 +67,7 @@ function tomorrowIsoDate(): string {
   imports: [
     ReactiveFormsModule,
     IonButton,
-    IonButtons,
-    IonContent,
+      IonContent,
     IonDatetime,
     IonFooter,
     IonHeader,

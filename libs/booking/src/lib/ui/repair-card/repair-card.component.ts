@@ -76,9 +76,22 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
   `,
   styles: [
     `
+      :host {
+        --blueDark: #0B5ED7;
+        --blueLight: #2E7DFF;
+        --greenDark: #00C896;
+        --greenLight: #7EE787;
+        --gray: #E6F1FF;
+        --blackish: #0F172A;
+      }
+      .seeRepair-button {
+        color: var(--blueDark);
+        font-weight: bold;
+      }
       ion-card {
         margin: 0 0 0.85rem;
         border-radius: 14px;
+        background-color: var(--gray);
       }
       .card-top {
         display: flex;
@@ -87,14 +100,19 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
         gap: 0.5rem;
       }
       ion-card-title {
-        font-size: 1.05rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--blueDark);
+      }
+      ion-card-subtitle {
+        color: var(--blackish);
       }
       .detail {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         padding: 0.15rem 0;
-        color: var(--ion-color-step-600, #666);
+        color: var(--blackish);
         font-size: 0.92rem;
       }
       /* The problem text can be several lines: keep the icon at the top and clamp to 3 lines. */

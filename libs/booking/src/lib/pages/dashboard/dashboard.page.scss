@@ -1,26 +1,251 @@
+:host {
+  --blueDark: #0B5ED7;
+  --blueLight: #2E7DFF;
+  --greenDark: #00C896;
+  --greenLight: #7EE787;
+  --gray: #E6F1FF;
+  --blackish: #0F172A;
+}
+
+ion-content {
+  --background: #F5F9FF;
+}
+
+// ---------- Hero (blue header area) ----------
+.hero {
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1rem 1.25rem;
+  background: var(--blueDark);
+  border-radius: 0 0 28px 28px;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.greeting {
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.greeting-label {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.greeting-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.bell {
+  --color: #fff;
+  --padding-start: 0.4rem;
+  --padding-end: 0.4rem;
+  --border-radius: 50%;
+  --background-hover: rgba(255, 255, 255, 0.15);
+  --background-activated: rgba(255, 255, 255, 0.25);
+  position: relative;
+  font-size: 1.2rem;
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.88);
+  }
+}
+
+
+.notif-menu {
+  --width: 280px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gray);
+  color: var(--blueDark);
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.search {
+  --background: #fff;
+  --border-radius: 14px;
+  --box-shadow: none;
+  --color: var(--blackish);
+  --placeholder-color: #6b7a90;
+  --icon-color: #6b7a90;
+  padding: 0;
+  margin-bottom: 1rem;
+  min-height: 46px;
+}
+
+// ---------- "Need a Repair?" banner (was the welcome card) ----------
 .welcome {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
-  color: var(--ion-color-primary-contrast);
-  margin: 0 0 1rem;
+  background: linear-gradient(135deg, #eaf5ff 0%, #c4e3f6 100%);
+  color: var(--blackish);
+  box-shadow: none;
+  // max-height: 23vh;
+  height: 25vh;
+  max-height: 27vh;
+}
+
+.welcome ion-card-content {
+  position: relative;
+  padding: 1.1rem;
+  min-height: 160px;
+}
+
+.welcome-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 53%;
 }
 
 .welcome h2 {
   margin: 0 0 0.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 .welcome p {
   margin: 0 0 1rem;
-  opacity: 0.9;
+  font-size: 1rem;
   line-height: 1.4;
+  color: var(--blackish);
+  opacity: 0.85;
+  line-height: 1.5rem;
 }
 
-.welcome ion-button {
-  --background: var(--ion-color-primary-contrast);
-  --color: var(--ion-color-primary);
-  --border-radius: 12px;
+.book-btn {
+  --background: var(--greenDark);
+  --color: #fff;
+  --border-radius: 999px;
+  --padding-start: 1.3rem;
+  --padding-end: 1.3rem;
   font-weight: 600;
+  margin: 0;
+  height: 2.3rem;
+  
+  
+}
+
+.welcome-art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 46%;
+
+  // big soft circle behind the phone
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -30%;
+    width: 220px;
+    height: 220px;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: rgba(120, 190, 235, 0.45);
+  }
+}
+
+.seeRepair-button {
+  color: var(--blueDark);
+  font-weight: bold;
+}
+
+.phone {
+  position: absolute;
+  top: 50%;
+  right: 1.4rem;
+  width: 84px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%) rotate(8deg);
+  border-radius: 16px;
+  border: 3px solid #dbe7f5;
+  background: linear-gradient(160deg, var(--blueLight), var(--blueDark));
+  box-shadow: 0 10px 22px rgba(11, 94, 215, 0.35);
+}
+
+.phone ion-icon {
+  font-size: 2.6rem;
+  color: #fff;
+}
+
+// ---------- Body ----------
+.body {
+  padding: 1rem;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.25rem;
+  text-decoration: none;
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.action ion-icon {
+  margin-bottom: 0.35rem;
+  font-size: 1.7rem;
+  color: var(--blueDark);
+}
+
+.action strong {
+  font-size: 1.1rem;
+  color: var(--blackish);
+}
+
+.action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.action span {
+  font-size: 1rem;
+  line-height: 1.3;
+  color: #5d6b82;
 }
 
 .stats {
@@ -37,25 +262,26 @@
   gap: 0.15rem;
   padding: 0.8rem 0.4rem;
   border-radius: 14px;
-  background: var(--ion-color-light);
+  background: var(--blueDark);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
 }
 
 .stat .number {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--ion-color-dark);
+  color: #fff;
 }
 
 .stat .label {
   font-size: 0.78rem;
-  color: var(--ion-color-medium);
+  color: #fff;
 }
 
 .section-title {
   margin: 0 0 0.6rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--ion-color-dark);
+  color: var(--blackish);
 }
 
 .center {
@@ -76,9 +302,127 @@
 
 .empty-state ion-icon {
   font-size: 2.2rem;
-  color: var(--ion-color-primary);
+  color: var(--blueDark);
+}
+
+.error-card {
+  margin: 0 0 1rem;
 }
 
 .error-card p {
   margin: 0 0 0.5rem;
+}
+
+// ---------- Tap and hover animations ----------
+
+// Cards: lift on hover (mouse only), press down on tap
+.action {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  ion-icon {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 1px 6px rgba(15, 23, 42, 0.08);
+
+    ion-icon {
+      transform: scale(1.18) rotate(-6deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--blueLight);
+    outline-offset: 2px;
+  }
+}
+
+@media (hover: hover) {
+  .action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+  }
+
+  .action:active {
+    transform: scale(0.96); // keeps the press effect while hovering
+  }
+}
+
+// Avatar: soft ring on hover, squish on press
+.avatar {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.88);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.45);
+  }
+}
+
+@media (hover: hover) {
+  .avatar:hover {
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+  }
+}
+
+// Bell: little wiggle while pressed
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-5deg); }
+}
+
+.bell:active ion-icon {
+  animation: bell-ring 0.5s ease;
+  transform-origin: 50% 10%;
+}
+
+// Book Now: press in
+.book-btn {
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+// Respect "reduce motion" system setting
+@media (prefers-reduced-motion: reduce) {
+  .action,
+  .action ion-icon,
+  .avatar,
+  .book-btn {
+    transition: none;
+  }
+
+  .action:hover,
+  .action:active,
+  .avatar:active,
+  .book-btn:active {
+    transform: none;
+  }
+
+  .action:active ion-icon {
+    transform: none;
+  }
+
+  .bell:active ion-icon {
+    animation: none;
+  }
+
+  .bell { transition: none; }
+  .bell:active { transform: none; }
+
 }

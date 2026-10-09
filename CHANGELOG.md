@@ -7,6 +7,11 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Changed (Team 2 - contract change, rule R10)
+- New Booking is now a 4-step flow with a free-text `issue_description` instead of the six issue checkboxes.
+- Migration `0021_team2_issue_description.sql` adds `repairs.issue_description` (nullable, max 500) and relaxes `repairs_at_least_one_issue`. It must be applied to the hosted project before `useMockData: false` bookings work. `libs/shared-types` was updated by hand to match; regenerate it after applying 0021.
+- Dashboard redesigned to the moodboard (Poppins font now in `src/assets/fonts/poppins`).
+
 ### Planned
 - Team 1 - Identity module (`libs/identity`, migration `0010_team1_identity.sql`)
 - Team 3 - Repair Ops module (`libs/repair-ops`, migration `0030_team3_repair_ops.sql`)

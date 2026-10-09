@@ -59,12 +59,9 @@ export function issueLabels(repair: Repair): string[] {
 /**
  * What to show as "the problem" on a repair: the customer's own description, or for
  * older bookings (made with the checkboxes) the ticked issue labels.
- *
- * The cast keeps this compiling whether or not RepairRow already declares
- * `issue_description`; drop it once libs/shared-types has the field.
  */
 export function problemSummary(repair: Repair): string {
-  const description = (repair as Repair & { issue_description?: string | null }).issue_description?.trim();
+  const description = repair.issue_description?.trim();
   return description || issueLabels(repair).join(', ');
 }
 
