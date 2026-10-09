@@ -12,7 +12,7 @@
             <span class="bell-dot" aria-hidden="true"></span>
           }
         </ion-button>
-        <div class="avatar" aria-hidden="true">{{ initial() }}</div>
+        <button id="avatar-trigger" type="button" class="avatar" aria-label="Account menu">{{ initial() }}</button>
       </div>
     </div>
 
@@ -65,6 +65,17 @@
             <ion-label>No new notifications</ion-label>
           </ion-item>
         }
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+
+  <ion-popover trigger="avatar-trigger" triggerAction="click" class="notif-menu" #accountMenu>
+    <ng-template>
+      <ion-list lines="none">
+        <ion-item button detail="false" (click)="accountMenu.dismiss(); signOut()">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          <ion-label>Sign out</ion-label>
+        </ion-item>
       </ion-list>
     </ng-template>
   </ion-popover>
