@@ -19,6 +19,8 @@ import { getSupabaseClient } from '../supabase-client';
 export abstract class CurrentUserService {
   abstract readonly user: Signal<CurrentUser | null>;
   abstract load(): Promise<CurrentUser>;
+  /** Ends the session (real mode) so the next visit shows the login screen again. */
+  abstract signOut(): Promise<void>;
 }
 
 @Injectable()
@@ -28,6 +30,11 @@ export class MockCurrentUserService extends CurrentUserService {
   async load(): Promise<CurrentUser> {
     this.user.set(MOCK_CURRENT_USER);
     return MOCK_CURRENT_USER;
+  }
+
+  /** Mock mode has no real session; nothing to end. */
+  async signOut(): Promise<void> {
+    this.user.set(MOCK_CURRENT_USER);
   }
 }
 
@@ -62,5 +69,13 @@ export class SupabaseCurrentUserService extends CurrentUserService {
     };
     this.user.set(user);
     return user;
+  }
+
+  async signOut(): Promise<void> {
+    const db = getSupabaseClient(this.config.supabaseUrl, this.config.supabaseAnonKey);
+    // Even if the server call fails (offline), supabase-js has already dropped the local
+    // session, so the user is logged out on this device either way.
+    await db.auth.signOut();
+    this.user.set(null);
   }
 }

@@ -12,7 +12,9 @@
             <span class="bell-dot" aria-hidden="true"></span>
           }
         </ion-button>
-        <div class="avatar" aria-hidden="true">{{ initial() }}</div>
+        <button type="button" class="avatar" id="avatar-trigger" aria-label="Account menu">
+          {{ initial() }}
+        </button>
       </div>
     </div>
 
@@ -63,6 +65,31 @@
           <ion-item detail="false">
             <ion-icon slot="start" name="notifications-outline"></ion-icon>
             <ion-label>No new notifications</ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+
+  <ion-popover trigger="avatar-trigger" triggerAction="click" [dismissOnSelect]="true" class="avatar-menu">
+    <ng-template>
+      <ion-list lines="none">
+        <ion-item detail="false">
+          <ion-label class="ion-text-wrap">
+            <h3>{{ currentUser()?.full_name }}</h3>
+            @if (currentUser()?.email) {
+              <p>{{ currentUser()?.email }}</p>
+            }
+          </ion-label>
+        </ion-item>
+        @if (canLogOut) {
+          <ion-item button detail="false" (click)="logout()">
+            <ion-icon slot="start" name="log-out-outline"></ion-icon>
+            <ion-label color="danger">Log out</ion-label>
+          </ion-item>
+        } @else {
+          <ion-item detail="false">
+            <ion-label class="ion-text-wrap"><p>Demo data: no account to log out of.</p></ion-label>
           </ion-item>
         }
       </ion-list>

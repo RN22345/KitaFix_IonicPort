@@ -155,6 +155,17 @@ export class RepairsService {
     );
   }
 
+  /** Log out: end the session and forget everything loaded for this customer. */
+  async signOut(): Promise<void> {
+    await this.currentUserService.signOut();
+    this.realtime.stop();
+    this.loadPromise = null;
+    this.myRepairs.set([]);
+    this.notifications.set([]);
+    this.searchTerm.set('');
+    this.error.set(null);
+  }
+
   markAllNotificationsRead(): void {
     this.notifications.update((items) => items.map((item) => ({ ...item, read: true })));
   }

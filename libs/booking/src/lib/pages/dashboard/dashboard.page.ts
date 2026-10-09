@@ -13,6 +13,7 @@ import {
   IonSearchbar,
   IonSpinner,
 } from '@ionic/angular';
+import { BOOKING_CONFIG } from '../../data-access/config';
 import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
 
@@ -25,6 +26,7 @@ import {
   notificationsOutline,
   construct,
   refreshOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -56,6 +58,8 @@ export class DashboardPage implements OnInit {
   readonly loading = this.booking.loading;
   readonly error = this.booking.error;
   readonly counts = this.booking.statusCounts;
+  /** Mock mode has no real session, so there is nothing to log out of. */
+  readonly canLogOut = !inject(BOOKING_CONFIG).useMockData;
   readonly search = this.booking.searchTerm;
   readonly notifications = this.booking.notifications;
   readonly unreadCount = this.booking.unreadCount;
@@ -79,6 +83,7 @@ export class DashboardPage implements OnInit {
       notificationsOutline,
       construct,
       refreshOutline,
+      logOutOutline,
     });
   }
 
@@ -113,6 +118,11 @@ export class DashboardPage implements OnInit {
     if (this.search().trim()) {
       void this.router.navigateByUrl('/tabs/my-repairs');
     }
+  }
+
+  async logout(): Promise<void> {
+    await this.booking.signOut();
+    await this.router.navigateByUrl('/dev-login', { replaceUrl: true });
   }
 
   markAllRead(): void {
