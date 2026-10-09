@@ -20,3 +20,4 @@ export const BOOKING_ROUTES: Routes = [
     loadComponent: () => import('./pages/my-repairs/my-repairs.page').then((m) => m.MyRepairsPage),
   },
 ];
+

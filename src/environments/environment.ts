@@ -13,7 +13,7 @@
 export const environment = {
   production: false,
 
-  useMockData: false,
+  useMockData: true,
 
   /** Shared hosted project (ap-south-1). */
   supabaseUrl: 'https://pkfataaehrjdipdbrthz.supabase.co',

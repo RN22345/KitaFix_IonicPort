@@ -19,3 +19,14 @@
 body {
   background: var(--ion-background-color, #f5f6f8);
 }
+
+@font-face {
+  font-family: "Poppins-Black";
+  font-style: normal;
+  font-weight: normal;
+  src: url("libs/booking/src/Poppins/Poppins-Regular.ttf");
+}
+
+* {
+  font-family: "Poppins-Black";
+}

@@ -1,18 +1,45 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
-  IonButton,
+   IonButton,
   IonCard,
   IonCardContent,
   IonContent,
-  IonHeader,
   IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
+  IonSearchbar,
   IonSpinner,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular';
 import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
+
+import { addIcons } from 'ionicons';
+import {
+  calendar,
+  time,
+  phonePortrait,
+  person,
+  notificationsOutline,
+  construct,
+  constructOutline,
+  refreshOutline,
+  personCircleOutline,
+  settingsOutline,
+  logOutOutline,
+  calendarOutline,
+  checkmarkDoneOutline,
+} from 'ionicons/icons';
+
+interface QuickAction {
+  icon: string;
+  title: string;
+  subtitle: string;
+  /** null = page does not exist yet */
+  route: string | null;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -22,12 +49,15 @@ import { RepairCardComponent } from '../../ui/repair-card/repair-card.component'
     IonCard,
     IonCardContent,
     IonContent,
-    IonHeader,
     IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonPopover,
+    IonSearchbar,
     IonSpinner,
-    IonTitle,
-    IonToolbar,
     RepairCardComponent,
+    RouterLink,
   ],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',
@@ -42,6 +72,59 @@ export class DashboardPage implements OnInit {
   readonly counts = this.booking.statusCounts;
 
   readonly name = computed(() => this.currentUser()?.full_name.split(' ')[0] ?? 'there');
+  readonly initial = computed(() => this.name().charAt(0).toUpperCase());
+
+  readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  });
+
+  constructor() {
+    addIcons({
+      calendar,
+      time,
+      phonePortrait,
+      person,
+      notificationsOutline,
+      construct,
+      constructOutline,
+      refreshOutline,
+      personCircleOutline,
+      settingsOutline,
+      logOutOutline,
+      calendarOutline,
+      checkmarkDoneOutline,
+    });
+  }
+
+  readonly actions: readonly QuickAction[] = [
+    {
+      icon: 'calendar',
+      title: 'My Appointments',
+      subtitle: 'View & manage bookings',
+      route: '/tabs/my-repairs',
+    },
+    {
+      icon: 'time',
+      title: 'Track Repair',
+      subtitle: 'Check your device status',
+      route: '/tabs/my-repairs',
+    },
+    {
+      icon: 'phone-portrait',
+      title: 'My Devices',
+      subtitle: 'Manage your registered devices',
+      route: null, // TODO: add route when the page exists
+    },
+    {
+      icon: 'person',
+      title: 'Technicians',
+      subtitle: 'View available technicians',
+      route: null, // TODO: add route when the page exists
+    },
+  ];
 
   /** Repairs that are not finished yet (dashboard preview, max 3). */
   readonly upcoming = computed(() =>
@@ -64,11 +147,25 @@ export class DashboardPage implements OnInit {
     void this.booking.retryLoad();
   }
 
+  openAction(action: QuickAction): void {
+    if (action.route) {
+      void this.router.navigateByUrl(action.route);
+    }
+  }
+
   goToNewBooking(): void {
     void this.router.navigateByUrl('/tabs/new-booking');
   }
 
   goToMyRepairs(): void {
     void this.router.navigateByUrl('/tabs/my-repairs');
+  }
+
+  logout(): void {
+    // TODO: call your auth service here, then navigate to login
+  }
+
+  markAllRead(): void {
+    // TODO: clear unread state once notifications are real
   }
 }
