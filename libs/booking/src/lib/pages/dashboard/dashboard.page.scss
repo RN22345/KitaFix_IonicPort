@@ -66,6 +66,17 @@ ion-content {
 }
 
 
+.bell-dot {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff4d5e;
+  border: 2px solid var(--blueDark);
+}
+
 .notif-menu {
   --width: 280px;
 }
@@ -108,8 +119,6 @@ ion-content {
   color: var(--blackish);
   box-shadow: none;
   // max-height: 23vh;
-  height: 25vh;
-  max-height: 27vh;
 }
 
 .welcome ion-card-content {
@@ -121,22 +130,22 @@ ion-content {
 .welcome-copy {
   position: relative;
   z-index: 1;
-  max-width: 53%;
+  max-width: 56%;
 }
 
 .welcome h2 {
   margin: 0 0 0.35rem;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
 }
 
 .welcome p {
   margin: 0 0 1rem;
-  font-size: 1rem;
+  font-size: 0.88rem;
   line-height: 1.4;
   color: var(--blackish);
   opacity: 0.85;
-  line-height: 1.5rem;
+  line-height: 1.35rem;
 }
 
 .book-btn {
@@ -233,7 +242,7 @@ ion-content {
 }
 
 .action strong {
-  font-size: 1.1rem;
+  font-size: 0.98rem;
   color: var(--blackish);
 }
 
@@ -243,7 +252,7 @@ ion-content {
 }
 
 .action span {
-  font-size: 1rem;
+  font-size: 0.82rem;
   line-height: 1.3;
   color: #5d6b82;
 }

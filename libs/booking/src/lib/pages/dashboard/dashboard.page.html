@@ -8,6 +8,9 @@
       <div class="hero-actions">
         <ion-button id="bell-trigger" fill="clear" size="small" class="bell" aria-label="Notifications">
           <ion-icon slot="icon-only" name="notifications-outline"></ion-icon>
+          @if (unreadCount() > 0) {
+            <span class="bell-dot" aria-hidden="true"></span>
+          }
         </ion-button>
         <div class="avatar" aria-hidden="true">{{ initial() }}</div>
       </div>
@@ -15,8 +18,12 @@
 
     <ion-searchbar
       class="search"
-      placeholder="Search services, devices, or technicians..."
+      placeholder="Search your repairs"
+      [value]="search()"
       [showClearButton]="'focus'"
+      enterkeyhint="search"
+      (ionInput)="onSearch($event)"
+      (keyup.enter)="goToSearch()"
     ></ion-searchbar>
 
     <ion-card class="welcome">
@@ -36,13 +43,28 @@
   </section>
 
 
-  <ion-popover trigger="bell-trigger" triggerAction="click" class="notif-menu">
+  <ion-popover
+    trigger="bell-trigger"
+    triggerAction="click"
+    class="notif-menu"
+    (didDismiss)="markAllRead()"
+  >
     <ng-template>
       <ion-list lines="none">
-        <ion-item detail="false">
-          <ion-icon slot="start" name="notifications-outline"></ion-icon>
-          <ion-label>No new notifications</ion-label>
-        </ion-item>
+        @for (item of notifications(); track item.id) {
+          <ion-item button detail="false" routerLink="/tabs/my-repairs">
+            <ion-icon slot="start" name="construct" [color]="item.read ? 'medium' : 'primary'"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              <h3>Repair update</h3>
+              <p>{{ item.message }}</p>
+            </ion-label>
+          </ion-item>
+        } @empty {
+          <ion-item detail="false">
+            <ion-icon slot="start" name="notifications-outline"></ion-icon>
+            <ion-label>No new notifications</ion-label>
+          </ion-item>
+        }
       </ion-list>
     </ng-template>
   </ion-popover>
@@ -73,22 +95,18 @@
         <span>Check your device status</span>
       </a>
 
-      <!-- No page yet: swap <button disabled> for <a routerLink="..."> once it exists. -->
-      <button type="button" class="action" disabled>
+      <a class="action" routerLink="/tabs/my-devices">
         <ion-icon name="phone-portrait"></ion-icon>
         <strong>My Devices</strong>
-        <span>Manage your registered devices</span>
-      </button>
+        <span>Devices you have repaired</span>
+      </a>
 
       <button type="button" class="action" disabled>
         <ion-icon name="person"></ion-icon>
         <strong>Technicians</strong>
-        <span>View available technicians</span>
+        <span>Coming soon</span>
       </button>
-  </div>
-
-
-
+    </div>
 
     <div class="stats">
       <div class="stat">

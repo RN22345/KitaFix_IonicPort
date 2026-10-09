@@ -1,55 +1,87 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>My repairs</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content [fullscreen]="true">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-segment [value]="filter()" (ionChange)="onFilterChange($event)">
-    <ion-segment-button value="all">All</ion-segment-button>
-    <ion-segment-button value="active">Active</ion-segment-button>
-    <ion-segment-button value="history">History</ion-segment-button>
-  </ion-segment>
+  <section class="hero">
+    <h1>My repairs</h1>
+    <p class="hero-sub">Track every booking, from pending to completed.</p>
 
-  @if (error(); as message) {
-    <ion-note color="danger" class="error-note">{{ message }}</ion-note>
-  }
+    <ion-searchbar
+      class="search"
+      placeholder="Search device, ID or problem"
+      [value]="search()"
+      [debounce]="150"
+      [showClearButton]="'focus'"
+      (ionInput)="onSearch($event)"
+    ></ion-searchbar>
+  </section>
 
-  @if (loading()) {
-    <div class="center">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
-  } @else if (visibleRepairs().length === 0) {
-    <div class="empty-state">
-      <ion-icon name="calendar-outline"></ion-icon>
-      <p>
-        @switch (filter()) {
-          @case ('active') {
-            You have no active repairs.
-          }
-          @case ('history') {
-            No finished repairs yet.
-          }
-          @default {
-            No bookings yet. Create your first booking from the New booking tab.
-          }
-        }
-      </p>
-    </div>
-  } @else {
-    @for (repair of visibleRepairs(); track repair.id) {
-      <app-repair-card
-        [repair]="repair"
-        [showActions]="true"
-        (cancel)="confirmCancel($event)"
-        (reschedule)="openReschedule($event)"
-      ></app-repair-card>
+  <div class="body">
+    <ion-segment class="filters" [value]="filter()" (ionChange)="onFilterChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>All ({{ counts().all }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="active">
+        <ion-label>Active ({{ counts().active }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="history">
+        <ion-label>History ({{ counts().history }})</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    @if (error(); as message) {
+      <ion-note color="danger" class="error-note">{{ message }}</ion-note>
+      <ion-button size="small" fill="outline" (click)="retry()">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Retry
+      </ion-button>
     }
-  }
+
+    @if (loading() && repairs().length === 0) {
+      @for (placeholder of skeletons; track placeholder) {
+        <div class="skeleton-card" aria-hidden="true">
+          <ion-skeleton-text [animated]="true" style="width: 55%; height: 1.1rem"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 80%"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 65%"></ion-skeleton-text>
+        </div>
+      }
+    } @else if (visibleRepairs().length === 0) {
+      <div class="empty-state">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <p>
+          @if (search().trim()) {
+            No repairs match "{{ search().trim() }}".
+          } @else {
+            @switch (filter()) {
+              @case ('active') {
+                You have no active repairs.
+              }
+              @case ('history') {
+                No finished repairs yet.
+              }
+              @default {
+                No bookings yet. Tap "Book your first repair" to get started.
+              }
+            }
+          }
+        </p>
+        @if (!search().trim() && repairs().length === 0) {
+          <ion-button size="small" (click)="goToNewBooking()">Book your first repair</ion-button>
+        }
+      </div>
+    } @else {
+      @for (repair of visibleRepairs(); track repair.id) {
+        <app-repair-card
+          [repair]="repair"
+          [showActions]="true"
+          (cancel)="confirmCancel($event)"
+          (reschedule)="openReschedule($event)"
+          (bookAgain)="bookAgain($event)"
+        ></app-repair-card>
+      }
+    }
+  </div>
 </ion-content>
 
 <app-reschedule-modal

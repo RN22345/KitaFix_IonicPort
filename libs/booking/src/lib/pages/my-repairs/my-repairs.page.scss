@@ -1,29 +1,99 @@
-ion-segment {
+:host {
+  --blueDark: #0b5ed7;
+}
+
+ion-content {
+  --background: #f5f9ff;
+}
+
+.hero {
+  padding: calc(env(safe-area-inset-top, 0px) + 1.1rem) 1rem 1.25rem;
+  background: var(--blueDark);
+  border-radius: 0 0 28px 28px;
+  color: #fff;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+}
+
+.hero-sub {
+  margin: 0.2rem 0 1rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.search {
+  --background: #fff;
+  --border-radius: 14px;
+  --box-shadow: none;
+  --color: #0f172a;
+  --placeholder-color: #6b7a90;
+  --icon-color: #6b7a90;
+  padding: 0;
+  min-height: 46px;
+}
+
+.body {
+  padding: 1rem;
+}
+
+.filters {
+  --background: #e6f1ff;
+  border-radius: 999px;
   margin-bottom: 1rem;
+  padding: 3px;
+}
+
+ion-segment-button {
+  --indicator-color: var(--blueDark);
+  --indicator-height: 3px;
+  --padding-start: 0.2rem;
+  --padding-end: 0.2rem;
+  text-transform: none;
+  letter-spacing: 0;
+  --color: #0f172a;
+  --color-checked: var(--blueDark);
+  --border-radius: 999px;
+  --indicator-box-shadow: none;
+  min-height: 38px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .error-note {
   display: block;
-  padding: 0.5rem 0 0.75rem;
+  padding: 0.25rem 0 0.5rem;
 }
 
-.center {
+.skeleton-card {
   display: flex;
-  justify-content: center;
-  padding: 2rem 0;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  margin-bottom: 0.85rem;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.07);
 }
 
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   padding: 2.5rem 1rem;
   text-align: center;
-  color: var(--ion-color-medium);
+  color: #5d6b82;
 }
 
 .empty-state ion-icon {
-  font-size: 2.2rem;
-  color: var(--ion-color-primary);
+  font-size: 2.4rem;
+  color: var(--blueDark);
+}
+
+.empty-state p {
+  margin: 0;
 }

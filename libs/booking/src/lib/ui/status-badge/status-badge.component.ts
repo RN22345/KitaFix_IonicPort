@@ -21,7 +21,8 @@ import { statusMeta } from '../../models/repair.model';
         gap: 0.3rem;
         padding: 0.35rem 0.6rem;
         border-radius: 999px;
-        font-weight: 500;
+        font-weight: 600;
+        font-size: 0.72rem;
         white-space: nowrap;
       }
     `,

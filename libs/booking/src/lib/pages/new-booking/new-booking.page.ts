@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonButton,
   IonContent,
@@ -35,6 +35,7 @@ import {
   formatBookingDate,
   normalizeTime,
   shortRepairId,
+  timeToMinutes,
 } from '../../models/repair.model';
 import { estimatePrice, formatCurrency } from '../../pricing/price-estimate';
 import { RepairsService } from '../../services/repairs.service';
@@ -90,6 +91,7 @@ export class NewBookingPage implements OnInit {
   private readonly config = inject(BOOKING_CONFIG);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastController);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild(IonContent) private content?: IonContent;
@@ -135,7 +137,7 @@ export class NewBookingPage implements OnInit {
     () => new Set(this.takenSlots().map((slot) => normalizeTime(slot))),
   );
   readonly freeSlots = computed(() =>
-    this.slotTimes.filter((slot) => !this.takenSet().has(slot)),
+    this.slotTimes.filter((slot) => !this.takenSet().has(slot) && !this.isPast(slot)),
   );
 
   readonly selectedService = computed(
@@ -152,11 +154,38 @@ export class NewBookingPage implements OnInit {
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.values.set(this.form.getRawValue());
     });
+    // "Book again" on My Repairs passes the old device/service/place as query params.
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      void this.prefill(params.get('brand'), params.get('model'), params.get('service'), params.get('location'));
+    });
   }
 
   async ngOnInit(): Promise<void> {
     await this.booking.ensureLoaded();
     this.applyDefaultDate();
+    await this.loadSlots();
+  }
+
+  private async prefill(
+    brand: string | null,
+    model: string | null,
+    serviceId: string | null,
+    location: string | null,
+  ): Promise<void> {
+    if (!brand && !model && !serviceId && !location) {
+      return;
+    }
+    await this.booking.ensureLoaded();
+    const controls = this.form.controls;
+    if (brand) controls.device_brand.setValue(brand);
+    if (model) controls.device_model.setValue(model);
+    if (location && this.locations.includes(location)) {
+      controls.location.setValue(location);
+    }
+    if (serviceId && this.services().some((item) => item.id === serviceId)) {
+      controls.service_id.setValue(serviceId);
+      this.setStep(1);
+    }
     await this.loadSlots();
   }
 
@@ -173,6 +202,19 @@ export class NewBookingPage implements OnInit {
 
   isTaken(slot: string): boolean {
     return this.takenSet().has(slot);
+  }
+
+  /** Today's hours that have already started cannot be booked. */
+  isPast(slot: string): boolean {
+    if (this.values().booking_date !== toLocalIsoDate(new Date())) {
+      return false;
+    }
+    const now = new Date();
+    return timeToMinutes(slot) <= now.getHours() * 60 + now.getMinutes();
+  }
+
+  isUnavailable(slot: string): boolean {
+    return this.isTaken(slot) || this.isPast(slot);
   }
 
   /** Picks an icon from the service name; falls back to a wrench. */
@@ -275,7 +317,7 @@ export class NewBookingPage implements OnInit {
   }
 
   pickSlot(slot: string): void {
-    if (this.isTaken(slot)) {
+    if (this.isUnavailable(slot)) {
       return;
     }
     this.form.controls.booking_time.setValue(normalizeTime(slot));
