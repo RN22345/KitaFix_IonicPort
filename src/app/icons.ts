@@ -14,8 +14,10 @@ import {
   locationOutline,
   logInOutline,
   personOutline,
+  pricetagOutline,
   refreshOutline,
   saveOutline,
+  speedometerOutline,
   timeOutline,
 } from 'ionicons/icons';
 
@@ -39,8 +41,10 @@ export function registerIcons(): void {
     'location-outline': locationOutline,
     'log-in-outline': logInOutline,
     'person-outline': personOutline,
+    'pricetag-outline': pricetagOutline,
     'refresh-outline': refreshOutline,
     'save-outline': saveOutline,
+    'speedometer-outline': speedometerOutline,
     'time-outline': timeOutline,
   });
 }

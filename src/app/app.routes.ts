@@ -18,12 +18,16 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('@kitafix/booking').then((m) => m.BOOKING_ROUTES),
       },
+      {
+        path: '',
+        loadChildren: () => import('@kitafix/repair-ops').then((m) => m.REPAIR_OPS_ROUTES),
+      },
     ],
   },
   {
     path: 'dev-login',
     loadComponent: () => import('./shared/session/dev-login.page').then((m) => m.DevLoginPage),
   },
-  { path: '', redirectTo: 'tabs', pathMatch: 'full' },
-  { path: '**', redirectTo: 'tabs' },
+   { path: '', redirectTo: 'tabs/admin-portal', pathMatch: 'full' },
+  { path: '**', redirectTo: 'tabs/admin-portal' },
 ];

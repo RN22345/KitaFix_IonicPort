@@ -19,6 +19,7 @@
     "lib": ["ES2022", "dom"],
     "paths": {
       "@kitafix/booking": ["libs/booking/src/index.ts"],
+      "@kitafix/repair-ops": ["libs/repair-ops/src/index.ts"],
       "@kitafix/shared-types": ["libs/shared-types/src/index.ts"]
     }
   },
