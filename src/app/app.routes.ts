@@ -18,6 +18,10 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('@kitafix/booking').then((m) => m.BOOKING_ROUTES),
       },
+      {
+        path: '',
+        loadChildren: () => import('@kitafix/repair-ops').then((m) => m.REPAIR_OPS_ROUTES),
+      },
     ],
   },
   {
