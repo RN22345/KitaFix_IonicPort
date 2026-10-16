@@ -33,6 +33,7 @@ git clone https://github.com/RN22345/KitaFix_IonicPort.git
 cd KitaFix_IonicPort
 npm ci
 npm start            # http://localhost:4200
+npm test             # unit tests (Vitest)
 ```
 
 Runs offline on `.ts` placeholder data by default. The repo also points at a
@@ -85,7 +86,7 @@ strings (`R8`). Talk to other modules through the database, not their components
 
 ## CI and releases
 
-- Every push/PR to `main` builds the app (`.github/workflows/ci.yml`).
+- Every push/PR to `main` runs the unit tests and builds the app (`.github/workflows/ci.yml`).
 - Push a tag (`git tag -a v0.2.0 -m "..." && git push origin v0.2.0`) and a
   GitHub Release with a zipped build is created automatically
   (`.github/workflows/release.yml`).

@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build (type-check + bundle)
+    name: Test + build (type-check + bundle)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Unit tests
+        run: npm test
 
       - name: Build the customer app
         run: npm run build

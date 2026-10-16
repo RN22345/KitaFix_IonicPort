@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "test": "vitest run"
   },
   "dependencies": {
     "@angular/common": "^20.3.0",
@@ -27,6 +28,7 @@
     "@angular/cli": "^20.3.31",
     "@angular/compiler-cli": "^20.3.0",
     "sass": "^1.104.1",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
   }
 }
