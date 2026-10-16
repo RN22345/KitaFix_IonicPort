@@ -1,20 +1,11 @@
-/* KitaFix moodboard tokens */
+/* Colours come from the shared --kf-* theme tokens in src/global.scss. */
 :host {
-  --kf-blue: #0b5ed7;
-  --kf-blue-bright: #2e7dff;
-  --kf-green: #00c896;
-  --kf-green-light: #7ee787;
-  --kf-ice: #e6f1ff;
-  --kf-navy: #0f172a;
-
-  --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
-
   font-family: var(--kf-font);
-  color: var(--kf-navy);
+  color: var(--kf-text);
 }
 
 ion-content {
-  --background: #fff;
+  --background: var(--kf-bg);
 }
 
 .logo {
@@ -46,7 +37,7 @@ ion-content {
   height: 220px;
   border-radius: 40px;
   transform: rotate(35deg);
-  background: linear-gradient(135deg, var(--kf-green-light), var(--kf-green));
+  background: linear-gradient(135deg, var(--kf-green), var(--kf-green));
   opacity: 0.85;
 }
 
@@ -56,7 +47,7 @@ ion-content {
   width: 240px;
   height: 240px;
   transform: rotate(45deg);
-  background: linear-gradient(135deg, var(--kf-green), var(--kf-green-light));
+  background: linear-gradient(135deg, var(--kf-green), var(--kf-green));
 }
 
 .shape-bottom-right {
@@ -65,7 +56,7 @@ ion-content {
   width: 260px;
   height: 260px;
   transform: rotate(45deg);
-  background: linear-gradient(135deg, var(--kf-blue-bright), var(--kf-blue));
+  background: linear-gradient(135deg, var(--kf-accent), var(--kf-accent));
 }
 
 .panel {
@@ -90,9 +81,9 @@ ion-content {
   border-radius: 18px;
   font-size: 2.25rem;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, var(--kf-blue), var(--kf-green));
-  box-shadow: 0 8px 20px rgb(11 94 215 / 25%);
+  color: var(--kf-on-accent);
+  background: linear-gradient(135deg, var(--kf-accent), var(--kf-green));
+  box-shadow: var(--kf-shadow);
 }
 
 .wordmark {
@@ -100,7 +91,7 @@ ion-content {
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.1;
-  color: var(--kf-blue);
+  color: var(--kf-accent);
 
   span {
     color: var(--kf-green);
@@ -110,7 +101,7 @@ ion-content {
 .tagline {
   margin: 0.25rem 0 0;
   font-size: 0.75rem;
-  color: var(--kf-navy);
+  color: var(--kf-text);
   opacity: 0.7;
 }
 
@@ -127,7 +118,7 @@ ion-content {
   p {
     margin: 0.25rem 0 0;
     font-size: 0.85rem;
-    color: var(--kf-navy);
+    color: var(--kf-text);
     opacity: 0.65;
   }
 
@@ -138,8 +129,8 @@ ion-content {
     border-radius: 999px;
     font-size: 0.7rem;
     font-weight: 500;
-    color: var(--kf-blue);
-    background: var(--kf-ice);
+    color: var(--kf-accent);
+    background: var(--kf-surface-2);
     opacity: 1;
   }
 }
@@ -152,29 +143,29 @@ ion-content {
   margin-bottom: 0.9rem;
   padding: 0 0.9rem;
   min-height: 52px;
-  border: 1px solid #d5e2f5;
+  border: 1px solid var(--kf-line);
   border-radius: 14px;
-  background: #f7faff;
+  background: var(--kf-surface-2);
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 
   &:focus-within {
-    border-color: var(--kf-blue-bright);
-    box-shadow: 0 0 0 3px rgb(46 125 255 / 18%);
+    border-color: var(--kf-accent);
+    box-shadow: 0 0 0 3px var(--kf-accent-soft);
   }
 
   > ion-icon {
     flex: none;
     font-size: 1.15rem;
-    color: var(--kf-blue);
+    color: var(--kf-accent);
   }
 
   ion-input {
     --padding-start: 0;
     --padding-end: 0;
-    --color: var(--kf-navy);
-    --placeholder-color: #7b8aa3;
+    --color: var(--kf-text);
+    --placeholder-color: var(--kf-muted);
     --placeholder-opacity: 1;
     font-family: var(--kf-font);
     font-size: 0.9rem;
@@ -189,12 +180,12 @@ ion-content {
   padding: 0.25rem;
   border: 0;
   background: none;
-  color: #7b8aa3;
+  color: var(--kf-muted);
   font-size: 1.15rem;
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid var(--kf-blue-bright);
+    outline: 2px solid var(--kf-accent);
     border-radius: 6px;
   }
 }
@@ -207,11 +198,11 @@ ion-content {
 
 /* Primary action */
 .sign-in {
-  --background: var(--kf-blue);
-  --background-hover: var(--kf-blue-bright);
-  --background-activated: var(--kf-blue);
+  --background: var(--kf-accent);
+  --background-hover: var(--kf-accent);
+  --background-activated: var(--kf-accent);
   --border-radius: 14px;
-  --box-shadow: 0 8px 18px rgb(11 94 215 / 28%);
+  --box-shadow: var(--kf-shadow);
   height: 50px;
   margin: 0.5rem 0 0;
   font-family: var(--kf-font);
@@ -229,11 +220,11 @@ ion-content {
   font-family: var(--kf-font);
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--kf-blue);
+  color: var(--kf-accent);
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid var(--kf-blue-bright);
+    outline: 2px solid var(--kf-accent);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -248,7 +239,7 @@ ion-content {
   margin: 2rem 0 0;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--kf-navy);
+  color: var(--kf-text);
   opacity: 0.85;
 
   .accent {

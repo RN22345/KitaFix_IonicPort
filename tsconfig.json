@@ -19,7 +19,8 @@
     "lib": ["ES2022", "dom"],
     "paths": {
       "@kitafix/booking": ["libs/booking/src/index.ts"],
-      "@kitafix/shared-types": ["libs/shared-types/src/index.ts"]
+      "@kitafix/shared-types": ["libs/shared-types/src/index.ts"],
+      "@kitafix/theme": ["libs/theme/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

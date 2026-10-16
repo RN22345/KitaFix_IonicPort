@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
+import { ThemeService } from '@kitafix/theme';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular';
     </ion-app>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  /** Applies the saved light/dark choice at startup (dark by default). */
+  private readonly theme = inject(ThemeService);
+}
