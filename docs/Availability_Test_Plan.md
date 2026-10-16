@@ -58,26 +58,26 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 
 | Date | Mode (mock/real) | Test # | Result (pass/fail) | Notes / error text |
 | --- | --- | --- | --- | --- |
-| | | A1 | | |
-| | | A2 | | |
-| | | A3 | | |
-| | | A4 | | |
-| | | A5 | | |
-| | | B1 | | |
-| | | B2 | | |
-| | | B3 | | |
-| | | B4 | | |
-| | | B5 | | |
-| | | B6 | | |
-| | | B7 | | |
-| | | B8 | | |
-| | | B9 | | |
-| | | B10 | | |
-| | | B11 | | |
+| 2026-10-16 | mock UI + real (DB script) | A1 | pass | UI: Details step blocks, "Please pick at least one problem." DB: 23514 on blank brand and on no issue + no note |
+| 2026-10-16 | real (DB script) | A2 | pass | 23514 repairs_booking_date_not_past |
+| 2026-10-16 | real (DB script) | A3 | pass | second insert 23P01 repairs_no_double_booking |
+| 2026-10-16 | real (DB script) | A4 | pass | same time at North Mall Branch accepted |
+| 2026-10-16 | real (DB script) | A5 | pass | 42501 "This repair can no longer be changed by the customer." |
+| 2026-10-16 | real (DB script) | B1 | pass | cancelled; taken hours went 10:00,11:00 -> 10:00 |
+| 2026-10-16 | real (DB script) | B2 | pass | in_progress cancel allowed |
+| 2026-10-16 | real (DB script) | B3 | pass | testing cancel 42501 |
+| 2026-10-16 | real (DB script) | B4 | pass | moved 13:00 -> 17:00 |
+| 2026-10-16 | real (DB script) | B5 | pass | 23P01 on reschedule onto taken 14:00 |
+| 2026-10-16 | real (DB script) | B6 | pass | status and technician_id changes: 42501 |
+| 2026-10-16 | real (DB script) | B7 | pass | device_brand and issue flag edits: 42501 |
+| 2026-10-16 | real (DB script) | B8 | pass | cancelled 11:00 rebooked |
+| 2026-10-16 | real (DB script) | B9 | pass | get_taken_slots returned exactly the booked hours |
+|  |  | B10 | not run | needs two parallel sessions; A3 exercises the same constraint |
+| 2026-10-16 | real (DB script) | B11 | pass | another customer sees 0 rows; anon sees 0; technician sees only assigned jobs (Team 3 stub policy) |
 | | | C1 | | |
 | | | C2 | | |
 | | | C3 | | |
-| | | C4 | | |
+| 2026-10-16 | mock UI | C4 | pass | Screen Replacement 1499 + Battery 250 + Camera 300 = 2049 |
 | | | C5 | | |
 | | | C6 | | |
 

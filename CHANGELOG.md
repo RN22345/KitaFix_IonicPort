@@ -16,7 +16,7 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ### Added (Team 2)
 - Artist assets in the app: favicon / home-screen icon from the KitaFix app icon, and the four service icons on New Booking (replacing generic icons).
-- Migration `0022_team2_hardening.sql` (privileges only): fixed `search_path` on `t2_repairs_touch_updated_at`, `get_taken_slots()` no longer callable by `anon`, guard trigger function not callable over the API. Clears the Team 2 Supabase security advisor warnings. **Not yet applied to the hosted project.**
+- Migration `0022_team2_hardening.sql` (privileges only): fixed `search_path` on `t2_repairs_touch_updated_at`, `get_taken_slots()` no longer callable by `anon`, guard trigger function not callable over the API. Applied to the hosted project 2026-10-16; the Team 2 advisor warnings are gone except `get_taken_slots` for signed-in users, which the booking form needs.
 - `supabase/tests/team2_rules_check.sql`: runs test plan A1-A5, B1-B9 and B11 against the database as the demo customer and rolls everything back.
 
 ### Changed (Team 2 - UI/UX makeover, moodboard palette)

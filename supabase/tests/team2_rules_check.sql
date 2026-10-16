@@ -39,7 +39,9 @@ end $f$;
 do $t$
 declare
   cust uuid := (select id from auth.users where email = 'customer@kitafix.test');
-  other uuid := (select id from auth.users where email = 'marcos.tech@kitafix.test');
+  -- "customer B": any signed-in user that is not staff and has no assignments
+  other uuid := gen_random_uuid();
+  tech uuid := (select id from auth.users where email = 'marcos.tech@kitafix.test');
   svc  uuid := (select id from public.services order by name limit 1);
   d date := current_date + 40;
   r1 uuid := gen_random_uuid(); r2 uuid := gen_random_uuid(); r3 uuid := gen_random_uuid();
@@ -51,7 +53,7 @@ declare
   north text := 'North Mall Branch';
   taken text;
 begin
-  if cust is null or other is null or svc is null then
+  if cust is null or tech is null or svc is null then
     raise exception 'Demo accounts or services missing: run seed_demo_data.sql first.';
   end if;
 
@@ -100,7 +102,12 @@ begin
 
   -- B11 + anon
   perform pg_temp.kf_as(other);
-  out := out || ('INFO B11 customer rows seen by another user (expect 0): ' || (select count(*) from public.repairs where customer_id = cust));
+  out := out || ('INFO B11 customer rows seen by another customer (expect 0): ' || (select count(*) from public.repairs where customer_id = cust));
+  -- Team 3 stub policy repairs_technician_select: a technician sees only jobs assigned to them
+  perform pg_temp.kf_as(tech);
+  out := out || ('INFO technician sees only assigned jobs (expect 0 unassigned): '
+    || (select count(*) from public.repairs r
+        where not exists (select 1 from public.technicians t where t.id = r.technician_id and t.profile_id = tech)));
   perform pg_temp.kf_as(cust);
   out := out || ('INFO B11 rows seen by the customer: ' || (select count(*) from public.repairs where customer_id = cust));
   perform set_config('request.jwt.claims', '', true);
