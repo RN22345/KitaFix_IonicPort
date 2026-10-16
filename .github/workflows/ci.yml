@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    name: Test + build (type-check + bundle)
+    name: Build (type-check + bundle)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
