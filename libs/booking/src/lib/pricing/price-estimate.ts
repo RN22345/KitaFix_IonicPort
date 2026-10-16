@@ -1,5 +1,6 @@
 import { ServiceOption } from '../models/catalog.model';
 import { ISSUE_DEFINITIONS, IssueFlagKey, Repair } from '../models/repair.model';
+import { issueCoveredBy } from './service-match';
 
 export interface PriceEstimate {
   base: number;
@@ -10,13 +11,18 @@ export interface PriceEstimate {
 /**
  * Recommended feature: price estimate from the chosen service + issues.
  * The service base price comes from Team 3; the issue bench fees live here.
+ * The issue the service itself fixes is not charged again (Battery Replacement
+ * + Battery issue = the service price only).
  */
 export function estimatePrice(
   service: ServiceOption | null | undefined,
   issues: readonly IssueFlagKey[],
 ): PriceEstimate {
   const base = service?.base_price ?? 0;
-  const issueFees = ISSUE_DEFINITIONS.filter((issue) => issues.includes(issue.key)).reduce(
+  const covered = issueCoveredBy(service);
+  const issueFees = ISSUE_DEFINITIONS.filter(
+    (issue) => issues.includes(issue.key) && issue.key !== covered,
+  ).reduce(
     (sum, issue) => sum + issue.extraFee,
     0,
   );

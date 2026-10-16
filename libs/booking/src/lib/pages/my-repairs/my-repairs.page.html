@@ -4,8 +4,8 @@
   </ion-refresher>
 
   <section class="hero">
-    <h1>My repairs</h1>
-    <p class="hero-sub">Track every booking, from pending to completed.</p>
+    <h1>Repairs</h1>
+    <p class="hero-sub">Follow, reschedule or cancel your bookings.</p>
 
     <ion-searchbar
       class="search"
@@ -19,9 +19,6 @@
 
   <div class="body">
     <ion-segment class="filters" [value]="filter()" (ionChange)="onFilterChange($event)">
-      <ion-segment-button value="all">
-        <ion-label>All ({{ counts().all }})</ion-label>
-      </ion-segment-button>
       <ion-segment-button value="active">
         <ion-label>Active ({{ counts().active }})</ion-label>
       </ion-segment-button>
@@ -55,14 +52,16 @@
           } @else {
             @switch (filter()) {
               @case ('active') {
-                You have no active repairs.
+                @if (repairs().length === 0) {
+                  No bookings yet.
+                } @else {
+                  Nothing in the shop right now. Finished repairs are under History.
+                }
               }
               @case ('history') {
                 No finished repairs yet.
               }
-              @default {
-                No bookings yet. Tap "Book your first repair" to get started.
-              }
+
             }
           }
         </p>

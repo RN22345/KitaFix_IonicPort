@@ -8,11 +8,21 @@ so it can be copied over as-is.
 
 | Route | Page | Purpose |
 | --- | --- | --- |
-| `/tabs/dashboard` | `lib/pages/dashboard` | Welcome, status counters, 3 newest active repairs |
-| `/tabs/new-booking` | `lib/pages/new-booking` | Booking form + validation + free slots + price estimate |
-| `/tabs/my-repairs` | `lib/pages/my-repairs` | Full list, filters, cancel, reschedule (modal) |
+| `/tabs/dashboard` (tab "Home") | `lib/pages/dashboard` | Greeting, Book a repair, active repairs with progress, light/dark switch |
+| `/tabs/new-booking` (tab "Book") | `lib/pages/new-booking` | 3 steps: Device (past devices, brand/model suggestions, issues) -> Schedule (branch, date, free hours) -> Review (suggested service, technician, estimate) |
+| `/tabs/my-repairs` (tab "Repairs") | `lib/pages/my-repairs` | Active / History, search, cancel, reschedule (modal), book again |
+| `/tabs/my-devices` | - | Redirects to New Booking (past devices are one-tap picks there) |
 
-UI pieces: `lib/ui/status-badge`, `lib/ui/repair-card`, `lib/ui/reschedule-modal`.
+UI pieces: `lib/ui/status-badge`, `lib/ui/repair-card` (with progress bar), `lib/ui/reschedule-modal`.
+
+Device suggestions: `lib/data-access/device-catalog` reads `src/assets/data/device-catalog.json`
+(built by `tools/device-catalog/build-device-catalog.mjs` from Google Play's supported-devices list
+plus `tools/device-catalog/extra-devices.json`, refreshed weekly by `.github/workflows/device-catalog.yml`).
+Typed brands/models that are not in the list are always accepted.
+
+Service suggestion and pricing: `lib/pricing/service-match.ts` (`suggestService`, `issueCoveredBy`)
+and `lib/pricing/price-estimate.ts` (the issue a service already fixes is not charged twice).
+Colours come from the shared `--kf-*` tokens (`src/global.scss`, `libs/theme`).
 
 ## Database objects
 

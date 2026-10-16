@@ -76,6 +76,48 @@ export function canCustomerCancel(repair: Repair): boolean {
   return repair.status === 'pending' || repair.status === 'in_progress';
 }
 
+/** Still in the shop: pending, in progress or testing. */
+export function isActiveRepair(repair: Pick<Repair, 'status'>): boolean {
+  return repair.status === 'pending' || repair.status === 'in_progress' || repair.status === 'testing';
+}
+
+/** A device the customer has brought in before (for one-tap booking). */
+export interface PastDevice {
+  brand: string;
+  model: string;
+  visits: number;
+  /** The most recent repair of this device (by created_at). */
+  lastRepair: Repair;
+}
+
+/**
+ * The customer's devices, newest first, one entry per brand + model
+ * (case and spacing differences count as the same device).
+ */
+export function pastDevices(repairs: readonly Repair[]): PastDevice[] {
+  const byKey = new Map<string, PastDevice>();
+  for (const repair of repairs) {
+    const key = `${repair.device_brand.trim()}|${repair.device_model.trim()}`.toLowerCase().replace(/\s+/g, ' ');
+    const found = byKey.get(key);
+    if (!found) {
+      byKey.set(key, {
+        brand: repair.device_brand.trim(),
+        model: repair.device_model.trim(),
+        visits: 1,
+        lastRepair: repair,
+      });
+      continue;
+    }
+    found.visits += 1;
+    if (repair.created_at.localeCompare(found.lastRepair.created_at) > 0) {
+      found.lastRepair = repair;
+    }
+  }
+  return [...byKey.values()].sort((a, b) =>
+    b.lastRepair.created_at.localeCompare(a.lastRepair.created_at),
+  );
+}
+
 /** Customer reschedule rule: only pending bookings. */
 export function canCustomerReschedule(repair: Repair): boolean {
   return repair.status === 'pending';

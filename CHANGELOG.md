@@ -7,6 +7,15 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Changed (Team 2 - UX redesign)
+- Dark mode by default, with a softer light mode (blue-grey background, off-white surfaces). Switch in the account menu; remembered per device. All colours are shared `--kf-*` tokens in `src/global.scss`; new shared library `libs/theme`.
+- Tabs are now Home / Book / Repairs. Removed duplicate ways into My Repairs (two Home tiles and a "See all" button), the dead "Technicians - Coming soon" tile, the Home search and the status counts.
+- My Devices page removed: past devices are one-tap picks on the first booking step (the old link redirects).
+- New Booking is 3 steps: Device (brand/model with suggestions, what's wrong) -> Schedule -> Review. The service is suggested from the picked issues instead of asked first; the customer can change it.
+- Brand/model suggestions from Google Play's supported-devices list plus a hand-kept Apple/Huawei list (`tools/device-catalog`), refreshed weekly by a GitHub Action that opens a PR. Typing a device that is not listed still works.
+- Price estimate no longer charges the fee of the issue the chosen service already fixes (Battery Replacement + Battery issue = ₱899, not ₱1,149).
+- Repair cards show a Booked / In repair / Testing / Ready progress bar.
+
 ### Fixed (Team 2 - audit against Module Plan v4)
 - New Booking is back in line with required features 2 and 3: the Details step has the six issue chips again (at least one must be picked); the free-text box stays as an optional "Anything else?" note. Empty notes are saved as `null`.
 - The price estimate counts issue fees again (they were always 0 after the free-text change).

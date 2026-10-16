@@ -16,44 +16,29 @@
       </div>
     </div>
 
-    <ion-searchbar
-      class="search"
-      placeholder="Search your repairs"
-      [value]="search()"
-      [showClearButton]="'focus'"
-      enterkeyhint="search"
-      (ionInput)="onSearch($event)"
-      (keyup.enter)="goToSearch()"
-    ></ion-searchbar>
-
-    <ion-card class="welcome">
-      <ion-card-content>
-        <div class="welcome-copy">
-          <h2>Need a Repair?</h2>
-          <p>Book an appointment now and get your device fixed quickly and safely.</p>
-          <ion-button size="small" class="book-btn" (click)="goToNewBooking()">Book Now</ion-button>
-        </div>
-        <div class="welcome-art" aria-hidden="true">
-          <div class="phone">
-            <ion-icon name="construct"></ion-icon>
-          </div>
-        </div>
-      </ion-card-content>
-    </ion-card>
+    <div class="cta">
+      <div class="cta-copy">
+        <h2>Something broken?</h2>
+        <p>Tell us what's wrong and pick a time. It takes about a minute.</p>
+      </div>
+      <ion-button class="cta-btn" (click)="goToNewBooking()">
+        <ion-icon slot="start" name="add-outline"></ion-icon>
+        Book a repair
+      </ion-button>
+    </div>
   </section>
-
 
   <ion-popover
     trigger="bell-trigger"
     triggerAction="click"
-    class="notif-menu"
+    class="menu-popover"
     (didDismiss)="markAllRead()"
   >
     <ng-template>
       <ion-list lines="none">
         @for (item of notifications(); track item.id) {
           <ion-item button detail="false" routerLink="/tabs/my-repairs">
-            <ion-icon slot="start" name="construct" [color]="item.read ? 'medium' : 'primary'"></ion-icon>
+            <ion-icon slot="start" name="construct-outline" [color]="item.read ? 'medium' : 'primary'"></ion-icon>
             <ion-label class="ion-text-wrap">
               <h3>Repair update</h3>
               <p>{{ item.message }}</p>
@@ -69,9 +54,13 @@
     </ng-template>
   </ion-popover>
 
-  <ion-popover trigger="avatar-trigger" triggerAction="click" class="notif-menu" #accountMenu>
+  <ion-popover trigger="avatar-trigger" triggerAction="click" class="menu-popover" #accountMenu>
     <ng-template>
       <ion-list lines="none">
+        <ion-item button detail="false" (click)="toggleTheme()">
+          <ion-icon slot="start" [name]="themeMode() === 'dark' ? 'sunny-outline' : 'moon-outline'"></ion-icon>
+          <ion-label>{{ themeMode() === 'dark' ? 'Light mode' : 'Dark mode' }}</ion-label>
+        </ion-item>
         <ion-item button detail="false" (click)="accountMenu.dismiss(); signOut()">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>
           <ion-label>Sign out</ion-label>
@@ -82,78 +71,46 @@
 
   <div class="body">
     @if (error(); as message) {
-      <ion-card color="danger" class="error-card">
-        <ion-card-content>
-          <p>{{ message }}</p>
-          <ion-button fill="outline" color="light" size="small" (click)="retry()">
-            <ion-icon slot="start" name="refresh-outline"></ion-icon>
-            Retry
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+      <div class="error-box" role="alert">
+        <p>{{ message }}</p>
+        <ion-button fill="outline" size="small" (click)="retry()">
+          <ion-icon slot="start" name="refresh-outline"></ion-icon>
+          Retry
+        </ion-button>
+      </div>
     }
 
-    <div class="actions">
-      <a class="action" routerLink="/tabs/my-repairs">
-        <ion-icon name="calendar"></ion-icon>
-        <strong>My Appointments</strong>
-        <span>View & manage bookings</span>
-      </a>
-
-      <a class="action" routerLink="/tabs/my-repairs">
-        <ion-icon name="time"></ion-icon>
-        <strong>Track Repair</strong>
-        <span>Check your device status</span>
-      </a>
-
-      <a class="action" routerLink="/tabs/my-devices">
-        <ion-icon name="phone-portrait"></ion-icon>
-        <strong>My Devices</strong>
-        <span>Devices you have repaired</span>
-      </a>
-
-      <button type="button" class="action" disabled>
-        <ion-icon name="person"></ion-icon>
-        <strong>Technicians</strong>
-        <span>Coming soon</span>
-      </button>
+    <div class="section-head">
+      <h3>Active repairs</h3>
+      @if (active().length > 0) {
+        <span class="count">{{ active().length }}</span>
+      }
     </div>
 
-    <div class="stats">
-      <div class="stat">
-        <span class="number">{{ counts().pending }}</span>
-        <span class="label">Pending</span>
-      </div>
-      <div class="stat">
-        <span class="number">{{ counts().in_progress + counts().testing }}</span>
-        <span class="label">In shop</span>
-      </div>
-      <div class="stat">
-        <span class="number">{{ counts().completed }}</span>
-        <span class="label">Completed</span>
-      </div>
-    </div>
-
-    <h3 class="section-title">Upcoming and ongoing</h3>
-
-    @if (loading()) {
+    @if (loading() && active().length === 0) {
       <div class="center">
         <ion-spinner name="crescent"></ion-spinner>
       </div>
-    } @else if (upcoming().length === 0) {
+    } @else if (active().length === 0) {
       <div class="empty-state">
-        <ion-icon name="construct-outline"></ion-icon>
-        <p>No active repairs right now.</p>
-        <ion-button size="small" (click)="goToNewBooking()">Book your first repair</ion-button>
+        <ion-icon name="checkmark-done-outline"></ion-icon>
+        <p>No repairs in progress. When you book one, you can follow it here.</p>
       </div>
     } @else {
-      @for (repair of upcoming(); track repair.id) {
+      @for (repair of shownActive(); track repair.id) {
         <app-repair-card [repair]="repair"></app-repair-card>
       }
     }
 
-    <ion-button class="seeRepair-button" expand="block" fill="clear" (click)="goToMyRepairs()">
-      See all my repairs
-    </ion-button>
+    @if (repairs().length > 0) {
+      <ion-button class="all-link" expand="block" fill="clear" (click)="goToMyRepairs()">
+        @if (active().length > shownActive().length) {
+          See all {{ active().length }} active repairs
+        } @else {
+          See all repairs and history
+        }
+        <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    }
   </div>
 </ion-content>

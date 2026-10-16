@@ -7,9 +7,42 @@
 @import '@ionic/angular/css/padding.css';
 @import '@ionic/angular/css/flex-utils.css';
 
+@import '@ionic/angular/css/palettes/dark.class.css';
+
+/* =============================================================================
+   KitaFix theme (shared by every module - use these tokens, never raw colours)
+   Dark is the default: <html class="ion-palette-dark"> is set in index.html and
+   by libs/theme. Light mode = the same tokens without that class. Light mode is
+   deliberately soft (blue-grey ground, off-white surfaces), never pure white.
+
+   --kf-bg          page background          --kf-surface   cards, bars, sheets
+   --kf-surface-2   inputs, chips, wells     --kf-line      borders, dividers
+   --kf-text        main text                --kf-muted     secondary text
+   --kf-accent      brand blue (links, selection, primary buttons)
+   --kf-accent-soft tinted backgrounds for selected things
+   --kf-green       success / "go" actions   --kf-danger, --kf-warn
+   --kf-hero-from / --kf-hero-to   header gradient
+   ============================================================================= */
 :root {
-  /* KitaFix palette (moodboard): blue #0B5ED7, light blue #2E7DFF, green #00C896,
-     light green #7EE787, ice #E6F1FF, navy #0F172A. */
+  --kf-bg: #e8edf5;
+  --kf-surface: #f5f7fb;
+  --kf-surface-2: #e2e8f1;
+  --kf-line: #cfd9e8;
+  --kf-text: #13203a;
+  --kf-muted: #56657e;
+  --kf-accent: #0b5ed7;
+  --kf-accent-soft: rgba(11, 94, 215, 0.12);
+  --kf-on-accent: #ffffff;
+  --kf-green: #00a67c;
+  --kf-green-soft: rgba(0, 166, 124, 0.13);
+  --kf-danger: #d64545;
+  --kf-warn: #b7791f;
+  --kf-hero-from: #0b5ed7;
+  --kf-hero-to: #0a47a8;
+  --kf-on-hero: #ffffff;
+  --kf-shadow: 0 2px 12px rgba(15, 23, 42, 0.07);
+  --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
   --ion-color-primary: #0b5ed7;
   --ion-color-primary-rgb: 11, 94, 215;
   --ion-color-primary-contrast: #ffffff;
@@ -17,12 +50,12 @@
   --ion-color-primary-shade: #0a53be;
   --ion-color-primary-tint: #2468dc;
 
-  --ion-color-secondary: #00c896;
-  --ion-color-secondary-rgb: 0, 200, 150;
+  --ion-color-secondary: #00a67c;
+  --ion-color-secondary-rgb: 0, 166, 124;
   --ion-color-secondary-contrast: #ffffff;
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #00b085;
-  --ion-color-secondary-tint: #1acea1;
+  --ion-color-secondary-shade: #00926d;
+  --ion-color-secondary-tint: #1aaf89;
 
   --ion-color-success: #00a67c;
   --ion-color-success-rgb: 0, 166, 124;
@@ -31,25 +64,87 @@
   --ion-color-success-shade: #009270;
   --ion-color-success-tint: #1aaf8a;
 
-  --ion-background-color: #f5f9ff;
-  --ion-background-color-rgb: 245, 249, 255;
-  --ion-text-color: #0f172a;
-  --ion-text-color-rgb: 15, 23, 42;
-  --ion-toolbar-background: #ffffff;
-  --ion-tab-bar-background: #ffffff;
-  --ion-tab-bar-color: #7b8aa3;
+  --ion-background-color: #e8edf5;
+  --ion-background-color-rgb: 232, 237, 245;
+  --ion-text-color: #13203a;
+  --ion-text-color-rgb: 19, 32, 58;
+  --ion-border-color: #cfd9e8;
+  --ion-item-background: #f5f7fb;
+  --ion-card-background: #f5f7fb;
+  --ion-toolbar-background: #f5f7fb;
+  --ion-tab-bar-background: #f5f7fb;
+  --ion-tab-bar-color: #6b7a92;
   --ion-tab-bar-color-selected: #0b5ed7;
+  --ion-overlay-background-color: #f5f7fb;
+}
+
+:root.ion-palette-dark {
+  --kf-bg: #0b1220;
+  --kf-surface: #131c2e;
+  --kf-surface-2: #1b263b;
+  --kf-line: #27344d;
+  --kf-text: #e5ecf6;
+  --kf-muted: #93a2bb;
+  --kf-accent: #4c8dff;
+  --kf-accent-soft: rgba(76, 141, 255, 0.16);
+  --kf-on-accent: #ffffff;
+  --kf-green: #2ed3a2;
+  --kf-green-soft: rgba(46, 211, 162, 0.14);
+  --kf-danger: #f87171;
+  --kf-warn: #fbbf24;
+  --kf-hero-from: #143474;
+  --kf-hero-to: #0d1d3f;
+  --kf-on-hero: #ffffff;
+  --kf-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+
+  --ion-color-primary: #4c8dff;
+  --ion-color-primary-rgb: 76, 141, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #437ce0;
+  --ion-color-primary-tint: #5e98ff;
+
+  --ion-color-secondary: #2ed3a2;
+  --ion-color-secondary-rgb: 46, 211, 162;
+  --ion-color-secondary-contrast: #06231b;
+  --ion-color-secondary-contrast-rgb: 6, 35, 27;
+  --ion-color-secondary-shade: #28ba8f;
+  --ion-color-secondary-tint: #43d7ab;
+
+  --ion-color-success: #2ed3a2;
+  --ion-color-success-rgb: 46, 211, 162;
+  --ion-color-success-contrast: #06231b;
+  --ion-color-success-contrast-rgb: 6, 35, 27;
+  --ion-color-success-shade: #28ba8f;
+  --ion-color-success-tint: #43d7ab;
+
+  --ion-background-color: #0b1220;
+  --ion-background-color-rgb: 11, 18, 32;
+  --ion-text-color: #e5ecf6;
+  --ion-text-color-rgb: 229, 236, 246;
+  --ion-border-color: #27344d;
+  --ion-item-background: #131c2e;
+  --ion-card-background: #131c2e;
+  --ion-toolbar-background: #131c2e;
+  --ion-tab-bar-background: #131c2e;
+  --ion-tab-bar-color: #7f8ea8;
+  --ion-tab-bar-color-selected: #4c8dff;
+  --ion-overlay-background-color: #131c2e;
+}
+
+ion-content {
+  --background: var(--kf-bg);
+  --color: var(--kf-text);
 }
 
 ion-tab-bar {
-  --border: 1px solid rgba(15, 23, 42, 0.06);
+  --border: 1px solid var(--kf-line);
   padding-top: 4px;
-  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.06);
 }
 
 ion-tab-button {
   font-weight: 500;
-  --ripple-color: rgba(11, 94, 215, 0.15);
+  --ripple-color: var(--kf-accent-soft);
 }
 
 ion-toast {
@@ -61,7 +156,8 @@ ion-alert {
 }
 
 body {
-  background: var(--ion-background-color, #f5f9ff);
+  background: var(--kf-bg);
+  color: var(--kf-text);
 }
 
 // Poppins (SIL OFL, see src/assets/fonts/poppins/OFL.txt). Paths resolve from this file.

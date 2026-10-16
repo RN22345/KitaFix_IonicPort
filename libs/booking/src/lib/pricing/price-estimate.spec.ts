@@ -28,3 +28,15 @@ describe('formatCurrency', () => {
     expect(formatCurrency(10.5, '₱')).toMatch(/^₱10\.50$/);
   });
 });
+
+describe('estimatePrice - no double charge', () => {
+  const battery = { id: 's2', name: 'Battery Replacement', base_price: 899 } as ServiceOption;
+
+  it('does not add the fee of the issue the service already fixes', () => {
+    expect(estimatePrice(battery, ['issue_battery'])).toEqual({ base: 899, issueFees: 0, total: 899 });
+  });
+
+  it('still adds fees for other issues', () => {
+    expect(estimatePrice(battery, ['issue_battery', 'issue_camera']).total).toBe(1199);
+  });
+});
