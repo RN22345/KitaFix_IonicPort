@@ -56,15 +56,25 @@ export function matchScore(candidate: string, query: string): number {
 
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 
-function rank<T>(items: readonly T[], label: (item: T) => string, query: string, limit: number): T[] {
-  const scored: { item: T; score: number; text: string }[] = [];
+function rank<T>(
+  items: readonly T[],
+  label: (item: T) => string,
+  query: string,
+  limit: number,
+  boost: (text: string) => number = () => 0,
+): T[] {
+  const scored: { item: T; score: number; boost: number; text: string }[] = [];
   for (const item of items) {
     const text = label(item);
     const score = matchScore(text, query);
-    if (score >= 0) scored.push({ item, score, text });
+    if (score >= 0) scored.push({ item, score, boost: boost(text), text });
   }
   scored.sort(
-    (a, b) => a.score - b.score || a.text.length - b.text.length || collator.compare(a.text, b.text),
+    (a, b) =>
+      a.score - b.score ||
+      b.boost - a.boost ||
+      a.text.length - b.text.length ||
+      collator.compare(a.text, b.text),
   );
   return scored.slice(0, limit).map((entry) => entry.item);
 }
@@ -79,7 +89,9 @@ export function searchBrands(catalog: DeviceCatalog, query: string, limit = 6): 
   if (!query.trim()) {
     return POPULAR_BRANDS.filter((name) => findBrand(catalog, name)).slice(0, limit);
   }
-  return rank(catalog.brands, (brand) => brand.name, query, limit).map((brand) => brand.name);
+  // Popular brands win ties ("ap" -> Apple before Apex).
+  const popular = (name: string) => (POPULAR_BRANDS.some((p) => p.toLowerCase() === name.toLowerCase()) ? 1 : 0);
+  return rank(catalog.brands, (brand) => brand.name, query, limit, popular).map((brand) => brand.name);
 }
 
 /** Models of one brand for the Model field. Nothing until the customer types. */

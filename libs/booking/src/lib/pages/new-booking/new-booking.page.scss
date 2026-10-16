@@ -1,54 +1,33 @@
-/* KitaFix moodboard tokens */
+// Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
 :host {
-  --kf-blue: #0b5ed7;
-  --kf-blue-bright: #2e7dff;
-  --kf-green: #00c896;
-  --kf-green-light: #7ee787;
-  --kf-ice: #e6f1ff;
-  --kf-navy: #0f172a;
-  --kf-line: #d5e2f5;
-  --kf-muted: #64748b;
-
-  --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
-
   font-family: var(--kf-font);
-  color: var(--kf-navy);
-}
-
-
-
-ion-header ion-toolbar,
-ion-footer ion-toolbar {
-  --background: #fff;
-  --border-width: 0;
-}
-
-ion-title {
-  font-family: var(--kf-font);
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: left;
-  background-image: linear-gradient(90deg, var(--kf-blue-bright) 0%, var(--kf-blue) 100%);
-  color: #fff;
-  padding: 1.25rem;
+  color: var(--kf-text);
 }
 
 ion-header ion-toolbar {
-  background-color: var(--kf-blue-bright);
+  --background: linear-gradient(160deg, var(--kf-hero-from), var(--kf-hero-to));
+  --color: var(--kf-on-hero);
+  --border-width: 0;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
-ion-buttons ion-button {
-  --color: var(--kf-navy);
+ion-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
 }
 
-ion-content {
-  --background: #fff;
+ion-footer ion-toolbar {
+  --background: var(--kf-surface);
+  --border-width: 0;
+  border-top: 1px solid var(--kf-line);
+  padding: 0.5rem 1rem 0.75rem;
 }
 
 /* ---------- Stepper ---------- */
 .stepper {
   display: flex;
-  margin: 3rem 0.25rem 3rem 0.25rem;
+  margin: 0.75rem 0.25rem 1.5rem;
   padding: 0;
   list-style: none;
 }
@@ -61,7 +40,6 @@ ion-content {
   align-items: center;
   gap: 0.35rem;
 
-  /* connector to the next dot */
   &:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -73,7 +51,7 @@ ion-content {
   }
 
   &.done:not(:last-child)::after {
-    background: var(--kf-blue);
+    background: var(--kf-accent);
   }
 }
 
@@ -85,45 +63,47 @@ ion-content {
   padding: 0;
   border: 2px solid var(--kf-line);
   border-radius: 50%;
-  background: #fff;
-  color: #fff;
-  font-size: 0.9rem;
+  background: var(--kf-surface);
+  color: var(--kf-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
 
   &:not(:disabled) {
     cursor: pointer;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--kf-blue-bright);
+    outline: 2px solid var(--kf-accent);
     outline-offset: 2px;
   }
 }
 
-.step.current .dot {
-  border-color: var(--kf-blue);
-  background: var(--kf-blue);
-  box-shadow: 0 0 0 4px rgb(46 125 255 / 20%);
+.step.current .dot,
+.step.done .dot {
+  border-color: var(--kf-accent);
+  background: var(--kf-accent);
+  color: var(--kf-on-accent);
 }
 
-.step.done .dot {
-  border-color: var(--kf-blue);
-  background: var(--kf-blue);
+.step.current .dot {
+  box-shadow: 0 0 0 4px var(--kf-accent-soft);
 }
 
 .step-label {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--kf-muted);
 }
 
 .step.current .step-label {
   font-weight: 600;
-  color: var(--kf-blue);
+  color: var(--kf-accent);
 }
 
 /* ---------- Headings and labels ---------- */
 .step-title {
-  margin: 0 0 1rem;
-  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
   font-weight: 600;
 }
 
@@ -131,12 +111,25 @@ ion-content {
   margin: 1.25rem 0 0.5rem;
   font-size: 0.85rem;
   font-weight: 600;
+
+  .hint {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--kf-muted);
+  }
 }
 
 .error {
   display: block;
-  margin: 0.5rem 0 0;
+  margin: 0.4rem 0 0;
   font-size: 0.8rem;
+}
+
+.field-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: var(--kf-muted);
 }
 
 .inline-loading {
@@ -148,92 +141,77 @@ ion-content {
   color: var(--kf-muted);
 }
 
-/* ---------- Step 1: service cards ---------- */
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+/* ---------- Inputs ---------- */
+ion-input,
+ion-select,
+ion-textarea {
+  --background: var(--kf-surface);
+  --border-radius: 14px;
+  --border-color: var(--kf-line);
+  --highlight-color-focused: var(--kf-accent);
+  --color: var(--kf-text);
+  --placeholder-color: var(--kf-muted);
+  --placeholder-opacity: 1;
+  font-size: 0.92rem;
 }
 
-.service-card {
+ion-select,
+ion-textarea {
+  margin-top: 1rem;
+}
+
+.field {
+  position: relative;
+  margin-top: 0.75rem;
+}
+
+/* Suggestion list under the brand / model field */
+.suggest {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  width: 100%;
-  padding: 0.85rem 1rem;
+  flex-direction: column;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.3rem;
   border: 1px solid var(--kf-line);
-  border-radius: 16px;
-  background: #fff;
-  font-family: var(--kf-font);
-  text-align: left;
-  color: var(--kf-navy);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  border-radius: 14px;
+  background: var(--kf-surface);
+  box-shadow: var(--kf-shadow);
 
-  &:focus-visible {
-    outline: 2px solid var(--kf-blue-bright);
-    outline-offset: 2px;
-  }
+  button {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--kf-text);
+    font: inherit;
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
 
-  &.selected {
-    border-color: var(--kf-blue-bright);
-    background: var(--kf-ice);
-  }
-}
-
-.icon-tile {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--kf-ice);
-
-  img {
-    height: 30px;
-    width: auto;
+    &:hover,
+    &:focus-visible {
+      background: var(--kf-accent-soft);
+      outline: none;
+    }
   }
 }
 
-.service-card.selected .icon-tile {
-  background: #fff;
-}
-
-.service-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.service-name {
-  font-size: 0.9rem;
+.suggest-brand {
+  font-size: 0.75rem;
   font-weight: 600;
-}
-
-.service-price {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
   color: var(--kf-muted);
 }
 
-.radio {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--kf-line);
-  border-radius: 50%;
-  background: #fff;
-}
-
-.service-card.selected .radio {
-  border: 6px solid var(--kf-blue);
-}
-
-/* ---------- Step 2: chips and date ---------- */
+/* ---------- Chips ---------- */
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -242,6 +220,11 @@ ion-content {
   &.slots {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  &.issues {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -253,11 +236,11 @@ ion-content {
   padding: 0.6rem 0.9rem;
   border: 1px solid var(--kf-line);
   border-radius: 999px;
-  background: #fff;
-  font-family: var(--kf-font);
-  font-size: 0.8rem;
+  background: var(--kf-surface);
+  color: var(--kf-text);
+  font: inherit;
+  font-size: 0.82rem;
   font-weight: 500;
-  color: var(--kf-navy);
   cursor: pointer;
 
   &.wide {
@@ -267,9 +250,9 @@ ion-content {
   }
 
   &.selected {
-    border-color: var(--kf-blue);
-    background: var(--kf-blue);
-    color: #fff;
+    border-color: var(--kf-accent);
+    background: var(--kf-accent);
+    color: var(--kf-on-accent);
   }
 
   &:disabled {
@@ -279,28 +262,23 @@ ion-content {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--kf-blue-bright);
+    outline: 2px solid var(--kf-accent);
     outline-offset: 2px;
   }
 }
 
-/* ---------- Step 3: issue chips ---------- */
-.group-label .hint {
-  font-weight: 400;
-  color: var(--kf-muted);
-  font-size: 0.75rem;
-  margin-left: 0.25rem;
-}
+.device-chip {
+  border-radius: 14px;
 
-.chips.issues {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  margin-bottom: 1rem;
+  ion-icon {
+    font-size: 1rem;
+  }
 }
 
 .chip.issue {
   flex-direction: column;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 0.1rem;
   border-radius: 14px;
   text-align: left;
@@ -317,46 +295,28 @@ ion-content {
 }
 
 ion-datetime {
-  --background: #f7faff;
-  --ion-color-primary: #0b5ed7;
-  --ion-color-primary-rgb: 11, 94, 215;
-  --ion-color-primary-contrast: #fff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --background: var(--kf-surface);
   width: 100%;
   max-width: 100%;
   border: 1px solid var(--kf-line);
   border-radius: 16px;
 }
 
-/* ---------- Step 3: inputs, issues ---------- */
-ion-input,
-ion-select,
-ion-textarea {
-  --border-radius: 14px;
-  --border-color: var(--kf-line);
-  --highlight-color-focused: var(--kf-blue-bright);
-  --color: var(--kf-navy);
-  --placeholder-color: #7b8aa3;
-  --placeholder-opacity: 1;
-  margin-top: 0.9rem;
-  font-family: var(--kf-font);
-  font-size: 0.9rem;
-}
-
-/* ---------- Step 4: summary ---------- */
+/* ---------- Review ---------- */
 .summary {
-  margin: 0 0 1rem;
-  padding: 0.25rem 1rem;
+  margin: 0.75rem 0 0;
+  padding: 0.1rem 1rem;
   border: 1px solid var(--kf-line);
   border-radius: 16px;
-  background: #f7faff;
+  background: var(--kf-surface);
 
   .row {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
     padding: 0.7rem 0;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
 
     &:not(:last-child) {
       border-bottom: 1px solid var(--kf-line);
@@ -364,30 +324,137 @@ ion-textarea {
   }
 
   dt {
-    flex: none;
     color: var(--kf-muted);
   }
 
   dd {
     margin: 0;
     font-weight: 500;
-    text-align: right;
+    overflow-wrap: anywhere;
   }
 }
 
-.summary dd.long {
+.note-line {
+  display: block;
+  margin-top: 0.15rem;
+  font-weight: 400;
+  color: var(--kf-muted);
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+}
+
+.edit {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kf-accent);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--kf-line);
+  border-radius: 16px;
+  background: var(--kf-surface);
+  color: var(--kf-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:focus-visible {
+    outline: 2px solid var(--kf-accent);
+    outline-offset: 2px;
+  }
+
+  &.selected {
+    border-color: var(--kf-accent);
+    background: var(--kf-accent-soft);
+  }
+}
+
+.icon-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--kf-surface-2);
+
+  img {
+    height: 30px;
+    width: auto;
+  }
+}
+
+.service-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.service-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.pill {
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: var(--kf-green-soft);
+  color: var(--kf-green);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.service-price {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--kf-muted);
+}
+
+.radio {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--kf-line);
+  border-radius: 50%;
+}
+
+.service-card.selected .radio {
+  border: 6px solid var(--kf-accent);
 }
 
 .estimate {
+  margin-top: 1rem;
   padding: 1rem;
   border-radius: 16px;
-  background: var(--kf-ice);
+  background: var(--kf-accent-soft);
 
   .row {
     display: flex;
     justify-content: space-between;
+    gap: 1rem;
     padding: 0.2rem 0;
     font-size: 0.85rem;
   }
@@ -398,7 +465,7 @@ ion-textarea {
     border-top: 1px solid var(--kf-line);
     font-size: 1rem;
     font-weight: 700;
-    color: var(--kf-blue);
+    color: var(--kf-accent);
   }
 
   .note {
@@ -409,24 +476,19 @@ ion-textarea {
 }
 
 /* ---------- Footer actions ---------- */
-ion-footer ion-toolbar {
-  padding: 0.5rem 1rem 0.75rem;
-}
-
 .actions {
   display: flex;
   gap: 0.75rem;
 }
 
 .primary-action {
-  --background: var(--kf-blue);
-  --background-hover: var(--kf-blue-bright);
-  --background-activated: var(--kf-blue);
-  --box-shadow: 0 8px 18px rgb(11 94 215 / 28%);
+  --background: var(--kf-accent);
+  --background-activated: var(--kf-accent);
+  --color: var(--kf-on-accent);
+  --box-shadow: none;
   flex: 1;
   height: 50px;
   margin: 0;
-  font-family: var(--kf-font);
   font-size: 0.95rem;
   font-weight: 600;
   text-transform: none;
@@ -434,15 +496,13 @@ ion-footer ion-toolbar {
 }
 
 .back-action {
-  --color: var(--kf-blue);
-  --border-color: var(--kf-blue);
+  --color: var(--kf-accent);
+  --border-color: var(--kf-accent);
   --border-width: 1.5px;
-  --background-hover: var(--kf-ice);
-  --background-activated: var(--kf-ice);
+  --background-activated: var(--kf-accent-soft);
   flex: 0 0 30%;
   height: 50px;
   margin: 0;
-  font-family: var(--kf-font);
   font-size: 0.95rem;
   font-weight: 600;
   text-transform: none;

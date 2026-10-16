@@ -21,7 +21,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 
 | # | Test | Steps | Expected result |
 | --- | --- | --- | --- |
-| A1 | **Book with empty fields must block** | New booking -> pick a service and slot -> on Details leave brand, model empty and pick no issue -> Next | Step does not advance; red notes on brand, model and "Please pick at least one problem."; nothing is saved (real mode: no row in `repairs`) |
+| A1 | **Book with empty fields must block** | New booking -> on the Device step leave brand, model empty and pick no issue -> Next | Step does not advance; red notes on brand, model and "Please pick at least one problem."; nothing is saved (real mode: no row in `repairs`) |
 | A2 | **Book a past date must block** | Open the date picker | Yesterday and earlier are not selectable (`min` = today); even if forced with devtools, `notPastDate` rejects and the DB `repairs_booking_date_not_past` rejects the insert |
 | A3 | **Book the same slot twice must fail** | Book `Main Branch - Downtown`, tomorrow 10:00. Then book the same branch/date/time again | Second attempt fails with "That time is already booked at this location." In the SQL editor the second insert gives `23P01 repairs_no_double_booking` |
 | A4 | **Same time, different location must pass** | Book `Main Branch - Downtown`, tomorrow 10:00. Then `North Mall Branch`, tomorrow 10:00 | Both bookings are created; the list shows two rows at 10:00 with different branches |
@@ -47,7 +47,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 
 | # | Test | Steps | Expected result |
 | --- | --- | --- | --- |
-| C1 | Dashboard welcome + list | Sign in / open the app | "Hello, <first name>!" and the 3 newest active repairs with status badges |
+| C1 | Home greeting + active repairs | Sign in / open the app | "Good morning/afternoon/evening, <first name>", one Book a repair button, up to 3 active repairs with progress bars |
 | C2 | My repairs content | Open My repairs | Each card has short ID, device, date, time, branch, issues, status |
 | C3 | Empty states | Filter History with no finished repairs | Friendly message, no blank screen, no raw database text |
 | C4 | Price estimate | Pick a service and tap issue chips | Estimated total = base price + issue fees (e.g. Screen Replacement 1499 + Battery 250 = 1749) |

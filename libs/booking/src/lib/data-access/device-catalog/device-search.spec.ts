@@ -32,6 +32,11 @@ describe('searchBrands', () => {
     expect(searchBrands(catalog, '')).toEqual(['Samsung', 'Apple', 'Redmi', 'OPPO']);
   });
 
+  it('puts popular brands first among equal matches', () => {
+    const withApex: DeviceCatalog = { brands: [{ name: 'Apex', models: ['A1'] }, ...catalog.brands] };
+    expect(searchBrands(withApex, 'ap')).toEqual(['Apple', 'Apex']);
+  });
+
   it('matches regardless of case', () => {
     expect(searchBrands(catalog, 'op')).toEqual(['OPPO']);
     expect(searchBrands(catalog, 'SAM')).toEqual(['Samsung']);

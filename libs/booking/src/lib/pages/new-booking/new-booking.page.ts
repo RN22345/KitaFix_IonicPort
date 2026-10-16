@@ -29,17 +29,27 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { BOOKING_CONFIG } from '../../data-access/config';
+import { DeviceCatalogService } from '../../data-access/device-catalog/device-catalog.service';
+import {
+  DeviceSuggestion,
+  findBrand,
+  searchBrands,
+  searchDevices,
+  searchModels,
+} from '../../data-access/device-catalog/device-search';
 import { BookingDraft } from '../../models/booking-draft.model';
 import { BookingError, bookingErrorMessage } from '../../models/booking-error';
 import {
   ISSUE_DEFINITIONS,
   IssueFlagKey,
+  PastDevice,
   formatBookingDate,
   normalizeTime,
   shortRepairId,
   timeToMinutes,
 } from '../../models/repair.model';
 import { estimatePrice, formatCurrency } from '../../pricing/price-estimate';
+import { suggestService } from '../../pricing/service-match';
 import { RepairsService } from '../../services/repairs.service';
 import {
   atLeastOneIssue,
@@ -61,12 +71,13 @@ function tomorrowIsoDate(): string {
   return toLocalIsoDate(tomorrow);
 }
 
+const sameText = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
 /**
- * New Booking, as a 4-step flow that follows the KitaFix moodboard
- * ("Book Appointment"): Service -> Schedule -> Details -> Confirm.
- *
- * Same form, validators, slot lookup and RepairsService calls as before;
- * only the presentation is split into steps.
+ * New Booking in 3 steps: Device (what and what's wrong) -> Schedule (branch,
+ * date, time) -> Review (service picked from the issues, optional technician,
+ * estimate). The service is suggested instead of asked up front, because the
+ * issue options already say the same thing.
  */
 @Component({
   selector: 'app-new-booking',
@@ -94,6 +105,7 @@ function tomorrowIsoDate(): string {
 export class NewBookingPage implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly booking = inject(RepairsService);
+  private readonly deviceCatalog = inject(DeviceCatalogService);
   private readonly config = inject(BOOKING_CONFIG);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastController);
@@ -102,7 +114,7 @@ export class NewBookingPage implements OnInit {
 
   @ViewChild(IonContent) private content?: IonContent;
 
-  readonly steps = ['Service', 'Schedule', 'Details', 'Confirm'] as const;
+  readonly steps = ['Device', 'Schedule', 'Review'] as const;
   readonly step = signal(0);
   readonly isLastStep = computed(() => this.step() === this.steps.length - 1);
 
@@ -110,6 +122,7 @@ export class NewBookingPage implements OnInit {
   readonly slotTimes = this.config.slotTimes;
   readonly services = this.booking.serviceOptions;
   readonly technicians = this.booking.technicianOptions;
+  readonly myDevices = this.booking.myDevices;
   readonly currency = this.config.currency;
   readonly issueOptions = ISSUE_DEFINITIONS;
 
@@ -121,21 +134,26 @@ export class NewBookingPage implements OnInit {
   readonly loadingSlots = signal(false);
   readonly selectedDate = signal('');
 
-  readonly form = this.formBuilder.group(
-    {
-      device_brand: this.formBuilder.control('', [trimmedRequired]),
-      device_model: this.formBuilder.control('', [trimmedRequired]),
-      location: this.formBuilder.control(this.config.locations[0] ?? '', [trimmedRequired]),
-      service_id: this.formBuilder.control('', [Validators.required]),
-      technician_id: this.formBuilder.control(''),
-      booking_date: this.formBuilder.control('', [Validators.required, notPastDate]),
-      booking_time: this.formBuilder.control('', [Validators.required]),
-      /** The six frozen issue flags (Module Plan v4 required feature 2): at least one. */
-      issues: this.formBuilder.control<IssueFlagKey[]>([], [atLeastOneIssue]),
-      /** Optional extra detail on top of the picked issues. */
-      issue_description: this.formBuilder.control('', [Validators.maxLength(500)]),
-    },
-  );
+  /** Which device field shows its suggestion list. */
+  readonly activeField = signal<'brand' | 'model' | null>(null);
+  private readonly brandQuery = signal('');
+  private readonly modelQuery = signal('');
+  /** Once the customer picks a service themselves, issues no longer change it. */
+  private readonly serviceChosenByUser = signal(false);
+
+  readonly form = this.formBuilder.group({
+    device_brand: this.formBuilder.control('', [trimmedRequired]),
+    device_model: this.formBuilder.control('', [trimmedRequired]),
+    /** The six frozen issue flags (Module Plan v4 required feature 2): at least one. */
+    issues: this.formBuilder.control<IssueFlagKey[]>([], [atLeastOneIssue]),
+    /** Optional extra detail on top of the picked issues. */
+    issue_description: this.formBuilder.control('', [Validators.maxLength(500)]),
+    location: this.formBuilder.control(this.config.locations[0] ?? '', [trimmedRequired]),
+    booking_date: this.formBuilder.control('', [Validators.required, notPastDate]),
+    booking_time: this.formBuilder.control('', [Validators.required]),
+    service_id: this.formBuilder.control('', [Validators.required]),
+    technician_id: this.formBuilder.control(''),
+  });
 
   /** Signal mirror of the form value, so the template and computeds stay reactive. */
   readonly values = signal(this.form.getRawValue());
@@ -147,13 +165,32 @@ export class NewBookingPage implements OnInit {
     this.slotTimes.filter((slot) => !this.takenSet().has(slot) && !this.isPast(slot)),
   );
 
+  readonly brandSuggestions = computed(() => {
+    const query = this.brandQuery();
+    const results = searchBrands(this.deviceCatalog.catalog(), query);
+    return results.length === 1 && sameText(results[0], query) ? [] : results;
+  });
+
+  /** Models of the typed brand; if the brand is unknown or empty, search every brand. */
+  readonly modelSuggestions = computed<DeviceSuggestion[]>(() => {
+    const catalog = this.deviceCatalog.catalog();
+    const query = this.modelQuery();
+    const brand = findBrand(catalog, this.values().device_brand);
+    const results = brand
+      ? searchModels(catalog, brand.name, query).map((model) => ({ brand: brand.name, model }))
+      : searchDevices(catalog, query);
+    return results.length === 1 && sameText(results[0].model, query) ? [] : results;
+  });
+
+  readonly modelPlaceholder = computed(() =>
+    findBrand(this.deviceCatalog.catalog(), this.values().device_brand)
+      ? 'Start typing the model'
+      : 'e.g. Galaxy A55, iPhone 13, Redmi Note 13',
+  );
+
+  readonly suggestedService = computed(() => suggestService(this.services(), this.values().issues));
   readonly selectedService = computed(
     () => this.services().find((item) => item.id === this.values().service_id) ?? null,
-  );
-  readonly selectedTechnicianName = computed(
-    () =>
-      this.technicians().find((item) => item.id === this.values().technician_id)?.full_name ??
-      'Any available technician',
   );
   readonly estimate = computed(() => estimatePrice(this.selectedService(), this.values().issues));
   readonly pickedIssueLabels = computed(() =>
@@ -166,15 +203,17 @@ export class NewBookingPage implements OnInit {
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.values.set(this.form.getRawValue());
     });
-    // "Book again" on My Repairs passes the old device/service/place as query params.
+    // "Book again" on Repairs passes the old device/service/place as query params.
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       void this.prefill(params.get('brand'), params.get('model'), params.get('service'), params.get('location'));
     });
   }
 
   async ngOnInit(): Promise<void> {
+    void this.deviceCatalog.load();
     await this.booking.ensureLoaded();
     this.applyDefaultDate();
+    this.syncSuggestedService();
     await this.loadSlots();
   }
 
@@ -196,8 +235,9 @@ export class NewBookingPage implements OnInit {
     }
     if (serviceId && this.services().some((item) => item.id === serviceId)) {
       controls.service_id.setValue(serviceId);
-      this.setStep(1);
+      this.serviceChosenByUser.set(true);
     }
+    this.setStep(0);
     await this.loadSlots();
   }
 
@@ -246,18 +286,9 @@ export class NewBookingPage implements OnInit {
   // ---------- step navigation ----------
 
   back(): void {
-    if (this.step() === 0) {
-      void this.router.navigateByUrl('/tabs/dashboard');
-      return;
+    if (this.step() > 0) {
+      this.setStep(this.step() - 1);
     }
-    this.setStep(this.step() - 1);
-  }
-
-  /** Discards the draft and returns to the dashboard. */
-  cancel(): void {
-    this.resetForm();
-    void this.router.navigateByUrl('/tabs/dashboard');
-    void this.loadSlots();
   }
 
   /** Stepper dots: only completed steps can be revisited. */
@@ -280,49 +311,88 @@ export class NewBookingPage implements OnInit {
     this.setStep(this.step() + 1);
   }
 
-  private setStep(index: number): void {
+  setStep(index: number): void {
     this.step.set(index);
     this.showErrors.set(false);
+    this.activeField.set(null);
     void this.content?.scrollToTop(0);
   }
 
-  private stepIsValid(step: number): boolean {
+  private stepControls(step: number) {
     const c = this.form.controls;
     switch (step) {
       case 0:
-        return c.service_id.valid;
+        return [c.device_brand, c.device_model, c.issues, c.issue_description];
       case 1:
-        return c.location.valid && c.booking_date.valid && c.booking_time.valid;
-      case 2:
-        return (
-          c.device_brand.valid &&
-          c.device_model.valid &&
-          c.issues.valid &&
-          c.issue_description.valid
-        );
+        return [c.location, c.booking_date, c.booking_time];
       default:
-        return this.form.valid;
+        return [c.service_id, c.technician_id];
     }
   }
 
-  private touchStep(step: number): void {
-    const c = this.form.controls;
-    const controls =
-      step === 0
-        ? [c.service_id]
-        : step === 1
-          ? [c.location, c.booking_date, c.booking_time]
-          : step === 2
-            ? [c.device_brand, c.device_model, c.issues, c.issue_description]
-            : [];
-    controls.forEach((control) => control.markAsTouched());
+  private stepIsValid(step: number): boolean {
+    return this.stepControls(step).every((control) => control.valid);
   }
 
-  // ---------- step 1: service ----------
+  private touchStep(step: number): void {
+    this.stepControls(step).forEach((control) => control.markAsTouched());
+  }
 
-  pickService(serviceId: string): void {
-    this.form.controls.service_id.setValue(serviceId);
-    this.form.controls.service_id.markAsTouched();
+  // ---------- step 1: device and problem ----------
+
+  isCurrentDevice(device: PastDevice): boolean {
+    const v = this.values();
+    return sameText(v.device_brand, device.brand) && sameText(v.device_model, device.model);
+  }
+
+  pickPastDevice(device: PastDevice): void {
+    this.form.controls.device_brand.setValue(device.brand);
+    this.form.controls.device_model.setValue(device.model);
+    this.form.controls.device_brand.markAsTouched();
+    this.form.controls.device_model.markAsTouched();
+    this.activeField.set(null);
+  }
+
+  onBrandInput(event: Event): void {
+    this.brandQuery.set(this.eventValue(event));
+    this.activeField.set('brand');
+  }
+
+  onModelInput(event: Event): void {
+    this.modelQuery.set(this.eventValue(event));
+    this.activeField.set('model');
+  }
+
+  pickBrand(brand: string): void {
+    this.form.controls.device_brand.setValue(brand);
+    this.form.controls.device_brand.markAsTouched();
+    this.brandQuery.set(brand);
+    this.activeField.set(null);
+  }
+
+  pickDevice(item: DeviceSuggestion): void {
+    this.form.controls.device_brand.setValue(item.brand);
+    this.form.controls.device_model.setValue(item.model);
+    this.form.controls.device_model.markAsTouched();
+    this.brandQuery.set(item.brand);
+    this.modelQuery.set(item.model);
+    this.activeField.set(null);
+  }
+
+  closeSuggestions(): void {
+    this.activeField.set(null);
+  }
+
+  isIssuePicked(key: IssueFlagKey): boolean {
+    return this.values().issues.includes(key);
+  }
+
+  toggleIssue(key: IssueFlagKey): void {
+    const control = this.form.controls.issues;
+    const picked = control.value;
+    control.setValue(picked.includes(key) ? picked.filter((item) => item !== key) : [...picked, key]);
+    control.markAsTouched();
+    this.syncSuggestedService();
   }
 
   // ---------- step 2: schedule ----------
@@ -376,20 +446,22 @@ export class NewBookingPage implements OnInit {
     }
   }
 
-  // ---------- step 3: details ----------
+  // ---------- step 3: review ----------
 
-  isIssuePicked(key: IssueFlagKey): boolean {
-    return this.values().issues.includes(key);
+  pickService(serviceId: string): void {
+    this.form.controls.service_id.setValue(serviceId);
+    this.form.controls.service_id.markAsTouched();
+    this.serviceChosenByUser.set(true);
   }
 
-  toggleIssue(key: IssueFlagKey): void {
-    const control = this.form.controls.issues;
-    const picked = control.value;
-    control.setValue(picked.includes(key) ? picked.filter((item) => item !== key) : [...picked, key]);
-    control.markAsTouched();
+  /** Keeps the pre-selected service in line with the picked issues until the customer chooses one. */
+  private syncSuggestedService(): void {
+    if (this.serviceChosenByUser()) {
+      return;
+    }
+    const suggestion = suggestService(this.services(), this.form.controls.issues.value);
+    this.form.controls.service_id.setValue(suggestion?.id ?? '');
   }
-
-  // ---------- step 4: confirm ----------
 
   async submit(): Promise<void> {
     const badStep = [0, 1, 2].find((index) => !this.stepIsValid(index));
@@ -447,17 +519,25 @@ export class NewBookingPage implements OnInit {
     this.form.reset({
       device_brand: '',
       device_model: '',
-      location: this.config.locations[0] ?? '',
-      service_id: '',
-      technician_id: '',
-      booking_date: '',
-      booking_time: '',
       issues: [],
       issue_description: '',
+      location: this.config.locations[0] ?? '',
+      booking_date: '',
+      booking_time: '',
+      service_id: '',
+      technician_id: '',
     });
+    this.serviceChosenByUser.set(false);
+    this.brandQuery.set('');
+    this.modelQuery.set('');
     this.applyDefaultDate();
     this.step.set(0);
     this.showErrors.set(false);
+  }
+
+  private eventValue(event: Event): string {
+    const value = (event as CustomEvent<{ value?: string | null }>).detail?.value;
+    return value ?? '';
   }
 
   private async showToast(message: string, color: 'success' | 'danger' | 'warning'): Promise<void> {

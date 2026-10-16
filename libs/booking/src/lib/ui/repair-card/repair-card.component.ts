@@ -211,6 +211,8 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
       .actions ion-button {
         --border-radius: 999px;
         margin: 0;
+        text-transform: none;
+        letter-spacing: 0;
       }
     `,
   ],
