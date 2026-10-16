@@ -20,15 +20,15 @@ import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angu
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="dashboard" href="/tabs/dashboard">
           <ion-icon name="home-outline"></ion-icon>
-          <ion-label>Dashboard</ion-label>
+          <ion-label>Home</ion-label>
         </ion-tab-button>
         <ion-tab-button tab="new-booking" href="/tabs/new-booking">
           <ion-icon name="add-circle-outline"></ion-icon>
-          <ion-label>New booking</ion-label>
+          <ion-label>Book</ion-label>
         </ion-tab-button>
         <ion-tab-button tab="my-repairs" href="/tabs/my-repairs">
           <ion-icon name="list-outline"></ion-icon>
-          <ion-label>My repairs</ion-label>
+          <ion-label>Repairs</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

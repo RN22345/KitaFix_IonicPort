@@ -19,6 +19,7 @@ import { bookingErrorMessage } from '../../models/booking-error';
 import {
   Repair,
   formatBookingDate,
+  isActiveRepair,
   problemSummary,
   shortRepairId,
   statusMeta,
@@ -27,7 +28,7 @@ import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
 import { RescheduleModalComponent } from '../../ui/reschedule-modal/reschedule-modal.component';
 
-type RepairFilter = 'all' | 'active' | 'history';
+type RepairFilter = 'active' | 'history';
 
 @Component({
   selector: 'app-my-repairs',
@@ -59,22 +60,20 @@ export class MyRepairsPage implements OnInit {
   readonly repairs = this.booking.myRepairs;
   readonly loading = this.booking.loading;
   readonly error = this.booking.error;
-  readonly filter = signal<RepairFilter>('all');
+  /** Picked by the customer; until then Active, or History when nothing is active. */
+  private readonly pickedFilter = signal<RepairFilter | null>(null);
+  readonly filter = computed<RepairFilter>(
+    () => this.pickedFilter() ?? (this.counts().active > 0 || this.counts().all === 0 ? 'active' : 'history'),
+  );
   readonly rescheduleOpen = signal(false);
   readonly selectedRepair = signal<Repair | null>(null);
 
   readonly skeletons = [1, 2, 3];
   readonly search = this.booking.searchTerm;
 
-  private static isActive(repair: Repair): boolean {
-    return (
-      repair.status === 'pending' || repair.status === 'in_progress' || repair.status === 'testing'
-    );
-  }
-
   readonly counts = computed(() => {
     const all = this.repairs();
-    const active = all.filter((repair) => MyRepairsPage.isActive(repair)).length;
+    const active = all.filter((repair) => isActiveRepair(repair)).length;
     return { all: all.length, active, history: all.length - active };
   });
 
@@ -82,10 +81,10 @@ export class MyRepairsPage implements OnInit {
     const filter = this.filter();
     const term = this.search().trim().toLowerCase();
     return this.repairs().filter((repair) => {
-      if (filter === 'active' && !MyRepairsPage.isActive(repair)) {
+      if (filter === 'active' && !isActiveRepair(repair)) {
         return false;
       }
-      if (filter === 'history' && MyRepairsPage.isActive(repair)) {
+      if (filter === 'history' && isActiveRepair(repair)) {
         return false;
       }
       if (!term) {
@@ -109,15 +108,10 @@ export class MyRepairsPage implements OnInit {
     void this.booking.ensureLoaded();
   }
 
-  ionViewWillLeave(): void {
-    // The dashboard search hands its text over once; clear it when leaving this tab.
-    this.search.set('');
-  }
-
   onFilterChange(event: Event): void {
     const value = (event as CustomEvent<{ value?: RepairFilter }>).detail?.value;
     if (value) {
-      this.filter.set(value);
+      this.pickedFilter.set(value);
     }
   }
 

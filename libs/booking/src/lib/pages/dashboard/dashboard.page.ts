@@ -2,48 +2,39 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@a
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
   IonContent,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonPopover,
-  IonSearchbar,
   IonSpinner,
 } from '@ionic/angular';
+import { ThemeService } from '@kitafix/theme';
 import { BOOKING_CONFIG } from '../../data-access/config';
 import { getSupabaseClient } from '../../data-access/supabase-client';
+import { isActiveRepair } from '../../models/repair.model';
 import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
 
-import { addIcons } from 'ionicons';
-import {
-  calendar,
-  time,
-  phonePortrait,
-  person,
-  notificationsOutline,
-  construct,
-  refreshOutline,
-  logOutOutline,
-} from 'ionicons/icons';
+/** How many active repairs Home shows before "See all". */
+const HOME_ACTIVE_LIMIT = 3;
 
+/**
+ * Home: greeting, one way to book, and the repairs that are still in the shop.
+ * Everything else (history, search, cancel, reschedule) lives on Repairs.
+ */
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     IonButton,
-    IonCard,
-    IonCardContent,
     IonContent,
     IonIcon,
     IonItem,
     IonLabel,
     IonList,
     IonPopover,
-    IonSearchbar,
     IonSpinner,
     RepairCardComponent,
     RouterLink,
@@ -55,14 +46,15 @@ export class DashboardPage implements OnInit {
   private readonly booking = inject(RepairsService);
   private readonly router = inject(Router);
   private readonly config = inject(BOOKING_CONFIG);
+  private readonly theme = inject(ThemeService);
 
   readonly currentUser = this.booking.currentUser;
   readonly loading = this.booking.loading;
   readonly error = this.booking.error;
-  readonly counts = this.booking.statusCounts;
-  readonly search = this.booking.searchTerm;
+  readonly repairs = this.booking.myRepairs;
   readonly notifications = this.booking.notifications;
   readonly unreadCount = this.booking.unreadCount;
+  readonly themeMode = this.theme.mode;
 
   readonly name = computed(() => this.currentUser()?.full_name.split(' ')[0] ?? 'there');
   readonly initial = computed(() => this.name().charAt(0).toUpperCase());
@@ -74,31 +66,8 @@ export class DashboardPage implements OnInit {
     return 'Good evening';
   });
 
-  constructor() {
-    addIcons({
-      calendar,
-      time,
-      phonePortrait,
-      person,
-      notificationsOutline,
-      construct,
-      refreshOutline,
-      logOutOutline,
-    });
-  }
-
-  /** Repairs that are not finished yet (dashboard preview, max 3). */
-  readonly upcoming = computed(() =>
-    this.booking
-      .myRepairs()
-      .filter(
-        (repair) =>
-          repair.status === 'pending' ||
-          repair.status === 'in_progress' ||
-          repair.status === 'testing',
-      )
-      .slice(0, 3),
-  );
+  readonly active = computed(() => this.repairs().filter((repair) => isActiveRepair(repair)));
+  readonly shownActive = computed(() => this.active().slice(0, HOME_ACTIVE_LIMIT));
 
   ngOnInit(): void {
     void this.booking.ensureLoaded();
@@ -108,20 +77,12 @@ export class DashboardPage implements OnInit {
     void this.booking.retryLoad();
   }
 
-  onSearch(event: Event): void {
-    const value = (event as CustomEvent<{ value?: string | null }>).detail?.value;
-    this.search.set(value ?? '');
-  }
-
-  /** Enter in the search box: show the matching repairs. */
-  goToSearch(): void {
-    if (this.search().trim()) {
-      void this.router.navigateByUrl('/tabs/my-repairs');
-    }
-  }
-
   markAllRead(): void {
     this.booking.markAllNotificationsRead();
+  }
+
+  toggleTheme(): void {
+    this.theme.toggle();
   }
 
   goToNewBooking(): void {

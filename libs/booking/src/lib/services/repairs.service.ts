@@ -3,7 +3,7 @@ import { RepairStatus } from '@kitafix/shared-types';
 import { BookingDraft } from '../models/booking-draft.model';
 import { BookingError, bookingErrorMessage } from '../models/booking-error';
 import { ServiceOption, TechnicianOption } from '../models/catalog.model';
-import { Repair, shortRepairId, statusMeta } from '../models/repair.model';
+import { Repair, pastDevices, shortRepairId, statusMeta } from '../models/repair.model';
 import { RepairsRepository } from '../data-access/repositories/repairs.repository';
 import { ServicesGateway } from '../data-access/gateways/services.gateway';
 import { TechniciansGateway } from '../data-access/gateways/technicians.gateway';
@@ -38,10 +38,12 @@ export class RepairsService {
   readonly error = signal<string | null>(null);
   readonly technicianOptions = signal<TechnicianOption[]>([]);
   readonly serviceOptions = signal<ServiceOption[]>([]);
-  /** Text typed in the dashboard search box; My Repairs filters by it. */
+  /** Text typed in the Repairs search box (kept while switching tabs). */
   readonly searchTerm = signal('');
   readonly notifications = signal<RepairNotification[]>([]);
   readonly unreadCount = computed(() => this.notifications().filter((item) => !item.read).length);
+  /** Devices this customer brought in before, newest first (one-tap picks on New Booking). */
+  readonly myDevices = computed(() => pastDevices(this.myRepairs()));
 
   readonly statusCounts = computed<Record<RepairStatus, number>>(() => {
     const counts: Record<RepairStatus, number> = {

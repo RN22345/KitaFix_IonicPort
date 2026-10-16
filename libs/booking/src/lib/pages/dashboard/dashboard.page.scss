@@ -1,39 +1,28 @@
-:host {
-  --blueDark: #0B5ED7;
-  --blueLight: #2E7DFF;
-  --greenDark: #00C896;
-  --greenLight: #7EE787;
-  --gray: #E6F1FF;
-  --blackish: #0F172A;
-}
+// Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
 
-ion-content {
-  --background: #F5F9FF;
-}
-
-// ---------- Hero (blue header area) ----------
+// ---------- Header ----------
 .hero {
   padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1rem 1.25rem;
-  background: var(--blueDark);
-  border-radius: 0 0 28px 28px;
+  background: linear-gradient(160deg, var(--kf-hero-from), var(--kf-hero-to));
+  color: var(--kf-on-hero);
+  border-radius: 0 0 26px 26px;
 }
 
 .hero-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 
 .greeting {
   display: flex;
   flex-direction: column;
-  color: #fff;
 }
 
 .greeting-label {
   font-size: 0.95rem;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .greeting-name {
@@ -49,22 +38,15 @@ ion-content {
 }
 
 .bell {
-  --color: #fff;
+  --color: var(--kf-on-hero);
   --padding-start: 0.4rem;
   --padding-end: 0.4rem;
   --border-radius: 50%;
-  --background-hover: rgba(255, 255, 255, 0.15);
-  --background-activated: rgba(255, 255, 255, 0.25);
+  --background-hover: rgba(255, 255, 255, 0.12);
+  --background-activated: rgba(255, 255, 255, 0.2);
   position: relative;
   font-size: 1.2rem;
-  transition: transform 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
-
-  &:active {
-    transform: scale(0.88);
-  }
 }
-
 
 .bell-dot {
   position: absolute;
@@ -73,12 +55,8 @@ ion-content {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #ff4d5e;
-  border: 2px solid var(--blueDark);
-}
-
-.notif-menu {
-  --width: 280px;
+  background: var(--kf-danger);
+  border: 2px solid var(--kf-hero-from);
 }
 
 .avatar {
@@ -87,210 +65,94 @@ ion-content {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--gray);
-  color: var(--blueDark);
-  font-weight: 700;
-  border: 2px solid rgba(255, 255, 255, 0.8);
   padding: 0;
-  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--kf-on-hero);
   font: inherit;
   font-weight: 700;
-}
+  cursor: pointer;
+  transition: transform 0.15s ease;
 
-.search {
-  --background: #fff;
-  --border-radius: 14px;
-  --box-shadow: none;
-  --color: var(--blackish);
-  --placeholder-color: #6b7a90;
-  --icon-color: #6b7a90;
-  padding: 0;
-  margin-bottom: 1rem;
-  min-height: 46px;
-}
+  &:active {
+    transform: scale(0.9);
+  }
 
-// ---------- "Need a Repair?" banner (was the welcome card) ----------
-.welcome {
-  position: relative;
-  overflow: hidden;
-  margin: 0;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #eaf5ff 0%, #c4e3f6 100%);
-  color: var(--blackish);
-  box-shadow: none;
-  // max-height: 23vh;
-}
-
-.welcome ion-card-content {
-  position: relative;
-  padding: 1.1rem;
-  min-height: 160px;
-}
-
-.welcome-copy {
-  position: relative;
-  z-index: 1;
-  max-width: 56%;
-}
-
-.welcome h2 {
-  margin: 0 0 0.35rem;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.welcome p {
-  margin: 0 0 1rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
-  color: var(--blackish);
-  opacity: 0.85;
-  line-height: 1.35rem;
-}
-
-.book-btn {
-  --background: var(--greenDark);
-  --color: #fff;
-  --border-radius: 999px;
-  --padding-start: 1.3rem;
-  --padding-end: 1.3rem;
-  font-weight: 600;
-  margin: 0;
-  height: 2.3rem;
-  
-  
-}
-
-.welcome-art {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 46%;
-
-  // big soft circle behind the phone
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -30%;
-    width: 220px;
-    height: 220px;
-    transform: translateY(-50%);
-    border-radius: 50%;
-    background: rgba(120, 190, 235, 0.45);
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35);
   }
 }
 
-.seeRepair-button {
-  color: var(--blueDark);
-  font-weight: bold;
+.menu-popover {
+  --width: 260px;
 }
 
-.phone {
-  position: absolute;
-  top: 50%;
-  right: 1.4rem;
-  width: 84px;
-  height: 140px;
-  display: grid;
-  place-items: center;
-  transform: translateY(-50%) rotate(8deg);
-  border-radius: 16px;
-  border: 3px solid #dbe7f5;
-  background: linear-gradient(160deg, var(--blueLight), var(--blueDark));
-  box-shadow: 0 10px 22px rgba(11, 94, 215, 0.35);
+// ---------- Book a repair ----------
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+
+  h2 {
+    margin: 0 0 0.2rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    opacity: 0.85;
+  }
 }
 
-.phone ion-icon {
-  font-size: 2.6rem;
-  color: #fff;
+.cta-btn {
+  --background: var(--kf-green);
+  --background-activated: var(--kf-green);
+  --color: #06231b;
+  --border-radius: 999px;
+  --box-shadow: none;
+  margin: 0;
+  height: 2.75rem;
+  font-weight: 600;
+  text-transform: none;
 }
 
 // ---------- Body ----------
 .body {
-  padding: 1rem;
+  padding: 1.1rem 1rem 1.5rem;
 }
 
-.actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.8rem;
-  margin-bottom: 1.25rem;
-  text-decoration: none;
-}
-
-.action {
+.section-head {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  padding: 1rem;
-  border: 0;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
-  text-align: left;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.action ion-icon {
-  margin-bottom: 0.35rem;
-  font-size: 1.7rem;
-  color: var(--blueDark);
-}
-
-.action strong {
-  font-size: 0.98rem;
-  color: var(--blackish);
-}
-
-.action:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.action span {
-  font-size: 0.82rem;
-  line-height: 1.3;
-  color: #5d6b82;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  padding: 0.8rem 0.4rem;
-  border-radius: 14px;
-  background: var(--blueDark);
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--kf-text);
+  }
 }
 
-.stat .number {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.stat .label {
+.count {
+  min-width: 1.5rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--kf-accent-soft);
+  color: var(--kf-accent);
   font-size: 0.78rem;
-  color: #fff;
-}
-
-.section-title {
-  margin: 0 0 0.6rem;
-  font-size: 1rem;
   font-weight: 600;
-  color: var(--blackish);
+  text-align: center;
+  line-height: 1.5rem;
 }
 
 .center {
@@ -304,134 +166,53 @@ ion-content {
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
-  padding: 2rem 1rem;
+  padding: 1.75rem 1rem;
+  border: 1px dashed var(--kf-line);
+  border-radius: 16px;
   text-align: center;
-  color: var(--ion-color-medium);
-}
-
-.empty-state ion-icon {
-  font-size: 2.2rem;
-  color: var(--blueDark);
-}
-
-.error-card {
-  margin: 0 0 1rem;
-}
-
-.error-card p {
-  margin: 0 0 0.5rem;
-}
-
-// ---------- Tap and hover animations ----------
-
-// Cards: lift on hover (mouse only), press down on tap
-.action {
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-  -webkit-tap-highlight-color: transparent;
+  color: var(--kf-muted);
 
   ion-icon {
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 2rem;
+    color: var(--kf-accent);
   }
 
-  &:active {
-    transform: scale(0.96);
-    box-shadow: 0 1px 6px rgba(15, 23, 42, 0.08);
-
-    ion-icon {
-      transform: scale(1.18) rotate(-6deg);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--blueLight);
-    outline-offset: 2px;
+  p {
+    margin: 0;
+    max-width: 30ch;
+    font-size: 0.9rem;
   }
 }
 
-@media (hover: hover) {
-  .action:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+.error-box {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--kf-danger);
+  color: var(--kf-text);
+
+  p {
+    margin: 0 0 0.5rem;
   }
 
-  .action:active {
-    transform: scale(0.96); // keeps the press effect while hovering
-  }
-}
-
-// Avatar: soft ring on hover, squish on press
-.avatar {
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-
-  &:active {
-    transform: scale(0.88);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.45);
+  ion-button {
+    margin: 0;
   }
 }
 
-@media (hover: hover) {
-  .avatar:hover {
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
-  }
+.all-link {
+  margin-top: 0.25rem;
+  --color: var(--kf-accent);
+  font-weight: 600;
+  text-transform: none;
 }
 
-// Bell: little wiggle while pressed
-@keyframes bell-ring {
-  0%, 100% { transform: rotate(0); }
-  20% { transform: rotate(14deg); }
-  40% { transform: rotate(-12deg); }
-  60% { transform: rotate(8deg); }
-  80% { transform: rotate(-5deg); }
-}
-
-.bell:active ion-icon {
-  animation: bell-ring 0.5s ease;
-  transform-origin: 50% 10%;
-}
-
-// Book Now: press in
-.book-btn {
-  transition: transform 0.15s ease;
-
-  &:active {
-    transform: scale(0.94);
-  }
-}
-
-// Respect "reduce motion" system setting
 @media (prefers-reduced-motion: reduce) {
-  .action,
-  .action ion-icon,
-  .avatar,
-  .book-btn {
+  .avatar {
     transition: none;
   }
 
-  .action:hover,
-  .action:active,
-  .avatar:active,
-  .book-btn:active {
+  .avatar:active {
     transform: none;
   }
-
-  .action:active ion-icon {
-    transform: none;
-  }
-
-  .bell:active ion-icon {
-    animation: none;
-  }
-
-  .bell { transition: none; }
-  .bell:active { transform: none; }
-
 }

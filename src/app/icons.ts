@@ -26,6 +26,17 @@ import {
   arrowBackOutline, 
   checkmarkOutline, 
   phonePortraitOutline,
+  notificationsOutline,
+  sunnyOutline,
+  moonOutline,
+  logOutOutline,
+  addOutline,
+  checkmarkDoneOutline,
+  chevronForwardOutline,
+  chevronDownOutline,
+  closeOutline,
+  searchOutline,
+  pencilOutline,
 } from 'ionicons/icons';
 
 /**
@@ -58,5 +69,16 @@ export function registerIcons(): void {
     'arrow-back-outline': arrowBackOutline,
     'checkmark-outline': checkmarkOutline,
     'phone-portrait-outline': phonePortraitOutline,
+    'notifications-outline': notificationsOutline,
+    'sunny-outline': sunnyOutline,
+    'moon-outline': moonOutline,
+    'log-out-outline': logOutOutline,
+    'add-outline': addOutline,
+    'checkmark-done-outline': checkmarkDoneOutline,
+    'chevron-forward-outline': chevronForwardOutline,
+    'chevron-down-outline': chevronDownOutline,
+    'close-outline': closeOutline,
+    'search-outline': searchOutline,
+    'pencil-outline': pencilOutline,
   });
 }

@@ -1,16 +1,10 @@
-:host {
-  --blueDark: #0b5ed7;
-}
-
-ion-content {
-  --background: #f5f9ff;
-}
+// Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
 
 .hero {
   padding: calc(env(safe-area-inset-top, 0px) + 1.1rem) 1rem 1.25rem;
-  background: var(--blueDark);
-  border-radius: 0 0 28px 28px;
-  color: #fff;
+  background: linear-gradient(160deg, var(--kf-hero-from), var(--kf-hero-to));
+  border-radius: 0 0 26px 26px;
+  color: var(--kf-on-hero);
 
   h1 {
     margin: 0;
@@ -26,12 +20,12 @@ ion-content {
 }
 
 .search {
-  --background: #fff;
+  --background: var(--kf-surface);
   --border-radius: 14px;
   --box-shadow: none;
-  --color: #0f172a;
-  --placeholder-color: #6b7a90;
-  --icon-color: #6b7a90;
+  --color: var(--kf-text);
+  --placeholder-color: var(--kf-muted);
+  --icon-color: var(--kf-muted);
   padding: 0;
   min-height: 46px;
 }
@@ -41,21 +35,21 @@ ion-content {
 }
 
 .filters {
-  --background: #e6f1ff;
+  --background: var(--kf-surface-2);
   border-radius: 999px;
   margin-bottom: 1rem;
   padding: 3px;
 }
 
 ion-segment-button {
-  --indicator-color: var(--blueDark);
-  --indicator-height: 3px;
+  --indicator-color: var(--kf-surface);
+  --indicator-height: 100%;
   --padding-start: 0.2rem;
   --padding-end: 0.2rem;
   text-transform: none;
   letter-spacing: 0;
-  --color: #0f172a;
-  --color-checked: var(--blueDark);
+  --color: var(--kf-muted);
+  --color-checked: var(--kf-text);
   --border-radius: 999px;
   --indicator-box-shadow: none;
   min-height: 38px;
@@ -75,8 +69,8 @@ ion-segment-button {
   padding: 1rem;
   margin-bottom: 0.85rem;
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.07);
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-line);
 }
 
 .empty-state {
@@ -86,12 +80,12 @@ ion-segment-button {
   gap: 0.5rem;
   padding: 2.5rem 1rem;
   text-align: center;
-  color: #5d6b82;
+  color: var(--kf-muted);
 }
 
 .empty-state ion-icon {
   font-size: 2.4rem;
-  color: var(--blueDark);
+  color: var(--kf-accent);
 }
 
 .empty-state p {

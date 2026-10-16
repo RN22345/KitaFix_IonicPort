@@ -19,9 +19,7 @@ export const BOOKING_ROUTES: Routes = [
     path: 'my-repairs',
     loadComponent: () => import('./pages/my-repairs/my-repairs.page').then((m) => m.MyRepairsPage),
   },
-  {
-    path: 'my-devices',
-    loadComponent: () => import('./pages/my-devices/my-devices.page').then((m) => m.MyDevicesPage),
-  },
+  // My Devices was folded into New Booking (past devices are one-tap picks there).
+  { path: 'my-devices', redirectTo: 'new-booking' },
 ];
 
