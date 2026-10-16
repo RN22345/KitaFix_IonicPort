@@ -286,6 +286,38 @@ ion-content {
   }
 }
 
+/* ---------- Step 3: issue chips ---------- */
+.group-label .hint {
+  font-weight: 400;
+  color: var(--kf-muted);
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+}
+
+.chips.issues {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 1rem;
+}
+
+.chip.issue {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  border-radius: 14px;
+  text-align: left;
+
+  .issue-label {
+    font-weight: 600;
+  }
+
+  .issue-hint {
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.75;
+  }
+}
+
 ion-datetime {
   --background: #f7faff;
   --ion-color-primary: #0b5ed7;

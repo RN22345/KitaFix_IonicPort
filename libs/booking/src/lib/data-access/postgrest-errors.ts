@@ -12,6 +12,7 @@ const SLOT_TAKEN_MESSAGE =
  *   23514 check_violation          -> brand/model/issue/date rule failed server side
  *   42501 insufficient_privilege   -> RLS or our update guard blocked the change
  *   PGRST116 no rows (single())    -> row not found (or hidden by RLS)
+ *   PGRST204 column not in schema  -> the app is newer than the database (migration not applied)
  */
 export function mapPostgrestError(error: PostgrestError): BookingError {
   switch (error.code) {
@@ -40,6 +41,12 @@ export function mapPostgrestError(error: PostgrestError): BookingError {
       return new BookingError(
         'NOT_FOUND',
         'Booking not found. It may have been removed already.',
+        { cause: error },
+      );
+    case 'PGRST204':
+      return new BookingError(
+        'UNKNOWN',
+        'Booking is temporarily unavailable: the database has not been updated yet. Please tell the shop team.',
         { cause: error },
       );
     default:

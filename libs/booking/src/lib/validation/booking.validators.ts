@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { ISSUE_DEFINITIONS } from '../models/repair.model';
 
 /** Required after trim (so "   " does not pass). */
@@ -25,8 +25,13 @@ export function notPastDate(control: AbstractControl): ValidationErrors | null {
   return selected < today ? { pastDate: true } : null;
 }
 
-/** Group validator: at least one of the six issue checkboxes must be ticked. */
-export const atLeastOneIssue: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
-  const hasIssue = ISSUE_DEFINITIONS.some((issue) => group.get(issue.key)?.value === true);
+/**
+ * At least one of the six issue flags must be picked (Module Plan v4, Team 2 required
+ * feature 3). The control holds the picked IssueFlagKey list; unknown keys do not count.
+ */
+export function atLeastOneIssue(control: AbstractControl): ValidationErrors | null {
+  const value: unknown = control.value;
+  const picked = Array.isArray(value) ? value : [];
+  const hasIssue = ISSUE_DEFINITIONS.some((issue) => picked.includes(issue.key));
   return hasIssue ? null : { noIssue: true };
-};
+}

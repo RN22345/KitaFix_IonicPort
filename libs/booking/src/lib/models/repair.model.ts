@@ -57,12 +57,14 @@ export function issueLabels(repair: Repair): string[] {
 }
 
 /**
- * What to show as "the problem" on a repair: the customer's own description, or for
- * older bookings (made with the checkboxes) the ticked issue labels.
+ * What to show as "the problem" on a repair: the picked issue labels, then the
+ * customer's optional note. Bookings made while the form was free-text only may
+ * have just the note.
  */
 export function problemSummary(repair: Repair): string {
-  const description = repair.issue_description?.trim();
-  return description || issueLabels(repair).join(', ');
+  const labels = issueLabels(repair).join(', ');
+  const description = repair.issue_description?.trim() ?? '';
+  return [labels, description].filter((part) => part.length > 0).join(' · ');
 }
 
 /**
