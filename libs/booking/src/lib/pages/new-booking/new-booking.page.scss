@@ -190,14 +190,12 @@ ion-content {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  font-size: 1.4rem;
-  color: var(--kf-blue);
   background: var(--kf-ice);
-}
 
-.service-card:nth-child(even) .icon-tile {
-  color: var(--kf-green);
-  background: rgb(0 200 150 / 12%);
+  img {
+    height: 30px;
+    width: auto;
+  }
 }
 
 .service-card.selected .icon-tile {

@@ -229,13 +229,13 @@ export class NewBookingPage implements OnInit {
     return this.isTaken(slot) || this.isPast(slot);
   }
 
-  /** Picks an icon from the service name; falls back to a wrench. */
-  serviceIcon(name: string): string {
+  /** Picks the artist's service icon from the service name; falls back to the tools icon. */
+  serviceImage(name: string): string {
     const text = name.toLowerCase();
-    if (text.includes('screen') || text.includes('display')) return 'phone-portrait-outline';
-    if (text.includes('battery')) return 'battery-half-outline';
-    if (text.includes('water') || text.includes('liquid')) return 'water-outline';
-    return 'construct-outline';
+    if (text.includes('screen') || text.includes('display')) return 'assets/icons/service-screen.png';
+    if (text.includes('battery')) return 'assets/icons/service-battery.png';
+    if (text.includes('water') || text.includes('liquid')) return 'assets/icons/service-water.png';
+    return 'assets/icons/service-repair.png';
   }
 
   isInvalid(controlName: keyof typeof this.form.controls): boolean {

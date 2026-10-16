@@ -14,6 +14,11 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 - A database that is missing a newer column (`PGRST204`) now shows a friendly message instead of the raw error.
 - `libs/shared-types` checked against the hosted project after 0021 (only the PostgREST version stamp changed).
 
+### Added (Team 2)
+- Artist assets in the app: favicon / home-screen icon from the KitaFix app icon, and the four service icons on New Booking (replacing generic icons).
+- Migration `0022_team2_hardening.sql` (privileges only): fixed `search_path` on `t2_repairs_touch_updated_at`, `get_taken_slots()` no longer callable by `anon`, guard trigger function not callable over the API. Clears the Team 2 Supabase security advisor warnings. **Not yet applied to the hosted project.**
+- `supabase/tests/team2_rules_check.sql`: runs test plan A1-A5, B1-B9 and B11 against the database as the demo customer and rolls everything back.
+
 ### Changed (Team 2 - UI/UX makeover, moodboard palette)
 - Global theme now uses the KitaFix palette (blue `#0B5ED7`, green `#00C896`, ice `#E6F1FF`, navy `#0F172A`) with Poppins; tab bar restyled.
 - My Repairs redesigned: hero header, search, filter counts, loading skeletons, "Book again" on finished repairs.

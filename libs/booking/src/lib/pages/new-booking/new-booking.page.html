@@ -47,7 +47,7 @@
               (click)="pickService(service.id)"
             >
               <span class="icon-tile">
-                <ion-icon [name]="serviceIcon(service.name)"></ion-icon>
+                <img [src]="serviceImage(service.name)" alt="" />
               </span>
               <span class="service-text">
                 <span class="service-name">{{ service.name }}</span>

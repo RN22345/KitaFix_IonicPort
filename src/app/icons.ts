@@ -26,8 +26,6 @@ import {
   arrowBackOutline, 
   checkmarkOutline, 
   phonePortraitOutline,
-  batteryHalfOutline, 
-  waterOutline,
 } from 'ionicons/icons';
 
 /**
@@ -60,7 +58,5 @@ export function registerIcons(): void {
     'arrow-back-outline': arrowBackOutline,
     'checkmark-outline': checkmarkOutline,
     'phone-portrait-outline': phonePortraitOutline,
-    'battery-half-outline': batteryHalfOutline,
-    'water-outline': waterOutline,
   });
 }

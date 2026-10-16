@@ -13,6 +13,10 @@ Two ways to run the tests:
 
 Record results in the table at the bottom (date, mode, result, notes).
 
+**Database shortcut:** `supabase/tests/team2_rules_check.sql` runs A1-A5, B1-B9
+and B11 directly against the database (paste it into the Supabase SQL editor).
+It rolls everything back and prints PASS/FAIL lines you can copy into section D.
+
 ## A. Required tests (from the module card)
 
 | # | Test | Steps | Expected result |
