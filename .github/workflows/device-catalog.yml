@@ -1,0 +1,55 @@
+name: Device catalog
+
+# Refreshes src/assets/data/device-catalog.json (brand/model suggestions on New
+# Booking) from Google Play's supported-devices list every Monday, and opens a
+# pull request when anything changed. Apple and other extras come from
+# tools/device-catalog/extra-devices.json.
+#
+# One-time repo setting: Settings -> Actions -> General -> Workflow permissions
+# -> tick "Allow GitHub Actions to create and approve pull requests".
+#
+# PRs opened with the built-in token do not start the CI workflow by themselves.
+# To run the required "Build" check, close and reopen the PR (or push to it).
+
+on:
+  schedule:
+    - cron: '0 1 * * 1' # Mondays 01:00 UTC (09:00 Manila)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: device-catalog
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    name: Refresh device catalog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Build the catalog
+        run: node tools/device-catalog/build-device-catalog.mjs
+
+      - name: Open or update the pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/device-catalog-refresh
+          delete-branch: true
+          commit-message: 'chore(booking): refresh device catalog from Google Play'
+          title: 'chore(booking): refresh device catalog'
+          body: |
+            Weekly refresh of `src/assets/data/device-catalog.json` (brand/model suggestions on New Booking) from Google Play's supported-devices list.
+
+            Close and reopen this PR to run the required CI check, then squash and merge.
+          labels: automated
+          add-paths: src/assets/data/device-catalog.json
