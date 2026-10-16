@@ -20,7 +20,7 @@ Owned by Team 2 (`supabase/migrations/0020_team2_booking.sql`):
 
 | Object | Type | Notes |
 | --- | --- | --- |
-| `repairs` (booking columns) | table | device, location, date, time, service, 6 issue flags |
+| `repairs` (booking columns) | table | device, location, date, time, service, 6 issue flags, optional `issue_description` |
 | `repairs_no_double_booking` | exclusion constraint | same location + overlapping hour is rejected (23P01) |
 | `repairs_select_own` / `insert_own` / `update_own` | RLS policies | customers only touch their own rows |
 | `repairs_guard_customer_update()` | trigger function | customers may only cancel/reschedule |
@@ -46,7 +46,7 @@ Raw SQL for every method: `supabase/queries.sql`.
 Domain and rules:
 
 - `Repair`, `IssueFlagKey`, `ISSUE_DEFINITIONS`, `REPAIR_STATUS_LIST`
-- `statusMeta(status)`, `issueLabels(repair)`
+- `statusMeta(status)`, `issueLabels(repair)`, `problemSummary(repair)`
 - `canCustomerCancel(repair)`, `canCustomerReschedule(repair)`
 - `shortRepairId(id)`, `formatBookingDate(date)`, `formatTime(time)`, `normalizeTime(time)`
 - `trimmedRequired`, `notPastDate`, `atLeastOneIssue` (Angular validators)

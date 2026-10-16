@@ -13,11 +13,15 @@ Two ways to run the tests:
 
 Record results in the table at the bottom (date, mode, result, notes).
 
+**Database shortcut:** `supabase/tests/team2_rules_check.sql` runs A1-A5, B1-B9
+and B11 directly against the database (paste it into the Supabase SQL editor).
+It rolls everything back and prints PASS/FAIL lines you can copy into section D.
+
 ## A. Required tests (from the module card)
 
 | # | Test | Steps | Expected result |
 | --- | --- | --- | --- |
-| A1 | **Book with empty fields must block** | New booking -> leave brand, model empty, no issues -> Book repair | Form shows red notes on brand/model/issues; nothing is saved; warning toast "Please complete the highlighted fields." (real mode: no row in `repairs`) |
+| A1 | **Book with empty fields must block** | New booking -> pick a service and slot -> on Details leave brand, model empty and pick no issue -> Next | Step does not advance; red notes on brand, model and "Please pick at least one problem."; nothing is saved (real mode: no row in `repairs`) |
 | A2 | **Book a past date must block** | Open the date picker | Yesterday and earlier are not selectable (`min` = today); even if forced with devtools, `notPastDate` rejects and the DB `repairs_booking_date_not_past` rejects the insert |
 | A3 | **Book the same slot twice must fail** | Book `Main Branch - Downtown`, tomorrow 10:00. Then book the same branch/date/time again | Second attempt fails with "That time is already booked at this location." In the SQL editor the second insert gives `23P01 repairs_no_double_booking` |
 | A4 | **Same time, different location must pass** | Book `Main Branch - Downtown`, tomorrow 10:00. Then `North Mall Branch`, tomorrow 10:00 | Both bookings are created; the list shows two rows at 10:00 with different branches |
@@ -46,7 +50,7 @@ Record results in the table at the bottom (date, mode, result, notes).
 | C1 | Dashboard welcome + list | Sign in / open the app | "Hello, <first name>!" and the 3 newest active repairs with status badges |
 | C2 | My repairs content | Open My repairs | Each card has short ID, device, date, time, branch, issues, status |
 | C3 | Empty states | Filter History with no finished repairs | Friendly message, no blank screen, no raw database text |
-| C4 | Price estimate | Pick a service and tick issues | Estimated total = base price + issue fees (e.g. Screen Replacement 1499 + Battery 250 = 1749) |
+| C4 | Price estimate | Pick a service and tap issue chips | Estimated total = base price + issue fees (e.g. Screen Replacement 1499 + Battery 250 = 1749) |
 | C5 | Live status update (recommended) | Real mode. Open My repairs. From Studio/staff app set the repair to `in_progress` | The badge updates on the customer screen without refresh (Realtime publication) |
 | C6 | Refresh + error handling | Pull to refresh; then stop Supabase and try again | List refreshes; when Supabase is down a friendly error banner appears with Retry |
 
@@ -54,26 +58,26 @@ Record results in the table at the bottom (date, mode, result, notes).
 
 | Date | Mode (mock/real) | Test # | Result (pass/fail) | Notes / error text |
 | --- | --- | --- | --- | --- |
-| | | A1 | | |
-| | | A2 | | |
-| | | A3 | | |
-| | | A4 | | |
-| | | A5 | | |
-| | | B1 | | |
-| | | B2 | | |
-| | | B3 | | |
-| | | B4 | | |
-| | | B5 | | |
-| | | B6 | | |
-| | | B7 | | |
-| | | B8 | | |
-| | | B9 | | |
-| | | B10 | | |
-| | | B11 | | |
+| 2026-10-16 | mock UI + real (DB script) | A1 | pass | UI: Details step blocks, "Please pick at least one problem." DB: 23514 on blank brand and on no issue + no note |
+| 2026-10-16 | real (DB script) | A2 | pass | 23514 repairs_booking_date_not_past |
+| 2026-10-16 | real (DB script) | A3 | pass | second insert 23P01 repairs_no_double_booking |
+| 2026-10-16 | real (DB script) | A4 | pass | same time at North Mall Branch accepted |
+| 2026-10-16 | real (DB script) | A5 | pass | 42501 "This repair can no longer be changed by the customer." |
+| 2026-10-16 | real (DB script) | B1 | pass | cancelled; taken hours went 10:00,11:00 -> 10:00 |
+| 2026-10-16 | real (DB script) | B2 | pass | in_progress cancel allowed |
+| 2026-10-16 | real (DB script) | B3 | pass | testing cancel 42501 |
+| 2026-10-16 | real (DB script) | B4 | pass | moved 13:00 -> 17:00 |
+| 2026-10-16 | real (DB script) | B5 | pass | 23P01 on reschedule onto taken 14:00 |
+| 2026-10-16 | real (DB script) | B6 | pass | status and technician_id changes: 42501 |
+| 2026-10-16 | real (DB script) | B7 | pass | device_brand and issue flag edits: 42501 |
+| 2026-10-16 | real (DB script) | B8 | pass | cancelled 11:00 rebooked |
+| 2026-10-16 | real (DB script) | B9 | pass | get_taken_slots returned exactly the booked hours |
+|  |  | B10 | not run | needs two parallel sessions; A3 exercises the same constraint |
+| 2026-10-16 | real (DB script) | B11 | pass | another customer sees 0 rows; anon sees 0; technician sees only assigned jobs (Team 3 stub policy) |
 | | | C1 | | |
 | | | C2 | | |
 | | | C3 | | |
-| | | C4 | | |
+| 2026-10-16 | mock UI | C4 | pass | Screen Replacement 1499 + Battery 250 + Camera 300 = 2049 |
 | | | C5 | | |
 | | | C6 | | |
 

@@ -47,7 +47,7 @@
               (click)="pickService(service.id)"
             >
               <span class="icon-tile">
-                <ion-icon [name]="serviceIcon(service.name)"></ion-icon>
+                <img [src]="serviceImage(service.name)" alt="" />
               </span>
               <span class="service-text">
                 <span class="service-name">{{ service.name }}</span>
@@ -161,21 +161,37 @@
           <ion-note class="error" color="danger" role="alert">Device model is required.</ion-note>
         }
 
+        <p class="group-label">What is wrong? <span class="hint">Pick all that apply</span></p>
+        <div class="chips issues" role="group" aria-label="What is wrong?">
+          @for (issue of issueOptions; track issue.key) {
+            <button
+              type="button"
+              class="chip issue"
+              [class.selected]="isIssuePicked(issue.key)"
+              [attr.aria-pressed]="isIssuePicked(issue.key)"
+              (click)="toggleIssue(issue.key)"
+            >
+              <span class="issue-label">{{ issue.label }}</span>
+              <span class="issue-hint">{{ issue.hint }}</span>
+            </button>
+          }
+        </div>
+        @if (isInvalid('issues')) {
+          <ion-note class="error" color="danger" role="alert">
+            Please pick at least one problem.
+          </ion-note>
+        }
+
         <ion-textarea
-          label="What is wrong?"
+          label="Anything else? (optional)"
           labelPlacement="floating"
           fill="outline"
-          placeholder="Describe the problem, e.g. screen cracked after a drop, battery drains in an hour..."
-          rows="4"
+          placeholder="e.g. cracked after a drop, battery drains in an hour..."
+          rows="3"
           maxlength="500"
           [counter]="true"
           formControlName="issue_description"
         ></ion-textarea>
-        @if (isInvalid('issue_description')) {
-          <ion-note class="error" color="danger" role="alert">
-            Please describe what is wrong.
-          </ion-note>
-        }
 
         <ion-select
           label="Preferred technician (optional)"
@@ -214,7 +230,12 @@
           </div>
           <div class="row">
             <dt>Problem</dt>
-            <dd class="long">{{ values().issue_description }}</dd>
+            <dd class="long">
+              {{ pickedIssueLabels().join(', ') }}
+              @if (values().issue_description.trim()) {
+                <br />{{ values().issue_description.trim() }}
+              }
+            </dd>
           </div>
           <div class="row">
             <dt>Technician</dt>

@@ -14,11 +14,11 @@ export interface BookingDraft {
   booking_date: string;
   /** "HH:MM" (24 hour). Normalized to "HH:MM:SS" before insert. */
   booking_time: string;
-  /** Free-text "what is wrong?" from the customer (required in the form, max 500 characters). */
+  /** Optional free-text detail from the customer (max 500 characters; empty is sent as null). */
   issue_description: string;
   /**
-   * Legacy issue flags. The redesigned form sends [] (a text description replaced the
-   * checkboxes); kept because the repairs table still has the six flag columns.
+   * The six issue flags picked on the Details step (at least one; frozen names, rule R4).
+   * They also drive the issue fees in the price estimate.
    */
   issues: IssueFlagKey[];
 }

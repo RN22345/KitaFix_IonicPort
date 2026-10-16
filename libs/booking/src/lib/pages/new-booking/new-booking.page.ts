@@ -32,6 +32,8 @@ import { BOOKING_CONFIG } from '../../data-access/config';
 import { BookingDraft } from '../../models/booking-draft.model';
 import { BookingError, bookingErrorMessage } from '../../models/booking-error';
 import {
+  ISSUE_DEFINITIONS,
+  IssueFlagKey,
   formatBookingDate,
   normalizeTime,
   shortRepairId,
@@ -39,7 +41,11 @@ import {
 } from '../../models/repair.model';
 import { estimatePrice, formatCurrency } from '../../pricing/price-estimate';
 import { RepairsService } from '../../services/repairs.service';
-import { notPastDate, trimmedRequired } from '../../validation/booking.validators';
+import {
+  atLeastOneIssue,
+  notPastDate,
+  trimmedRequired,
+} from '../../validation/booking.validators';
 
 /** Local calendar date as YYYY-MM-DD (toISOString() would give the UTC date). */
 function toLocalIsoDate(date: Date): string {
@@ -68,7 +74,7 @@ function tomorrowIsoDate(): string {
   imports: [
     ReactiveFormsModule,
     IonButton,
-      IonContent,
+    IonContent,
     IonDatetime,
     IonFooter,
     IonHeader,
@@ -105,6 +111,7 @@ export class NewBookingPage implements OnInit {
   readonly services = this.booking.serviceOptions;
   readonly technicians = this.booking.technicianOptions;
   readonly currency = this.config.currency;
+  readonly issueOptions = ISSUE_DEFINITIONS;
 
   readonly minDate = toLocalIsoDate(new Date());
   readonly saving = signal(false);
@@ -123,10 +130,10 @@ export class NewBookingPage implements OnInit {
       technician_id: this.formBuilder.control(''),
       booking_date: this.formBuilder.control('', [Validators.required, notPastDate]),
       booking_time: this.formBuilder.control('', [Validators.required]),
-      issue_description: this.formBuilder.control('', [
-        trimmedRequired,
-        Validators.maxLength(500),
-      ]),
+      /** The six frozen issue flags (Module Plan v4 required feature 2): at least one. */
+      issues: this.formBuilder.control<IssueFlagKey[]>([], [atLeastOneIssue]),
+      /** Optional extra detail on top of the picked issues. */
+      issue_description: this.formBuilder.control('', [Validators.maxLength(500)]),
     },
   );
 
@@ -148,7 +155,12 @@ export class NewBookingPage implements OnInit {
       this.technicians().find((item) => item.id === this.values().technician_id)?.full_name ??
       'Any available technician',
   );
-  readonly estimate = computed(() => estimatePrice(this.selectedService(), []));
+  readonly estimate = computed(() => estimatePrice(this.selectedService(), this.values().issues));
+  readonly pickedIssueLabels = computed(() =>
+    ISSUE_DEFINITIONS.filter((issue) => this.values().issues.includes(issue.key)).map(
+      (issue) => issue.label,
+    ),
+  );
 
   constructor() {
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -217,13 +229,13 @@ export class NewBookingPage implements OnInit {
     return this.isTaken(slot) || this.isPast(slot);
   }
 
-  /** Picks an icon from the service name; falls back to a wrench. */
-  serviceIcon(name: string): string {
+  /** Picks the artist's service icon from the service name; falls back to the tools icon. */
+  serviceImage(name: string): string {
     const text = name.toLowerCase();
-    if (text.includes('screen') || text.includes('display')) return 'phone-portrait-outline';
-    if (text.includes('battery')) return 'battery-half-outline';
-    if (text.includes('water') || text.includes('liquid')) return 'water-outline';
-    return 'construct-outline';
+    if (text.includes('screen') || text.includes('display')) return 'assets/icons/service-screen.png';
+    if (text.includes('battery')) return 'assets/icons/service-battery.png';
+    if (text.includes('water') || text.includes('liquid')) return 'assets/icons/service-water.png';
+    return 'assets/icons/service-repair.png';
   }
 
   isInvalid(controlName: keyof typeof this.form.controls): boolean {
@@ -282,7 +294,12 @@ export class NewBookingPage implements OnInit {
       case 1:
         return c.location.valid && c.booking_date.valid && c.booking_time.valid;
       case 2:
-        return c.device_brand.valid && c.device_model.valid && c.issue_description.valid;
+        return (
+          c.device_brand.valid &&
+          c.device_model.valid &&
+          c.issues.valid &&
+          c.issue_description.valid
+        );
       default:
         return this.form.valid;
     }
@@ -296,7 +313,7 @@ export class NewBookingPage implements OnInit {
         : step === 1
           ? [c.location, c.booking_date, c.booking_time]
           : step === 2
-            ? [c.device_brand, c.device_model, c.issue_description]
+            ? [c.device_brand, c.device_model, c.issues, c.issue_description]
             : [];
     controls.forEach((control) => control.markAsTouched());
   }
@@ -359,6 +376,19 @@ export class NewBookingPage implements OnInit {
     }
   }
 
+  // ---------- step 3: details ----------
+
+  isIssuePicked(key: IssueFlagKey): boolean {
+    return this.values().issues.includes(key);
+  }
+
+  toggleIssue(key: IssueFlagKey): void {
+    const control = this.form.controls.issues;
+    const picked = control.value;
+    control.setValue(picked.includes(key) ? picked.filter((item) => item !== key) : [...picked, key]);
+    control.markAsTouched();
+  }
+
   // ---------- step 4: confirm ----------
 
   async submit(): Promise<void> {
@@ -406,7 +436,9 @@ export class NewBookingPage implements OnInit {
       location: value.location,
       booking_date: value.booking_date,
       booking_time: normalizeTime(value.booking_time),
-      issues: [],
+      issues: ISSUE_DEFINITIONS.filter((issue) => value.issues.includes(issue.key)).map(
+        (issue) => issue.key,
+      ),
       issue_description: value.issue_description.trim(),
     };
   }
@@ -420,6 +452,7 @@ export class NewBookingPage implements OnInit {
       technician_id: '',
       booking_date: '',
       booking_time: '',
+      issues: [],
       issue_description: '',
     });
     this.applyDefaultDate();

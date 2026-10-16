@@ -43,7 +43,7 @@ other customers' data (it is `security definer` for that reason).
 | Model required, not blank | `trimmedRequired` | `repairs_device_model_not_blank` |
 | Location required | select with default | `repairs_location_not_blank` |
 | Service required | `Validators.required` | FK `service_id` |
-| At least **1** of the 6 issues | `atLeastOneIssue` group validator | `repairs_at_least_one_issue` |
+| At least **1** of the 6 issues | `atLeastOneIssue` validator on the issue chips | `repairs_at_least_one_issue` |
 | Date not in the past | `notPastDate` + picker `min` | `repairs_booking_date_not_past` |
 | Time required, from the slot list | select over free slots | slot overlap constraint |
 
