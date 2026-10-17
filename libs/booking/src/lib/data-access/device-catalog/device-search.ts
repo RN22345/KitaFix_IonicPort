@@ -1,7 +1,8 @@
 /**
- * Brand / model suggestions for New Booking. Pure functions over the catalog in
- * src/assets/data/device-catalog.json (built by tools/device-catalog). Typing
- * something that is not in the catalog is always allowed - these only suggest.
+ * Brand / model lists for New Booking. Pure functions over the catalog in
+ * src/assets/data/device-catalog.json (built by tools/device-catalog).
+ * By default the customer picks from these lists; ticking "Not in the list"
+ * lets them type any brand and model instead.
  */
 
 export interface CatalogBrand {
@@ -99,6 +100,28 @@ export function searchModels(catalog: DeviceCatalog, brand: string, query: strin
   const found = findBrand(catalog, brand);
   if (!found || !query.trim()) return [];
   return rank(found.models, (model) => model, query, limit);
+}
+
+/**
+ * A brand's models to browse before typing: the top of the catalog list, which
+ * the catalog builder orders newest-looking first (see browseOrder in
+ * tools/device-catalog/build-device-catalog.mjs).
+ */
+export function browseModels(catalog: DeviceCatalog, brand: string, limit = 40): string[] {
+  return findBrand(catalog, brand)?.models.slice(0, limit) ?? [];
+}
+
+const sameName = (a: string, b: string) =>
+  a.trim().replace(/\s+/g, ' ').toLowerCase() === b.trim().replace(/\s+/g, ' ').toLowerCase();
+
+/**
+ * The catalog's own spelling of a brand + model, or null when the pair is not
+ * in the list (case and extra spaces do not matter).
+ */
+export function listedDevice(catalog: DeviceCatalog, brand: string, model: string): DeviceSuggestion | null {
+  const found = findBrand(catalog, brand.replace(/\s+/g, ' '));
+  const listed = found?.models.find((item) => sameName(item, model));
+  return found && listed ? { brand: found.name, model: listed } : null;
 }
 
 const flatCache = new WeakMap<DeviceCatalog, DeviceSuggestion[]>();

@@ -1,6 +1,13 @@
 import { BookingError } from '../../models/booking-error';
 import { BookingDraft } from '../../models/booking-draft.model';
-import { Repair, normalizeTime, timeToMinutes } from '../../models/repair.model';
+import {
+  MAX_ACTIVE_BOOKINGS,
+  Repair,
+  activeRepairCount,
+  normalizeTime,
+  timeToMinutes,
+} from '../../models/repair.model';
+import { LIMIT_REACHED_MESSAGE } from '../postgrest-errors';
 import { MOCK_REPAIRS } from './mock-repairs.data';
 
 function cloneRepair(repair: Repair): Repair {
@@ -16,7 +23,9 @@ function cloneRepair(repair: Repair): Repair {
  *     (mirrors the repairs_no_double_booking exclusion constraint),
  *   - a customer can only cancel when the status is pending / in_progress,
  *   - a customer can only reschedule a pending booking
- *     (mirrors repairs_guard_customer_update()).
+ *     (mirrors repairs_guard_customer_update()),
+ *   - at most MAX_ACTIVE_BOOKINGS active repairs per customer
+ *     (mirrors repairs_limit_active_bookings()).
  *
  * Data lives only in memory: refreshing the browser resets it. That is fine for
  * offline demos - the real database is the next step (see docs/Database_Setup.md).
@@ -59,6 +68,10 @@ class MockRepairsDb {
   }
 
   insert(draft: BookingDraft, customerId: string): Repair {
+    const own = this.rows.filter((row) => row.customer_id === customerId);
+    if (activeRepairCount(own) >= MAX_ACTIVE_BOOKINGS) {
+      throw new BookingError('LIMIT_REACHED', LIMIT_REACHED_MESSAGE);
+    }
     if (this.isTaken(draft.location, draft.booking_date, draft.booking_time)) {
       throw new BookingError(
         'SLOT_TAKEN',

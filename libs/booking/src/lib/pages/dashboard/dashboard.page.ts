@@ -13,7 +13,7 @@ import {
 import { ThemeService } from '@kitafix/theme';
 import { BOOKING_CONFIG } from '../../data-access/config';
 import { getSupabaseClient } from '../../data-access/supabase-client';
-import { isActiveRepair } from '../../models/repair.model';
+import { ISSUE_DEFINITIONS, IssueFlagKey, isActiveRepair } from '../../models/repair.model';
 import { RepairsService } from '../../services/repairs.service';
 import { RepairCardComponent } from '../../ui/repair-card/repair-card.component';
 
@@ -21,7 +21,8 @@ import { RepairCardComponent } from '../../ui/repair-card/repair-card.component'
 const HOME_ACTIVE_LIMIT = 3;
 
 /**
- * Home: greeting, one way to book, and the repairs that are still in the shop.
+ * Home: greeting, ways to book (button or an issue tile), and the repairs that
+ * are still in the shop.
  * Everything else (history, search, cancel, reschedule) lives on Repairs.
  */
 @Component({
@@ -55,6 +56,9 @@ export class DashboardPage implements OnInit {
   readonly notifications = this.booking.notifications;
   readonly unreadCount = this.booking.unreadCount;
   readonly themeMode = this.theme.mode;
+  readonly bookingsLeft = this.booking.bookingsLeft;
+  readonly maxActive = this.booking.maxActiveBookings;
+  readonly issues = ISSUE_DEFINITIONS;
 
   readonly name = computed(() => this.currentUser()?.full_name.split(' ')[0] ?? 'there');
   readonly initial = computed(() => this.name().charAt(0).toUpperCase());
@@ -87,6 +91,11 @@ export class DashboardPage implements OnInit {
 
   goToNewBooking(): void {
     void this.router.navigateByUrl('/tabs/new-booking');
+  }
+
+  /** Quick book tiles: open New Booking with that issue already picked. */
+  bookFor(issue: IssueFlagKey): void {
+    void this.router.navigate(['/tabs/new-booking'], { queryParams: { issue } });
   }
 
   goToMyRepairs(): void {

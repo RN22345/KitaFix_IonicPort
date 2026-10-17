@@ -70,8 +70,16 @@
         }
       </div>
     } @else {
-      @for (repair of visibleRepairs(); track repair.id) {
+      @if (filter() === 'active' && bookingsLeft() === 0) {
+        <p class="limit-note">
+          <ion-icon name="hourglass-outline"></ion-icon>
+          <span>You have {{ maxActive }} active repairs, the most at once. Cancel one you no longer need to book another.</span>
+        </p>
+      }
+      @for (repair of visibleRepairs(); track repair.id; let i = $index) {
         <app-repair-card
+          class="rise"
+          [style.--i]="i"
           [repair]="repair"
           [showActions]="true"
           (cancel)="confirmCancel($event)"

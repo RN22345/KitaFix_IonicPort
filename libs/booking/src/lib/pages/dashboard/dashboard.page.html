@@ -17,14 +17,29 @@
     </div>
 
     <div class="cta">
-      <div class="cta-copy">
-        <h2>Something broken?</h2>
-        <p>Tell us what's wrong and pick a time. It takes about a minute.</p>
+      <div class="cta-row">
+        <div class="cta-copy">
+          @if (bookingsLeft() > 0) {
+            <h2>Something broken?</h2>
+            <p>Tell us what's wrong and pick a time. It takes about a minute.</p>
+          } @else {
+            <h2>You're all booked</h2>
+            <p>You have {{ maxActive }} active repairs. You can book again when one is done.</p>
+          }
+        </div>
+        <img class="cta-art" src="assets/icons/service-repair.png" alt="" />
       </div>
-      <ion-button class="cta-btn" (click)="goToNewBooking()">
-        <ion-icon slot="start" name="add-outline"></ion-icon>
-        Book a repair
-      </ion-button>
+      @if (bookingsLeft() > 0) {
+        <ion-button class="cta-btn" (click)="goToNewBooking()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Book a repair
+        </ion-button>
+      } @else {
+        <ion-button class="cta-btn calm" (click)="goToMyRepairs()">
+          <ion-icon slot="start" name="hourglass-outline"></ion-icon>
+          See my repairs
+        </ion-button>
+      }
     </div>
   </section>
 
@@ -80,6 +95,27 @@
       </div>
     }
 
+    @if (bookingsLeft() > 0) {
+      <div class="section-head">
+        <h3>Quick book</h3>
+        <span class="section-hint">What's wrong?</span>
+      </div>
+      <div class="quick">
+        @for (issue of issues; track issue.key; let i = $index) {
+          <button
+            type="button"
+            class="quick-tile"
+            [attr.data-tone]="issue.tone"
+            [style.--i]="i"
+            (click)="bookFor(issue.key)"
+          >
+            <span class="quick-icon"><ion-icon [name]="issue.icon"></ion-icon></span>
+            <span class="quick-label">{{ issue.label }}</span>
+          </button>
+        }
+      </div>
+    }
+
     <div class="section-head">
       <h3>Active repairs</h3>
       @if (active().length > 0) {
@@ -97,8 +133,8 @@
         <p>No repairs in progress. When you book one, you can follow it here.</p>
       </div>
     } @else {
-      @for (repair of shownActive(); track repair.id) {
-        <app-repair-card [repair]="repair"></app-repair-card>
+      @for (repair of shownActive(); track repair.id; let i = $index) {
+        <app-repair-card class="rise" [style.--i]="i" [repair]="repair"></app-repair-card>
       }
     }
 

@@ -10,7 +10,7 @@ export function trimmedRequired(control: AbstractControl): ValidationErrors | nu
   return null;
 }
 
-/** Date must be today or later. Mirrors the repairs_booking_date_not_past CHECK. */
+/** Date must be today or later. Mirrors the repairs_booking_date_rule trigger (migration 0023). */
 export function notPastDate(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
   if (typeof value !== 'string' || value.length === 0) {

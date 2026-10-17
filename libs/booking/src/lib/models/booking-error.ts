@@ -1,6 +1,7 @@
 /** Error codes shared by both repository implementations and the UI. */
 export type BookingErrorCode =
   | 'SLOT_TAKEN'
+  | 'LIMIT_REACHED'
   | 'NOT_ALLOWED'
   | 'NOT_FOUND'
   | 'INVALID_INPUT'

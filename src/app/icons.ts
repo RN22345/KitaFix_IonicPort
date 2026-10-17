@@ -37,6 +37,19 @@ import {
   closeOutline,
   searchOutline,
   pencilOutline,
+  batteryDeadOutline,
+  flashOutline,
+  cameraOutline,
+  volumeHighOutline,
+  cogOutline,
+  squareOutline,
+  checkboxOutline,
+  shieldCheckmarkOutline,
+  hourglassOutline,
+  sparklesOutline,
+  personCircleOutline,
+  arrowForwardOutline,
+  storefrontOutline,
 } from 'ionicons/icons';
 
 /**
@@ -80,5 +93,18 @@ export function registerIcons(): void {
     'close-outline': closeOutline,
     'search-outline': searchOutline,
     'pencil-outline': pencilOutline,
+    'battery-dead-outline': batteryDeadOutline,
+    'flash-outline': flashOutline,
+    'camera-outline': cameraOutline,
+    'volume-high-outline': volumeHighOutline,
+    'cog-outline': cogOutline,
+    'square-outline': squareOutline,
+    'checkbox-outline': checkboxOutline,
+    'shield-checkmark-outline': shieldCheckmarkOutline,
+    'hourglass-outline': hourglassOutline,
+    'sparkles-outline': sparklesOutline,
+    'person-circle-outline': personCircleOutline,
+    'arrow-forward-outline': arrowForwardOutline,
+    'storefront-outline': storefrontOutline,
   });
 }

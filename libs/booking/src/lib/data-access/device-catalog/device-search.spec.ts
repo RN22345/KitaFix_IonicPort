@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   DeviceCatalog,
+  browseModels,
+  listedDevice,
   matchScore,
   searchBrands,
   searchDevices,
@@ -76,5 +78,27 @@ describe('searchDevices', () => {
 
   it('waits for at least two characters', () => {
     expect(searchDevices(catalog, 'a')).toEqual([]);
+  });
+});
+
+describe('browseModels', () => {
+  it('lists the top of a brand in catalog order before typing', () => {
+    expect(browseModels(catalog, 'apple')).toEqual(['iPhone 13', 'iPhone 13 mini', 'iPhone 13 Pro', 'iPhone 15']);
+    expect(browseModels(catalog, 'apple', 2)).toHaveLength(2);
+    expect(browseModels(catalog, 'Nokia')).toEqual([]);
+  });
+});
+
+describe('listedDevice', () => {
+  it('returns the catalog spelling when the pair is listed', () => {
+    expect(listedDevice(catalog, ' samsung ', 'galaxy  s24 ultra')).toEqual({
+      brand: 'Samsung',
+      model: 'Galaxy S24 Ultra',
+    });
+  });
+
+  it('returns null for an unlisted brand or model', () => {
+    expect(listedDevice(catalog, 'Samsung', 'Galaxy S99')).toBeNull();
+    expect(listedDevice(catalog, 'Cherry Mobile', 'Flare S4')).toBeNull();
   });
 });

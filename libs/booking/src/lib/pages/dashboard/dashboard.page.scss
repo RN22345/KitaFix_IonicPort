@@ -1,11 +1,58 @@
-// Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
+// Colours: shared --kf-* tokens and data-tone (src/global.scss), so light and dark both work.
 
 // ---------- Header ----------
 .hero {
+  position: relative;
+  overflow: hidden;
   padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1rem 1.25rem;
-  background: linear-gradient(160deg, var(--kf-hero-from), var(--kf-hero-to));
+  background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
   color: var(--kf-on-hero);
-  border-radius: 0 0 26px 26px;
+  border-radius: 0 0 28px 28px;
+
+  // Two soft glows for depth; they drift slowly.
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  &::before {
+    top: -70px;
+    right: -50px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 70%);
+    animation: drift 9s ease-in-out infinite alternate;
+  }
+
+  &::after {
+    bottom: -90px;
+    left: -60px;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(46, 211, 162, 0.28), transparent 70%);
+    animation: drift 11s ease-in-out infinite alternate-reverse;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-24px, 18px);
+  }
+}
+
+.greeting {
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
 }
 
 .hero-top {
@@ -94,9 +141,10 @@
   flex-direction: column;
   gap: 0.85rem;
   padding: 1rem;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: kf-rise var(--kf-slow) var(--kf-ease) 80ms backwards;
 
   h2 {
     margin: 0 0 0.2rem;
@@ -112,16 +160,127 @@
   }
 }
 
+.cta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cta-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.cta-art {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+  animation: bob 3.5s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(3deg);
+  }
+}
+
 .cta-btn {
   --background: var(--kf-green);
   --background-activated: var(--kf-green);
   --color: #06231b;
   --border-radius: 999px;
-  --box-shadow: none;
+  --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   margin: 0;
   height: 2.75rem;
   font-weight: 600;
   text-transform: none;
+  letter-spacing: 0;
+
+  &.calm {
+    --background: rgba(255, 255, 255, 0.92);
+    --background-activated: #fff;
+    --color: #13203a;
+  }
+}
+
+// ---------- Quick book ----------
+.section-hint {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--kf-muted);
+}
+
+.quick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-bottom: 1.4rem;
+}
+
+.quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.8rem 0.4rem 0.7rem;
+  border: 1px solid var(--kf-line);
+  border-radius: 18px;
+  background: var(--kf-surface);
+  color: var(--kf-text);
+  font: inherit;
+  cursor: pointer;
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+  animation-delay: calc(120ms + var(--i, 0) * 40ms);
+  transition:
+    transform var(--kf-fast),
+    border-color var(--kf-fast),
+    box-shadow var(--kf-fast);
+
+  &:hover {
+    border-color: var(--tone);
+    box-shadow: var(--kf-shadow);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tone);
+    outline-offset: 2px;
+  }
+}
+
+.quick-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--tone-soft);
+  color: var(--tone);
+  font-size: 1.35rem;
+}
+
+.quick-label {
+  max-width: 100%;
+  font-size: 0.75rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rise {
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+  animation-delay: calc(200ms + var(--i, 0) * 60ms);
 }
 
 // ---------- Body ----------
@@ -214,5 +373,11 @@
 
   .avatar:active {
     transform: none;
+  }
+
+  .hero::before,
+  .hero::after,
+  .cta-art {
+    animation: none;
   }
 }

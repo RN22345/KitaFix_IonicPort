@@ -1,371 +1,486 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-title>Book a repair</ion-title>
+    @if (loaded() && !locked() && !booked() && bookingsLeft() < maxActive) {
+      <span slot="end" class="left-pill" [class.last]="bookingsLeft() === 1">
+        {{ bookingsLeft() }} of {{ maxActive }} left
+      </span>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- Progress -->
-  <ol class="stepper" aria-label="Booking progress">
-    @for (label of steps; track label; let i = $index) {
-      <li
-        class="step"
-        [class.done]="i < step()"
-        [class.current]="i === step()"
-        [attr.aria-current]="i === step() ? 'step' : null"
-      >
-        <button
-          type="button"
-          class="dot"
-          [disabled]="i >= step()"
-          [attr.aria-label]="i < step() ? 'Back to ' + label : label"
-          (click)="jumpBack(i)"
+  @if (booked(); as repair) {
+    <!-- Done -->
+    <section class="result success" aria-live="polite">
+      <svg class="tick" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="tick-circle" cx="26" cy="26" r="24" />
+        <path class="tick-mark" d="M15 27l7 7 15-16" />
+      </svg>
+      <h2>You're booked!</h2>
+      <p class="result-sub">We'll see you and your {{ repair.device_brand }} {{ repair.device_model }} soon.</p>
+
+      <dl class="ticket">
+        <div>
+          <dt><ion-icon name="calendar-outline"></ion-icon> When</dt>
+          <dd>{{ prettyDate(repair.booking_date) }}, {{ prettyTime(repair.booking_time) }}</dd>
+        </div>
+        <div>
+          <dt><ion-icon name="storefront-outline"></ion-icon> Where</dt>
+          <dd>{{ repair.location }}</dd>
+        </div>
+        <div>
+          <dt><ion-icon name="pencil-outline"></ion-icon> Reference</dt>
+          <dd>{{ shortId(repair.id) }}</dd>
+        </div>
+      </dl>
+
+      <div class="result-actions">
+        <ion-button class="primary-action" shape="round" (click)="finish('repairs')">
+          Track this repair
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+        <ion-button class="link-action" fill="clear" (click)="finish('home')">Back to Home</ion-button>
+      </div>
+    </section>
+  } @else if (locked()) {
+    <!-- Anti-spam limit -->
+    <section class="result locked">
+      <div class="result-icon"><ion-icon name="hourglass-outline"></ion-icon></div>
+      <h2>You have {{ maxActive }} active repairs</h2>
+      <p class="result-sub">
+        That's the most we take at once. You can book again when one is finished, or after you
+        cancel one you no longer need.
+      </p>
+
+      <ul class="mini-list">
+        @for (repair of activeRepairs(); track repair.id; let i = $index) {
+          <li [style.--i]="i">
+            <ion-icon name="phone-portrait-outline"></ion-icon>
+            <span class="mini-name">{{ repair.device_brand }} {{ repair.device_model }}</span>
+            <app-status-badge [status]="repair.status"></app-status-badge>
+          </li>
+        }
+      </ul>
+
+      <ion-button class="primary-action" shape="round" (click)="goToRepairs()">
+        Go to my repairs
+        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+    </section>
+  } @else {
+    <!-- Progress -->
+    <ol class="stepper" aria-label="Booking progress">
+      @for (label of steps; track label; let i = $index) {
+        <li
+          class="step"
+          [class.done]="i < step()"
+          [class.current]="i === step()"
+          [attr.aria-current]="i === step() ? 'step' : null"
         >
-          @if (i < step()) {
-            <ion-icon name="checkmark-outline"></ion-icon>
-          } @else {
-            {{ i + 1 }}
-          }
-        </button>
-        <span class="step-label">{{ label }}</span>
-      </li>
-    }
-  </ol>
-
-  <form [formGroup]="form" novalidate (submit)="$event.preventDefault()">
-    @switch (step()) {
-      <!-- 1. Device and problem -->
-      @case (0) {
-        <h2 class="step-title">What needs fixing?</h2>
-
-        @if (myDevices().length > 0) {
-          <p class="group-label">Your devices</p>
-          <div class="chips" role="radiogroup" aria-label="Your devices">
-            @for (device of myDevices(); track device.brand + device.model) {
-              <button
-                type="button"
-                role="radio"
-                class="chip device-chip"
-                [class.selected]="isCurrentDevice(device)"
-                [attr.aria-checked]="isCurrentDevice(device)"
-                (click)="pickPastDevice(device)"
-              >
-                <ion-icon name="phone-portrait-outline"></ion-icon>
-                {{ device.brand }} {{ device.model }}
-              </button>
-            }
-          </div>
-          <p class="group-label">Or another device</p>
-        } @else {
-          <p class="group-label">Your device</p>
-        }
-
-        <div class="field">
-          <ion-input
-            label="Brand"
-            labelPlacement="floating"
-            fill="outline"
-            placeholder="Start typing, e.g. Samsung"
-            autocomplete="off"
-            autocapitalize="words"
-            [debounce]="120"
-            formControlName="device_brand"
-            (ionFocus)="activeField.set('brand')"
-            (ionBlur)="closeSuggestions()"
-            (ionInput)="onBrandInput($event)"
-          ></ion-input>
-          @if (activeField() === 'brand' && brandSuggestions().length > 0) {
-            <div class="suggest" role="listbox" aria-label="Brand suggestions">
-              @for (brand of brandSuggestions(); track brand) {
-                <button
-                  type="button"
-                  role="option"
-                  (pointerdown)="$event.preventDefault()"
-                  (click)="pickBrand(brand)"
-                >
-                  {{ brand }}
-                </button>
-              }
-            </div>
-          }
-        </div>
-        @if (isInvalid('device_brand')) {
-          <ion-note class="error" color="danger" role="alert">Please enter the brand.</ion-note>
-        }
-
-        <div class="field">
-          <ion-input
-            label="Model"
-            labelPlacement="floating"
-            fill="outline"
-            [placeholder]="modelPlaceholder()"
-            autocomplete="off"
-            [debounce]="150"
-            formControlName="device_model"
-            (ionFocus)="activeField.set('model')"
-            (ionBlur)="closeSuggestions()"
-            (ionInput)="onModelInput($event)"
-          ></ion-input>
-          @if (activeField() === 'model' && modelSuggestions().length > 0) {
-            <div class="suggest" role="listbox" aria-label="Model suggestions">
-              @for (item of modelSuggestions(); track item.brand + item.model) {
-                <button
-                  type="button"
-                  role="option"
-                  (pointerdown)="$event.preventDefault()"
-                  (click)="pickDevice(item)"
-                >
-                  @if (item.brand !== values().device_brand) {
-                    <span class="suggest-brand">{{ item.brand }}</span>
-                  }
-                  {{ item.model }}
-                </button>
-              }
-            </div>
-          }
-        </div>
-        @if (isInvalid('device_model')) {
-          <ion-note class="error" color="danger" role="alert">Please enter the model.</ion-note>
-        } @else {
-          <p class="field-hint">Not in the list? Type it as it appears on the box or in Settings.</p>
-        }
-
-        <p class="group-label">What's wrong? <span class="hint">Pick all that apply</span></p>
-        <div class="chips issues" role="group" aria-label="What's wrong?">
-          @for (issue of issueOptions; track issue.key) {
-            <button
-              type="button"
-              class="chip issue"
-              [class.selected]="isIssuePicked(issue.key)"
-              [attr.aria-pressed]="isIssuePicked(issue.key)"
-              (click)="toggleIssue(issue.key)"
-            >
-              <span class="issue-label">{{ issue.label }}</span>
-              <span class="issue-hint">{{ issue.hint }}</span>
-            </button>
-          }
-        </div>
-        @if (isInvalid('issues')) {
-          <ion-note class="error" color="danger" role="alert">
-            Please pick at least one problem.
-          </ion-note>
-        }
-
-        <ion-textarea
-          label="Anything else? (optional)"
-          labelPlacement="floating"
-          fill="outline"
-          placeholder="e.g. it got wet, cracked after a drop, drains in an hour..."
-          rows="3"
-          maxlength="500"
-          [counter]="true"
-          formControlName="issue_description"
-        ></ion-textarea>
-      }
-
-      <!-- 2. Branch, date, time -->
-      @case (1) {
-        <h2 class="step-title">When and where?</h2>
-
-        <p class="group-label">Branch</p>
-        <div class="chips" role="radiogroup" aria-label="Branch">
-          @for (location of locations; track location) {
-            <button
-              type="button"
-              role="radio"
-              class="chip wide"
-              [class.selected]="values().location === location"
-              [attr.aria-checked]="values().location === location"
-              (click)="pickLocation(location)"
-            >
-              <ion-icon name="location-outline"></ion-icon>
-              {{ location }}
-            </button>
-          }
-        </div>
-
-        <p class="group-label">Date</p>
-        <ion-datetime
-          presentation="date"
-          [min]="minDate"
-          [value]="selectedDate()"
-          (ionChange)="onDateChange($event)"
-        ></ion-datetime>
-        @if (isInvalid('booking_date')) {
-          <ion-note class="error" color="danger" role="alert">
-            Please pick a date that is not in the past.
-          </ion-note>
-        }
-
-        <p class="group-label">Time</p>
-        @if (loadingSlots()) {
-          <div class="inline-loading">
-            <ion-spinner name="crescent"></ion-spinner>
-            <span>Checking available hours...</span>
-          </div>
-        } @else {
-          <div class="chips slots" role="radiogroup" aria-label="Time">
-            @for (slot of slotTimes; track slot) {
-              <button
-                type="button"
-                role="radio"
-                class="chip"
-                [class.selected]="values().booking_time === slot"
-                [attr.aria-checked]="values().booking_time === slot"
-                [disabled]="isUnavailable(slot)"
-                (click)="pickSlot(slot)"
-              >
-                {{ slot }}
-              </button>
-            }
-          </div>
-          @if (freeSlots().length === 0) {
-            <ion-note class="error" color="warning">
-              No free hours left that day at this branch. Try another date.
-            </ion-note>
-          }
-        }
-        @if (isInvalid('booking_time')) {
-          <ion-note class="error" color="danger" role="alert">Please pick a time.</ion-note>
-        }
-      }
-
-      <!-- 3. Review -->
-      @case (2) {
-        <h2 class="step-title">Review and book</h2>
-
-        <dl class="summary">
-          <div class="row">
-            <dt>Device</dt>
-            <dd>{{ values().device_brand }} {{ values().device_model }}</dd>
-            <button type="button" class="edit" (click)="setStep(0)" aria-label="Edit device">Edit</button>
-          </div>
-          <div class="row">
-            <dt>Problem</dt>
-            <dd class="long">
-              {{ pickedIssueLabels().join(', ') }}
-              @if (values().issue_description.trim()) {
-                <span class="note-line">{{ values().issue_description.trim() }}</span>
-              }
-            </dd>
-            <button type="button" class="edit" (click)="setStep(0)" aria-label="Edit problem">Edit</button>
-          </div>
-          <div class="row">
-            <dt>When</dt>
-            <dd>{{ prettyDate() }}, {{ values().booking_time }}<span class="note-line">{{ values().location }}</span></dd>
-            <button type="button" class="edit" (click)="setStep(1)" aria-label="Edit date and branch">Edit</button>
-          </div>
-        </dl>
-
-        <p class="group-label">
-          Service
-          <span class="hint">
-            @if (suggestedService()) {
-              Picked from what's wrong. Change it if needed.
+          <button
+            type="button"
+            class="dot"
+            [disabled]="i >= step()"
+            [attr.aria-label]="i < step() ? 'Back to ' + label : label"
+            (click)="jumpBack(i)"
+          >
+            @if (i < step()) {
+              <ion-icon name="checkmark-outline"></ion-icon>
             } @else {
-              Pick the closest one; the shop confirms after a check.
+              {{ i + 1 }}
             }
-          </span>
-        </p>
-        <div class="options" role="radiogroup" aria-label="Repair service">
-          @for (service of services(); track service.id) {
-            <button
-              type="button"
-              role="radio"
-              class="service-card"
-              [class.selected]="values().service_id === service.id"
-              [attr.aria-checked]="values().service_id === service.id"
-              (click)="pickService(service.id)"
-            >
-              <span class="icon-tile">
-                <img [src]="serviceImage(service.name)" alt="" />
-              </span>
-              <span class="service-text">
-                <span class="service-name">
-                  {{ service.name }}
-                  @if (suggestedService()?.id === service.id) {
-                    <span class="pill">Suggested</span>
-                  }
-                </span>
-                <span class="service-price">from {{ money(service.base_price) }}</span>
-              </span>
-              <span class="radio" aria-hidden="true"></span>
-            </button>
-          } @empty {
-            <div class="inline-loading">
-              <ion-spinner name="crescent"></ion-spinner>
-              <span>Loading services...</span>
+          </button>
+          <span class="step-label">{{ label }}</span>
+        </li>
+      }
+    </ol>
+
+    <form [formGroup]="form" novalidate (submit)="$event.preventDefault()">
+      @switch (step()) {
+        <!-- 1. Device and problem -->
+        @case (0) {
+          <div class="step-body" [class.back]="direction() === 'back'">
+            <h2 class="step-title">What needs fixing?</h2>
+
+            @if (myDevices().length > 0) {
+              <p class="group-label">Your devices</p>
+              <div class="chips" role="radiogroup" aria-label="Your devices">
+                @for (device of shownDevices(); track device.brand + device.model) {
+                  <button
+                    type="button"
+                    role="radio"
+                    class="chip device-chip"
+                    [class.selected]="isCurrentDevice(device)"
+                    [attr.aria-checked]="isCurrentDevice(device)"
+                    (click)="pickPastDevice(device)"
+                  >
+                    <ion-icon name="phone-portrait-outline"></ion-icon>
+                    {{ device.brand }} {{ device.model }}
+                  </button>
+                }
+                @if (hiddenDeviceCount() > 0) {
+                  <button type="button" class="chip more-chip" (click)="showAllDevices.set(true)">
+                    +{{ hiddenDeviceCount() }} more
+                  </button>
+                }
+              </div>
+            }
+
+            <div class="group-row">
+              <p class="group-label">{{ myDevices().length > 0 ? 'Or another device' : 'Your device' }}</p>
+              <button
+                type="button"
+                role="checkbox"
+                class="check-toggle"
+                [class.on]="typingFreely()"
+                [attr.aria-checked]="typingFreely()"
+                [disabled]="deviceCatalogFailed()"
+                (click)="toggleManualDevice()"
+              >
+                <ion-icon [name]="typingFreely() ? 'checkbox-outline' : 'square-outline'"></ion-icon>
+                Not in the list
+              </button>
             </div>
-          }
-        </div>
-        @if (isInvalid('service_id')) {
-          <ion-note class="error" color="danger" role="alert">Please pick a service.</ion-note>
+
+            <div class="field">
+              <ion-input
+                label="Brand"
+                labelPlacement="floating"
+                fill="outline"
+                [placeholder]="typingFreely() ? 'e.g. Cherry Mobile' : 'Tap to choose, or start typing'"
+                autocomplete="off"
+                autocapitalize="words"
+                [debounce]="100"
+                formControlName="device_brand"
+                (ionFocus)="openList('brand', $event)"
+                (ionBlur)="closeSuggestions()"
+                (ionInput)="onBrandInput($event)"
+              >
+                @if (!typingFreely()) {
+                  <ion-icon
+                    slot="end"
+                    aria-hidden="true"
+                    [class.verified]="brandVerified()"
+                    [name]="brandVerified() ? 'checkmark-circle-outline' : 'chevron-down-outline'"
+                  ></ion-icon>
+                }
+              </ion-input>
+              @if (activeField() === 'brand' && brandSuggestions().length > 0) {
+                <div class="suggest" role="listbox" aria-label="Brands">
+                  @if (!values().device_brand.trim()) {
+                    <p class="suggest-head">Popular brands</p>
+                  }
+                  @for (brand of brandSuggestions(); track brand) {
+                    <button
+                      type="button"
+                      role="option"
+                      (pointerdown)="$event.preventDefault()"
+                      (click)="pickBrand(brand)"
+                    >
+                      <span class="brand-mark">{{ brand.charAt(0) }}</span>
+                      {{ brand }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            @if (isInvalid('device_brand')) {
+              <ion-note class="error" color="danger" role="alert">Please choose the brand.</ion-note>
+            } @else if (deviceProblem() === 'brand') {
+              <ion-note class="error" color="danger" role="alert">
+                That brand isn't in our list. Pick one, or tick "Not in the list".
+              </ion-note>
+            }
+
+            <div class="field">
+              <ion-input
+                #modelInput
+                label="Model"
+                labelPlacement="floating"
+                fill="outline"
+                [placeholder]="typingFreely() ? 'As shown in Settings > About phone' : modelPlaceholder()"
+                autocomplete="off"
+                [debounce]="120"
+                formControlName="device_model"
+                (ionFocus)="openList('model', $event)"
+                (ionBlur)="closeSuggestions()"
+                (ionInput)="onModelInput($event)"
+              >
+                @if (!typingFreely()) {
+                  <ion-icon
+                    slot="end"
+                    aria-hidden="true"
+                    [class.verified]="deviceVerified()"
+                    [name]="deviceVerified() ? 'checkmark-circle-outline' : 'chevron-down-outline'"
+                  ></ion-icon>
+                }
+              </ion-input>
+              @if (activeField() === 'model' && modelSuggestions().length > 0) {
+                <div class="suggest" role="listbox" aria-label="Models">
+                  @if (modelListHeading()) {
+                    <p class="suggest-head">{{ modelListHeading() }}</p>
+                  }
+                  @for (item of modelSuggestions(); track item.brand + item.model) {
+                    <button
+                      type="button"
+                      role="option"
+                      [class.current]="item.model === values().device_model"
+                      (pointerdown)="$event.preventDefault()"
+                      (click)="pickDevice(item)"
+                    >
+                      @if (item.brand !== values().device_brand) {
+                        <span class="suggest-brand">{{ item.brand }}</span>
+                      }
+                      {{ item.model }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            @if (isInvalid('device_model')) {
+              <ion-note class="error" color="danger" role="alert">Please choose the model.</ion-note>
+            } @else if (deviceProblem() === 'model') {
+              <ion-note class="error" color="danger" role="alert">
+                That model isn't in our list. Pick one, or tick "Not in the list".
+              </ion-note>
+            } @else if (typingFreely()) {
+              <p class="field-hint">
+                @if (deviceCatalogFailed()) {
+                  The phone list could not load, so type your brand and model.
+                } @else {
+                  We'll book it exactly as you type it.
+                }
+              </p>
+            } @else if (deviceVerified()) {
+              <p class="field-hint ok">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                {{ deviceCheck() === 'past' ? 'One of your devices' : 'Found in our list' }}
+              </p>
+            }
+
+            <p class="group-label">What's wrong? <span class="hint">Pick all that apply</span></p>
+            <div class="issues" role="group" aria-label="What's wrong?">
+              @for (issue of issueOptions; track issue.key; let i = $index) {
+                <button
+                  type="button"
+                  class="issue"
+                  [attr.data-tone]="issue.tone"
+                  [style.--i]="i"
+                  [class.selected]="isIssuePicked(issue.key)"
+                  [attr.aria-pressed]="isIssuePicked(issue.key)"
+                  (click)="toggleIssue(issue.key)"
+                >
+                  <span class="issue-icon"><ion-icon [name]="issue.icon"></ion-icon></span>
+                  <span class="issue-text">
+                    <span class="issue-label">{{ issue.label }}</span>
+                    <span class="issue-hint">{{ issue.hint }}</span>
+                  </span>
+                  <span class="issue-check" aria-hidden="true"><ion-icon name="checkmark-outline"></ion-icon></span>
+                </button>
+              }
+            </div>
+            @if (isInvalid('issues')) {
+              <ion-note class="error" color="danger" role="alert">
+                Please pick at least one problem.
+              </ion-note>
+            }
+
+            <ion-textarea
+              label="Anything else? (optional)"
+              labelPlacement="floating"
+              fill="outline"
+              placeholder="e.g. it got wet, cracked after a drop, drains in an hour..."
+              rows="3"
+              maxlength="500"
+              [counter]="true"
+              formControlName="issue_description"
+            ></ion-textarea>
+          </div>
         }
 
-        <ion-select
-          label="Technician (optional)"
-          labelPlacement="floating"
-          fill="outline"
-          interface="popover"
-          formControlName="technician_id"
-        >
-          <ion-select-option value="">Any available technician</ion-select-option>
-          @for (technician of technicians(); track technician.id) {
-            <ion-select-option [value]="technician.id">{{ technician.full_name }}</ion-select-option>
-          }
-        </ion-select>
+        <!-- 2. Branch, date, time -->
+        @case (1) {
+          <div class="step-body" [class.back]="direction() === 'back'">
+            <h2 class="step-title">When and where?</h2>
 
-        <div class="estimate">
-          <div class="row">
-            <span>{{ selectedService()?.name ?? 'Service' }}</span>
-            <span>{{ money(estimate().base) }}</span>
-          </div>
-          @if (estimate().issueFees > 0) {
-            <div class="row">
-              <span>Other issues</span>
-              <span>{{ money(estimate().issueFees) }}</span>
+            <p class="group-label">Branch</p>
+            <div class="chips" role="radiogroup" aria-label="Branch">
+              @for (location of locations; track location) {
+                <button
+                  type="button"
+                  role="radio"
+                  class="chip wide"
+                  [class.selected]="values().location === location"
+                  [attr.aria-checked]="values().location === location"
+                  (click)="pickLocation(location)"
+                >
+                  <ion-icon name="storefront-outline"></ion-icon>
+                  {{ location }}
+                </button>
+              }
             </div>
-          }
-          <div class="row total">
-            <span>Estimated total</span>
-            <span>{{ money(estimate().total) }}</span>
+
+            <p class="group-label">Date</p>
+            <ion-datetime
+              presentation="date"
+              [min]="minDate"
+              [value]="selectedDate()"
+              (ionChange)="onDateChange($event)"
+            ></ion-datetime>
+            @if (isInvalid('booking_date')) {
+              <ion-note class="error" color="danger" role="alert">
+                Please pick a date that is not in the past.
+              </ion-note>
+            }
+
+            <p class="group-label">Time</p>
+            @if (loadingSlots()) {
+              <div class="inline-loading">
+                <ion-spinner name="crescent"></ion-spinner>
+                <span>Checking available hours...</span>
+              </div>
+            } @else {
+              <div class="chips slots" role="radiogroup" aria-label="Time">
+                @for (slot of slotTimes; track slot; let i = $index) {
+                  <button
+                    type="button"
+                    role="radio"
+                    class="chip slot"
+                    [style.--i]="i"
+                    [class.selected]="values().booking_time === slot"
+                    [attr.aria-checked]="values().booking_time === slot"
+                    [disabled]="isUnavailable(slot)"
+                    (click)="pickSlot(slot)"
+                  >
+                    {{ slot }}
+                  </button>
+                }
+              </div>
+              @if (freeSlots().length === 0) {
+                <ion-note class="error" color="warning">
+                  No free hours left that day at this branch. Try another date.
+                </ion-note>
+              }
+            }
+            @if (isInvalid('booking_time')) {
+              <ion-note class="error" color="danger" role="alert">Please pick a time.</ion-note>
+            }
           </div>
-          <p class="note">The shop confirms the final price after checking your device.</p>
-        </div>
+        }
+
+        <!-- 3. Review -->
+        @case (2) {
+          <div class="step-body" [class.back]="direction() === 'back'">
+            <h2 class="step-title">Review and book</h2>
+
+            <section class="review-card">
+              <header>
+                <span class="tile" data-tone="accent"><ion-icon name="phone-portrait-outline"></ion-icon></span>
+                <div class="review-main">
+                  <span class="review-label">Device</span>
+                  <strong>{{ values().device_brand }} {{ values().device_model }}</strong>
+                </div>
+                <button type="button" class="edit" (click)="setStep(0)" aria-label="Edit device and problem">Edit</button>
+              </header>
+
+              <div class="issue-tiles">
+                @for (issue of pickedIssues(); track issue.key; let i = $index) {
+                  <span class="issue-tile" [attr.data-tone]="issue.tone" [style.--i]="i">
+                    <ion-icon [name]="issue.icon"></ion-icon>
+                    {{ issue.label }}
+                  </span>
+                }
+              </div>
+              @if (values().issue_description.trim()) {
+                <p class="note-line">"{{ values().issue_description.trim() }}"</p>
+              }
+            </section>
+
+            <section class="review-card">
+              <header>
+                <span class="tile" data-tone="violet"><ion-icon name="calendar-outline"></ion-icon></span>
+                <div class="review-main">
+                  <span class="review-label">When</span>
+                  <strong>{{ prettyDate() }}, {{ prettyTime(values().booking_time) }}</strong>
+                  <span class="review-sub">{{ values().location }}</span>
+                </div>
+                <button type="button" class="edit" (click)="setStep(1)" aria-label="Edit date and branch">Edit</button>
+              </header>
+            </section>
+
+            <ion-select
+              label="Technician (optional)"
+              labelPlacement="floating"
+              fill="outline"
+              interface="popover"
+              formControlName="technician_id"
+            >
+              <ion-select-option value="">Any available technician</ion-select-option>
+              @for (technician of technicians(); track technician.id) {
+                <ion-select-option [value]="technician.id">{{ technician.full_name }}</ion-select-option>
+              }
+            </ion-select>
+
+            <div class="estimate">
+              <p class="estimate-title"><ion-icon name="sparkles-outline"></ion-icon> Estimated price</p>
+              @if (mainService(); as service) {
+                <div class="row">
+                  <span>{{ service.name }}</span>
+                  <span>{{ money(estimate().base) }}</span>
+                </div>
+              }
+              @for (issue of extraIssues(); track issue.key) {
+                <div class="row">
+                  <span>{{ issue.label }} check</span>
+                  <span>{{ money(issue.extraFee) }}</span>
+                </div>
+              }
+              <div class="row total">
+                <span>Total</span>
+                <span>{{ money(estimate().total) }}</span>
+              </div>
+              <p class="note">The shop confirms the final price after checking your device. You pay at the shop.</p>
+            </div>
+          </div>
+        }
       }
-    }
-  </form>
+    </form>
+  }
 </ion-content>
 
-<ion-footer class="ion-no-border">
-  <ion-toolbar>
-    <div class="actions">
-      @if (step() > 0) {
+@if (!booked() && !locked()) {
+  <ion-footer class="ion-no-border">
+    <ion-toolbar>
+      <div class="actions">
+        @if (step() > 0) {
+          <ion-button
+            class="back-action"
+            fill="outline"
+            shape="round"
+            [disabled]="saving()"
+            (click)="back()"
+          >
+            Back
+          </ion-button>
+        }
         <ion-button
-          class="back-action"
-          fill="outline"
+          class="primary-action"
           shape="round"
           [disabled]="saving()"
-          (click)="back()"
+          (click)="next()"
         >
-          Back
+          @if (saving()) {
+            <ion-spinner name="dots"></ion-spinner>
+          } @else if (isLastStep()) {
+            <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+            Book repair
+          } @else {
+            Next
+            <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+          }
         </ion-button>
-      }
-      <ion-button
-        class="primary-action"
-        shape="round"
-        [disabled]="saving()"
-        (click)="next()"
-      >
-        @if (saving()) {
-          <ion-spinner name="dots"></ion-spinner>
-        } @else if (isLastStep()) {
-          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-          Book repair
-        } @else {
-          Next
-        }
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

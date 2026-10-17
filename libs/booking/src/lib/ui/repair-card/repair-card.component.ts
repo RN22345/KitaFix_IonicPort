@@ -6,7 +6,7 @@ import {
   canCustomerReschedule,
   formatBookingDate,
   formatTime,
-  problemSummary,
+  repairIssues,
   shortRepairId,
   statusMeta,
 } from '../../models/repair.model';
@@ -20,10 +20,11 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
     IonIcon,
     StatusBadgeComponent,
   ],
-  host: { '[attr.data-status]': 'repair().status' },
+  host: { '[attr.data-tone]': 'tone()' },
   template: `
     <article class="card">
       <header class="card-top">
+        <span class="device-tile"><ion-icon name="phone-portrait-outline"></ion-icon></span>
         <div class="title-wrap">
           <h3>{{ repair().device_brand }} {{ repair().device_model }}</h3>
           <span class="repair-id">{{ shortId() }}</span>
@@ -50,10 +51,19 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
         <ion-icon name="location-outline"></ion-icon>
         <span>{{ repair().location }}</span>
       </div>
-      <div class="detail problem">
-        <ion-icon name="construct-outline"></ion-icon>
-        <span>{{ problem() }}</span>
-      </div>
+      @if (issues().length > 0) {
+        <div class="issue-chips">
+          @for (issue of issues(); track issue.key) {
+            <span class="issue-chip" [attr.data-tone]="issue.tone">
+              <ion-icon [name]="issue.icon"></ion-icon>
+              {{ issue.label }}
+            </span>
+          }
+        </div>
+      }
+      @if (note()) {
+        <p class="note">"{{ note() }}"</p>
+      }
 
       @if (showActions()) {
         <div class="actions">
@@ -92,17 +102,6 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
       :host {
         display: block;
         margin: 0 0 0.85rem;
-        --stripe: var(--kf-muted);
-      }
-      :host([data-status='pending']) {
-        --stripe: var(--kf-warn);
-      }
-      :host([data-status='in_progress']),
-      :host([data-status='testing']) {
-        --stripe: var(--kf-accent);
-      }
-      :host([data-status='completed']) {
-        --stripe: var(--kf-green);
       }
       .card {
         position: relative;
@@ -112,22 +111,39 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
         border: 1px solid var(--kf-line);
         box-shadow: var(--kf-shadow);
         overflow: hidden;
+        transition:
+          transform var(--kf-fast),
+          box-shadow var(--kf-fast);
+      }
+      .card:hover {
+        box-shadow: var(--kf-shadow-lift);
       }
       .card::before {
         content: '';
         position: absolute;
         inset: 0 auto 0 0;
         width: 4px;
-        background: var(--stripe);
+        background: var(--tone);
       }
       .card-top {
         display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 0.6rem;
+      }
+      .device-tile {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--tone-soft);
+        color: var(--tone);
+        font-size: 1.25rem;
       }
       .title-wrap {
+        flex: 1;
         min-width: 0;
       }
       h3 {
@@ -160,8 +176,32 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
         border-radius: 999px;
         background: var(--kf-surface-2);
       }
-      .progress li.done .bar {
-        background: var(--kf-accent);
+      .progress .bar {
+        position: relative;
+        overflow: hidden;
+      }
+      .progress li.done .bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: var(--tone);
+        transform-origin: left;
+        animation: fill 0.5s var(--kf-ease) backwards;
+      }
+      .progress li:nth-child(2) .bar::after {
+        animation-delay: 0.12s;
+      }
+      .progress li:nth-child(3) .bar::after {
+        animation-delay: 0.24s;
+      }
+      .progress li:nth-child(4) .bar::after {
+        animation-delay: 0.36s;
+      }
+      @keyframes fill {
+        from {
+          transform: scaleX(0);
+        }
       }
       .progress .step-label {
         font-size: 0.68rem;
@@ -184,23 +224,38 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
         font-size: 0.9rem;
       }
       .detail ion-icon {
-        color: var(--kf-accent);
+        color: var(--kf-muted);
         flex: none;
       }
-      /* The problem text can be several lines: keep the icon at the top and clamp to 3 lines. */
-      .problem {
-        align-items: flex-start;
+      .issue-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.5rem;
       }
-      .problem ion-icon {
-        margin-top: 0.15rem;
+      .issue-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.55rem 0.2rem 0.4rem;
+        border-radius: 999px;
+        background: var(--tone-soft);
+        color: var(--tone);
+        font-size: 0.74rem;
+        font-weight: 600;
       }
-      .problem span {
+      /* The note can be long: clamp to 2 lines. */
+      .note {
         display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        margin: 0.45rem 0 0;
         overflow: hidden;
         overflow-wrap: anywhere;
+        font-size: 0.82rem;
+        font-style: italic;
+        color: var(--kf-muted);
       }
       .actions {
         display: flex;
@@ -230,8 +285,10 @@ export class RepairCardComponent {
   );
   readonly canCancel = computed(() => canCustomerCancel(this.repair()));
   readonly canReschedule = computed(() => canCustomerReschedule(this.repair()));
-  /** Picked issue labels, then the customer's optional note. */
-  readonly problem = computed(() => problemSummary(this.repair()));
+  readonly tone = computed(() => statusMeta(this.repair().status).tone);
+  /** Picked issues as coloured chips, then the customer's optional note. */
+  readonly issues = computed(() => repairIssues(this.repair()));
+  readonly note = computed(() => this.repair().issue_description?.trim() ?? '');
   readonly dateLabel = computed(() => formatBookingDate(this.repair().booking_date));
   readonly timeLabel = computed(() => formatTime(this.repair().booking_time));
   readonly shortId = computed(() => shortRepairId(this.repair().id));

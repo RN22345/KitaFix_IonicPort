@@ -4,6 +4,8 @@ import { MOCK_CUSTOMER_ID } from './mock-profile.data';
 /**
  * .ts placeholder for OUR OWN database (the `repairs` table).
  * Dates are relative to "today" so the demo never goes stale.
+ * The demo customer has 2 active repairs, so one more booking reaches the
+ * 3-active limit (MAX_ACTIVE_BOOKINGS) and the Book tab locks.
  * Team 3 / Team 4 read this same table in the real database.
  */
 
@@ -53,7 +55,7 @@ export const MOCK_REPAIRS: Repair[] = [
     device_brand: 'Xiaomi',
     device_model: 'Redmi Note 13',
     location: 'Main Branch - Downtown',
-    booking_date: isoDate(1),
+    booking_date: isoDate(-2),
     booking_time: '14:00:00',
     issue_screen: false,
     issue_battery: false,
@@ -63,7 +65,7 @@ export const MOCK_REPAIRS: Repair[] = [
     issue_software: true,
     issue_description: null,
     technician_id: TECH_3,
-    status: 'pending',
+    status: 'completed',
     staff_notes: null,
     confirmed_by: null,
     confirmed_at: null,
@@ -111,7 +113,7 @@ export const MOCK_REPAIRS: Repair[] = [
     issue_software: false,
     issue_description: null,
     technician_id: TECH_1,
-    status: 'testing',
+    status: 'completed',
     staff_notes: 'Battery replaced, running a full drain test.',
     confirmed_by: TECH_1,
     confirmed_at: isoStamp(26),

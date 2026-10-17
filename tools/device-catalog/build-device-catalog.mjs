@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Builds src/assets/data/device-catalog.json - the brand/model suggestions on
  * New Booking - from:
@@ -114,6 +113,42 @@ function stripBrand(model, brand) {
 /** Natural, case-insensitive order: "Galaxy S9" before "Galaxy S10". */
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 
+/** Internal codes ("X521", "V2054", "SM-J337A", "VinsQ(M910)") and non-Latin names: listed last. */
+export function isOddName(name) {
+  if (/[^\x20-\x7E]/.test(name)) return true;
+  if (/\([A-Z]*\d{3,}[A-Z0-9]*\)/i.test(name)) return true;
+  return !/\s/.test(name) && /\d{3,}/.test(name) && /^[A-Z0-9-]+$/i.test(name);
+}
+
+/**
+ * The biggest model number, ignoring specs, sizes and years:
+ * "Galaxy S24 Ultra" -> 24, "GT3 240W" -> 3, "Note 13 Pro 128GB" -> 13.
+ */
+export function modelNumber(name) {
+  const withoutSpecs = name.replace(/\d+(\.\d+)?\s*(w|gb|tb|mah|hz|mp|"|-?inch)(?![a-z])/gi, ' ');
+  const numbers = (withoutSpecs.match(/\d+/g) ?? []).map(Number).filter((n) => n < 1000);
+  return numbers.length > 0 ? Math.max(...numbers) : 0;
+}
+
+/**
+ * Order of a brand's models, so the app can show the top of the list before
+ * the customer types (it has no release dates):
+ *   1. extra-devices.json order (kept newest first by hand)
+ *   2. real names before internal codes / non-Latin names
+ *   3. higher model number first - within a brand that is usually newer
+ *      (Galaxy S24 before S9, SPARK 40 before SPARK 4)
+ *   4. more Play variants first, then A-Z
+ */
+export function browseOrder(a, b) {
+  return (
+    a.extraIndex - b.extraIndex ||
+    Number(isOddName(a.name)) - Number(isOddName(b.name)) ||
+    modelNumber(b.name) - modelNumber(a.name) ||
+    b.rows - a.rows ||
+    collator.compare(a.name, b.name)
+  );
+}
+
 export function buildCatalog(rows, extras) {
   const [header, ...data] = rows;
   const brandCol = header.indexOf('Retail Branding');
@@ -122,9 +157,14 @@ export function buildCatalog(rows, extras) {
     throw new Error(`Unexpected CSV header: ${header.join(',')}`);
   }
 
-  /** lower-case brand -> { spellings: Map<spelling, count>, models: Map<lower model, model> } */
+  /**
+   * lower-case brand -> { spellings: Map<spelling, count>,
+   *   models: Map<lower model, { name, rows, extraIndex }> }
+   * rows = how many Play rows (regional variants) the model has: a rough
+   * popularity signal. extraIndex = position in extra-devices.json (newest first).
+   */
   const brands = new Map();
-  const add = (rawBrand, rawModel) => {
+  const add = (rawBrand, rawModel, extraIndex = Infinity) => {
     const brandText = clean(rawBrand ?? '');
     const modelText = clean(rawModel ?? '');
     if (!brandText || !modelText) return;
@@ -138,19 +178,25 @@ export function buildCatalog(rows, extras) {
     entry.spellings.set(display, (entry.spellings.get(display) ?? 0) + 1);
     const model = clean(stripBrand(modelText, display));
     if (model && model.toLowerCase() !== key) {
-      entry.models.set(model.toLowerCase(), entry.models.get(model.toLowerCase()) ?? model);
+      const found = entry.models.get(model.toLowerCase());
+      if (found) {
+        found.rows += 1;
+        found.extraIndex = Math.min(found.extraIndex, extraIndex);
+      } else {
+        entry.models.set(model.toLowerCase(), { name: model, rows: 1, extraIndex });
+      }
     }
   };
 
   for (const row of data) add(row[brandCol], row[nameCol]);
   for (const [brand, models] of Object.entries(extras.brands ?? {})) {
-    for (const model of models) add(brand, model);
+    models.forEach((model, index) => add(brand, model, index));
   }
 
   const result = [];
   for (const entry of brands.values()) {
     const name = [...entry.spellings.entries()].sort((a, b) => b[1] - a[1])[0][0];
-    const models = [...entry.models.values()].sort(collator.compare);
+    const models = [...entry.models.values()].sort(browseOrder).map((model) => model.name);
     const fromExtras = Object.keys(extras.brands ?? {}).some((b) => b.toLowerCase() === name.toLowerCase());
     if (models.length >= MIN_MODELS_PER_BRAND || ALWAYS_KEEP.has(name) || fromExtras) {
       result.push({ name, models });
