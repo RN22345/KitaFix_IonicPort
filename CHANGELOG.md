@@ -18,6 +18,7 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 ### Added (Team 2 - anti-spam limit)
 - A customer can have at most 3 active repairs (pending, in progress or testing). The Book tab shows how many are left, and locks with a list of the active repairs at 3; Home and Repairs say so too. Enforced in the database by migration `0023_team2_booking_limits.sql` (trigger `repairs_limit_active_bookings`, SQLSTATE `KF001`).
 - 0023 also cancels old bookings made before the limit: pending bookings whose date has passed, and the oldest pending ones of customers still over 3. In-progress and testing repairs are never touched.
+- 0023 applied to the hosted project 2026-10-17 after a rolled-back dry run. Clean-up result: the demo customer went from 12 active (all pending, 8 past their date) to 3; 13 repairs are now cancelled. Security advisors: no new warnings (both new trigger functions are not callable over the API).
 
 ### Fixed (Team 2)
 - "No past dates" was a CHECK constraint, which Postgres re-checks on every update: once a booking's date had passed, nobody could cancel it or move its status (Team 3 included). 0023 replaces it with a trigger that only checks the date when a booking is made or moved.

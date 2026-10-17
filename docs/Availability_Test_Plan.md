@@ -82,6 +82,9 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | | | C2 | | |
 | | | C3 | | |
 | 2026-10-16 | mock UI | C4 | pass | Screen Replacement 1499 + Battery 250 + Camera 300 = 2049 |
+| 2026-10-17 | real (DB dry run, rolled back) | B12 | pass | 4th insert as the demo customer: `KF001: You already have 3 active repairs.` |
+| 2026-10-17 | real (DB dry run, rolled back) | B13 | pass | 11 past-dated rows updatable; moving a booking to yesterday still fails 23514 |
+| 2026-10-17 | mock UI | C4, C7, C8, B12 | pass | Device picked from list (Samsung -> Galaxy S24, green check); unlisted model blocked until ticked; success screen; Book tab locks at 3, cancel unlocks |
 | | | C5 | | |
 | | | C6 | | |
 
