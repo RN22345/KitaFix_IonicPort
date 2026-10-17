@@ -1,8 +1,13 @@
 import { PostgrestError } from '@supabase/supabase-js';
 import { BookingError } from '../models/booking-error';
+import { MAX_ACTIVE_BOOKINGS } from '../models/repair.model';
 
 const SLOT_TAKEN_MESSAGE =
   'That time is already booked at this location. Please pick another slot.';
+
+export const LIMIT_REACHED_MESSAGE =
+  `You already have ${MAX_ACTIVE_BOOKINGS} active repairs. ` +
+  'You can book again once one is finished, or after you cancel one.';
 
 /**
  * Postgres / PostgREST error codes we expect:
@@ -13,12 +18,15 @@ const SLOT_TAKEN_MESSAGE =
  *   42501 insufficient_privilege   -> RLS or our update guard blocked the change
  *   PGRST116 no rows (single())    -> row not found (or hidden by RLS)
  *   PGRST204 column not in schema  -> the app is newer than the database (migration not applied)
+ *   KF001    our own code          -> the 3-active-repairs limit (migration 0023)
  */
 export function mapPostgrestError(error: PostgrestError): BookingError {
   switch (error.code) {
     case '23P01':
     case '23505':
       return new BookingError('SLOT_TAKEN', SLOT_TAKEN_MESSAGE, { cause: error });
+    case 'KF001':
+      return new BookingError('LIMIT_REACHED', LIMIT_REACHED_MESSAGE, { cause: error });
     case '23503':
       return new BookingError(
         'INVALID_INPUT',

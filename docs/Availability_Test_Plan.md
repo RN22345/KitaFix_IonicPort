@@ -22,7 +22,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | # | Test | Steps | Expected result |
 | --- | --- | --- | --- |
 | A1 | **Book with empty fields must block** | New booking -> on the Device step leave brand, model empty and pick no issue -> Next | Step does not advance; red notes on brand, model and "Please pick at least one problem."; nothing is saved (real mode: no row in `repairs`) |
-| A2 | **Book a past date must block** | Open the date picker | Yesterday and earlier are not selectable (`min` = today); even if forced with devtools, `notPastDate` rejects and the DB `repairs_booking_date_not_past` rejects the insert |
+| A2 | **Book a past date must block** | Open the date picker | Yesterday and earlier are not selectable (`min` = today); even if forced with devtools, `notPastDate` rejects and the DB trigger `repairs_booking_date_rule` rejects the insert (23514; it was a CHECK until 0023) |
 | A3 | **Book the same slot twice must fail** | Book `Main Branch - Downtown`, tomorrow 10:00. Then book the same branch/date/time again | Second attempt fails with "That time is already booked at this location." In the SQL editor the second insert gives `23P01 repairs_no_double_booking` |
 | A4 | **Same time, different location must pass** | Book `Main Branch - Downtown`, tomorrow 10:00. Then `North Mall Branch`, tomorrow 10:00 | Both bookings are created; the list shows two rows at 10:00 with different branches |
 | A5 | **Cancel a completed repair must block** | Find a completed repair in My repairs | Cancel button is disabled; via SQL/API an update `status='cancelled'` fails with `42501` "This repair can no longer be changed by the customer." |
@@ -42,6 +42,8 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | B9 | Only free slots are offered | Book tomorrow 10:00, open New booking with the same branch/date | 10:00 is not in the Time list; the other configured hours are |
 | B10 | Race: two inserts at the same moment | Two SQL sessions (or two browsers) insert the same branch/date/time; commit both | Exactly one succeeds; the other gets `23P01`. The DB constraint, not the UI, decided |
 | B11 | RLS: only my rows | Sign in as customer B; run `select * from repairs` | Only B's rows are returned |
+| B12 | At most 3 active repairs | Have 3 pending / in-progress / testing repairs, open Book | Book tab shows "You have 3 active repairs" with the list; Home says "You're all booked". A 4th insert via API fails with `KF001`. Cancel one -> booking works again |
+| B13 | Old bookings can still change | A repair whose date has passed: staff moves it to `testing`, or the customer cancels it while pending | Allowed (before 0023 this failed with 23514). Moving a booking to a past date still fails |
 
 ## C. Screen and UX tests
 
@@ -50,7 +52,9 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | C1 | Home greeting + active repairs | Sign in / open the app | "Good morning/afternoon/evening, <first name>", one Book a repair button, up to 3 active repairs with progress bars |
 | C2 | My repairs content | Open My repairs | Each card has short ID, device, date, time, branch, issues, status |
 | C3 | Empty states | Filter History with no finished repairs | Friendly message, no blank screen, no raw database text |
-| C4 | Price estimate | Pick a service and tap issue chips | Estimated total = base price + issue fees (e.g. Screen Replacement 1499 + Battery 250 = 1749) |
+| C4 | Price estimate | Pick Screen + Battery, go to Review | Screen Replacement 1499 + Battery check 250 = 1749; no service picker on Review |
+| C7 | Device from the list | Device step: tap Brand -> Samsung; Model list opens by itself; type `s24` -> Galaxy S24 | Green check and "Found in our list". Typing an unlisted model and pressing Next shows "That model isn't in our list..." until it is picked or "Not in the list" is ticked |
+| C8 | Quick book + success | Home -> Quick book "Battery" -> finish the steps -> Book repair | Battery is already picked; a "You're booked!" screen shows the date, branch and reference |
 | C5 | Live status update (recommended) | Real mode. Open My repairs. From Studio/staff app set the repair to `in_progress` | The badge updates on the customer screen without refresh (Realtime publication) |
 | C6 | Refresh + error handling | Pull to refresh; then stop Supabase and try again | List refreshes; when Supabase is down a friendly error banner appears with Retry |
 
@@ -78,6 +82,9 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | | | C2 | | |
 | | | C3 | | |
 | 2026-10-16 | mock UI | C4 | pass | Screen Replacement 1499 + Battery 250 + Camera 300 = 2049 |
+| 2026-10-17 | real (DB dry run, rolled back) | B12 | pass | 4th insert as the demo customer: `KF001: You already have 3 active repairs.` |
+| 2026-10-17 | real (DB dry run, rolled back) | B13 | pass | 11 past-dated rows updatable; moving a booking to yesterday still fails 23514 |
+| 2026-10-17 | mock UI | C4, C7, C8, B12 | pass | Device picked from list (Samsung -> Galaxy S24, green check); unlisted model blocked until ticked; success screen; Book tab locks at 3, cancel unlocks |
 | | | C5 | | |
 | | | C6 | | |
 

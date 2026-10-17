@@ -28,10 +28,9 @@ export function issueCoveredBy(service: Pick<ServiceOption, 'name'> | null | und
 }
 
 /**
- * The service to pre-select on the Review step: among services that fix one
- * of the picked issues, the one with the highest base price (the main job;
- * the other issues are added as fees). Null when none fits - the customer
- * then picks one themselves.
+ * The main job for the picked issues: among services that fix one of them,
+ * the one with the highest base price (the other issues are added as fees).
+ * Null when no service fits (e.g. only Camera picked).
  */
 export function suggestService(
   services: readonly ServiceOption[],
@@ -43,4 +42,24 @@ export function suggestService(
   });
   if (matches.length === 0) return null;
   return matches.reduce((best, service) => (service.base_price > best.base_price ? service : best));
+}
+
+const GENERAL_SERVICE_WORDS = ['diagnos', 'general', 'inspection', 'assessment', 'check-up', 'checkup'];
+
+/**
+ * The service stored on a booking. The customer never picks it: it follows
+ * from the issues (repairs.service_id is required). When no service fixes the
+ * picked issues, a general one is used - "Diagnosis"/"General..." if Team 3
+ * has one, otherwise the cheapest - and the shop sees the issue flags anyway.
+ */
+export function serviceForIssues(
+  services: readonly ServiceOption[],
+  issues: readonly IssueFlagKey[],
+): ServiceOption | null {
+  const main = suggestService(services, issues);
+  if (main || services.length === 0) return main;
+  const general = services.find((service) =>
+    GENERAL_SERVICE_WORDS.some((word) => service.name.toLowerCase().includes(word)),
+  );
+  return general ?? services.reduce((cheapest, service) => (service.base_price < cheapest.base_price ? service : cheapest));
 }

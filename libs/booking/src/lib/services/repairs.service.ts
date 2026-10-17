@@ -3,7 +3,14 @@ import { RepairStatus } from '@kitafix/shared-types';
 import { BookingDraft } from '../models/booking-draft.model';
 import { BookingError, bookingErrorMessage } from '../models/booking-error';
 import { ServiceOption, TechnicianOption } from '../models/catalog.model';
-import { Repair, pastDevices, shortRepairId, statusMeta } from '../models/repair.model';
+import {
+  MAX_ACTIVE_BOOKINGS,
+  Repair,
+  activeRepairCount,
+  pastDevices,
+  shortRepairId,
+  statusMeta,
+} from '../models/repair.model';
 import { RepairsRepository } from '../data-access/repositories/repairs.repository';
 import { ServicesGateway } from '../data-access/gateways/services.gateway';
 import { TechniciansGateway } from '../data-access/gateways/technicians.gateway';
@@ -44,6 +51,11 @@ export class RepairsService {
   readonly unreadCount = computed(() => this.notifications().filter((item) => !item.read).length);
   /** Devices this customer brought in before, newest first (one-tap picks on New Booking). */
   readonly myDevices = computed(() => pastDevices(this.myRepairs()));
+  /** Anti-spam: how many more bookings the customer may make right now (0 = locked). */
+  readonly bookingsLeft = computed(() =>
+    Math.max(0, MAX_ACTIVE_BOOKINGS - activeRepairCount(this.myRepairs())),
+  );
+  readonly maxActiveBookings = MAX_ACTIVE_BOOKINGS;
 
   readonly statusCounts = computed<Record<RepairStatus, number>>(() => {
     const counts: Record<RepairStatus, number> = {

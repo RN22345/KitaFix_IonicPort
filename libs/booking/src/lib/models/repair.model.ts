@@ -15,22 +15,37 @@ export type IssueFlagKey =
   | 'issue_audio'
   | 'issue_software';
 
+/** Colour family of an icon tile; maps to the --kf-<tone> / --kf-<tone>-soft tokens. */
+export type Tone = 'accent' | 'green' | 'orange' | 'pink' | 'violet' | 'teal' | 'warn' | 'muted';
+
 export interface IssueDefinition {
   key: IssueFlagKey;
   label: string;
   hint: string;
   /** Extra bench fee used by the price estimate (recommended feature). */
   extraFee: number;
+  /** Ionicon name (registered in src/app/icons.ts). */
+  icon: string;
+  tone: Tone;
 }
 
 export const ISSUE_DEFINITIONS: readonly IssueDefinition[] = [
-  { key: 'issue_screen', label: 'Screen', hint: 'Cracks, lines, dead spots', extraFee: 0 },
-  { key: 'issue_battery', label: 'Battery', hint: 'Drains fast, shuts down', extraFee: 250 },
-  { key: 'issue_charging', label: 'Charging port', hint: 'Will not charge, loose cable', extraFee: 200 },
-  { key: 'issue_camera', label: 'Camera', hint: 'Blurry, black, or broken lens', extraFee: 300 },
-  { key: 'issue_audio', label: 'Speaker / mic', hint: 'No sound, muffled, mic issue', extraFee: 200 },
-  { key: 'issue_software', label: 'Software / OS', hint: 'Boot loop, slow, update problem', extraFee: 150 },
+  { key: 'issue_screen', label: 'Screen', hint: 'Cracks, lines, dead spots', extraFee: 0, icon: 'phone-portrait-outline', tone: 'accent' },
+  { key: 'issue_battery', label: 'Battery', hint: 'Drains fast, shuts down', extraFee: 250, icon: 'battery-dead-outline', tone: 'green' },
+  { key: 'issue_charging', label: 'Charging port', hint: 'Will not charge, loose cable', extraFee: 200, icon: 'flash-outline', tone: 'orange' },
+  { key: 'issue_camera', label: 'Camera', hint: 'Blurry, black, or broken lens', extraFee: 300, icon: 'camera-outline', tone: 'pink' },
+  { key: 'issue_audio', label: 'Speaker / mic', hint: 'No sound, muffled, mic issue', extraFee: 200, icon: 'volume-high-outline', tone: 'violet' },
+  { key: 'issue_software', label: 'Software / OS', hint: 'Boot loop, slow, update problem', extraFee: 150, icon: 'cog-outline', tone: 'teal' },
 ];
+
+export function isIssueKey(value: string): value is IssueFlagKey {
+  return ISSUE_DEFINITIONS.some((issue) => issue.key === value);
+}
+
+/** The picked issue definitions of a repair, in the standard order. */
+export function repairIssues(repair: Repair): IssueDefinition[] {
+  return ISSUE_DEFINITIONS.filter((issue) => repair[issue.key]);
+}
 
 export interface RepairStatusMeta {
   value: RepairStatus;
@@ -38,14 +53,15 @@ export interface RepairStatusMeta {
   badgeColor: string;
   icon: string;
   step: number;
+  tone: Tone;
 }
 
 export const REPAIR_STATUS_LIST: readonly RepairStatusMeta[] = [
-  { value: 'pending', label: 'Pending', badgeColor: 'warning', icon: 'time-outline', step: 1 },
-  { value: 'in_progress', label: 'In progress', badgeColor: 'primary', icon: 'construct-outline', step: 2 },
-  { value: 'testing', label: 'Testing', badgeColor: 'tertiary', icon: 'build-outline', step: 3 },
-  { value: 'completed', label: 'Completed', badgeColor: 'success', icon: 'checkmark-circle-outline', step: 4 },
-  { value: 'cancelled', label: 'Cancelled', badgeColor: 'medium', icon: 'close-circle-outline', step: 0 },
+  { value: 'pending', label: 'Pending', badgeColor: 'warning', icon: 'time-outline', step: 1, tone: 'warn' },
+  { value: 'in_progress', label: 'In progress', badgeColor: 'primary', icon: 'construct-outline', step: 2, tone: 'accent' },
+  { value: 'testing', label: 'Testing', badgeColor: 'tertiary', icon: 'build-outline', step: 3, tone: 'violet' },
+  { value: 'completed', label: 'Completed', badgeColor: 'success', icon: 'checkmark-circle-outline', step: 4, tone: 'green' },
+  { value: 'cancelled', label: 'Cancelled', badgeColor: 'medium', icon: 'close-circle-outline', step: 0, tone: 'muted' },
 ];
 
 export function statusMeta(status: RepairStatus): RepairStatusMeta {
@@ -53,7 +69,7 @@ export function statusMeta(status: RepairStatus): RepairStatusMeta {
 }
 
 export function issueLabels(repair: Repair): string[] {
-  return ISSUE_DEFINITIONS.filter((issue) => repair[issue.key]).map((issue) => issue.label);
+  return repairIssues(repair).map((issue) => issue.label);
 }
 
 /**
@@ -79,6 +95,17 @@ export function canCustomerCancel(repair: Repair): boolean {
 /** Still in the shop: pending, in progress or testing. */
 export function isActiveRepair(repair: Pick<Repair, 'status'>): boolean {
   return repair.status === 'pending' || repair.status === 'in_progress' || repair.status === 'testing';
+}
+
+/**
+ * Anti-spam rule: a customer can have at most this many active repairs at a
+ * time. The database enforces the same number (migration 0023, trigger
+ * repairs_limit_active_bookings); keep the two in sync.
+ */
+export const MAX_ACTIVE_BOOKINGS = 3;
+
+export function activeRepairCount(repairs: readonly Pick<Repair, 'status'>[]): number {
+  return repairs.filter((repair) => isActiveRepair(repair)).length;
 }
 
 /** A device the customer has brought in before (for one-tap booking). */

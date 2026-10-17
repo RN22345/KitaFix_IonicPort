@@ -58,6 +58,8 @@ export class MyRepairsPage implements OnInit {
   private readonly router = inject(Router);
 
   readonly repairs = this.booking.myRepairs;
+  readonly bookingsLeft = this.booking.bookingsLeft;
+  readonly maxActive = this.booking.maxActiveBookings;
   readonly loading = this.booking.loading;
   readonly error = this.booking.error;
   /** Picked by the customer; until then Active, or History when nothing is active. */

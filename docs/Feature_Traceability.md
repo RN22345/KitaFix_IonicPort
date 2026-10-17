@@ -8,7 +8,7 @@ tested. Use this as the checklist during the finals walkthrough.
 | # | Feature (plan) | Code | Database | Test |
 | --- | --- | --- | --- | --- |
 | 1 | Dashboard: welcome + list of my repairs | `pages/dashboard/*` (Home tab), `isActiveRepair` | `listByCustomer` (`select ... where customer_id = auth.uid()`) | C1 |
-| 2 | Booking form: brand, model, location, date, time, service, technician, 6 issues (chips on the Device step) + optional note; service suggested from the issues on Review | `pages/new-booking/*`, `BookingDraft` | `repairs` insert | A1, C2 |
+| 2 | Booking form: brand, model, location, date, time, service, technician, 6 issues (chips on the Device step) + optional note; the service is derived from the issues (`serviceForIssues`), not picked | `pages/new-booking/*`, `BookingDraft` | `repairs` insert | A1, C2, C7 |
 | 3 | Validation: brand/model required, >= 1 issue, date not in the past | `validation/booking.validators.ts` | `repairs_*_check` constraints | A1, A2 |
 | 4 | Availability: two bookings same location + same hour must fail, via DB constraint | form hides taken slots (`get_taken_slots`), errors mapped in `postgrest-errors.ts` | `repairs_no_double_booking` EXCLUDE (gist) | A3, A4, B10 |
 | 5 | My Repairs: ID, item, date, status | `pages/my-repairs/*`, `ui/repair-card` | `listByCustomer` | C2 |

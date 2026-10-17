@@ -14,7 +14,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['libs/**/*.spec.ts'],
+    include: ['libs/**/*.spec.ts', 'tools/**/*.spec.mjs'],
     environment: 'node',
   },
 });

@@ -22,6 +22,9 @@
    --kf-accent-soft tinted backgrounds for selected things
    --kf-green       success / "go" actions   --kf-danger, --kf-warn
    --kf-hero-from / --kf-hero-to   header gradient
+   --kf-violet, --kf-orange, --kf-pink, --kf-teal (+ -soft)   category colours
+                    (issue icons, status tints) - for variety, not for meaning
+   --kf-ease, --kf-fast, --kf-slow   motion; see "Motion" at the end of this file
    ============================================================================= */
 :root {
   --kf-bg: #e8edf5;
@@ -37,10 +40,23 @@
   --kf-green-soft: rgba(0, 166, 124, 0.13);
   --kf-danger: #d64545;
   --kf-warn: #b7791f;
+  --kf-warn-soft: rgba(183, 121, 31, 0.14);
+  --kf-violet: #6d48d6;
+  --kf-violet-soft: rgba(109, 72, 214, 0.13);
+  --kf-orange: #d9630b;
+  --kf-orange-soft: rgba(217, 99, 11, 0.13);
+  --kf-pink: #c42f74;
+  --kf-pink-soft: rgba(196, 47, 116, 0.12);
+  --kf-teal: #0b8f9c;
+  --kf-teal-soft: rgba(11, 143, 156, 0.13);
   --kf-hero-from: #0b5ed7;
-  --kf-hero-to: #0a47a8;
+  --kf-hero-to: #5b3cc4;
   --kf-on-hero: #ffffff;
   --kf-shadow: 0 2px 12px rgba(15, 23, 42, 0.07);
+  --kf-shadow-lift: 0 10px 28px rgba(15, 23, 42, 0.14);
+  --kf-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --kf-fast: 160ms;
+  --kf-slow: 320ms;
   --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   --ion-color-primary: #0b5ed7;
@@ -92,10 +108,20 @@
   --kf-green-soft: rgba(46, 211, 162, 0.14);
   --kf-danger: #f87171;
   --kf-warn: #fbbf24;
-  --kf-hero-from: #143474;
-  --kf-hero-to: #0d1d3f;
+  --kf-warn-soft: rgba(251, 191, 36, 0.14);
+  --kf-violet: #a78bfa;
+  --kf-violet-soft: rgba(167, 139, 250, 0.16);
+  --kf-orange: #fb923c;
+  --kf-orange-soft: rgba(251, 146, 60, 0.15);
+  --kf-pink: #f472b6;
+  --kf-pink-soft: rgba(244, 114, 182, 0.15);
+  --kf-teal: #2dd4bf;
+  --kf-teal-soft: rgba(45, 212, 191, 0.14);
+  --kf-hero-from: #1a46a8;
+  --kf-hero-to: #3a2384;
   --kf-on-hero: #ffffff;
   --kf-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  --kf-shadow-lift: 0 12px 30px rgba(0, 0, 0, 0.5);
 
   --ion-color-primary: #4c8dff;
   --ion-color-primary-rgb: 76, 141, 255;
@@ -147,6 +173,10 @@ ion-tab-button {
   --ripple-color: var(--kf-accent-soft);
 }
 
+ion-tab-button.tab-selected ion-icon {
+  animation: kf-pop var(--kf-slow) var(--kf-ease);
+}
+
 ion-toast {
   --border-radius: 14px;
 }
@@ -192,4 +222,137 @@ body {
 
 :root {
   --ion-font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Tones: put data-tone="green" (accent, green, orange, pink, violet, teal, warn,
+   muted) on an element and use var(--tone) / var(--tone-soft) inside it. */
+[data-tone='accent'] {
+  --tone: var(--kf-accent);
+  --tone-soft: var(--kf-accent-soft);
+}
+[data-tone='green'] {
+  --tone: var(--kf-green);
+  --tone-soft: var(--kf-green-soft);
+}
+[data-tone='orange'] {
+  --tone: var(--kf-orange);
+  --tone-soft: var(--kf-orange-soft);
+}
+[data-tone='pink'] {
+  --tone: var(--kf-pink);
+  --tone-soft: var(--kf-pink-soft);
+}
+[data-tone='violet'] {
+  --tone: var(--kf-violet);
+  --tone-soft: var(--kf-violet-soft);
+}
+[data-tone='teal'] {
+  --tone: var(--kf-teal);
+  --tone-soft: var(--kf-teal-soft);
+}
+[data-tone='warn'] {
+  --tone: var(--kf-warn);
+  --tone-soft: var(--kf-warn-soft);
+}
+[data-tone='muted'] {
+  --tone: var(--kf-muted);
+  --tone-soft: var(--kf-surface-2);
+}
+
+/* =============================================================================
+   Motion (shared). Keyframes are global, so any component can use them:
+     animation: kf-rise var(--kf-slow) var(--kf-ease) both;
+   Stagger a list by setting --i on each item (style="--i: 2") and adding
+     animation-delay: calc(var(--i, 0) * 45ms);
+   Everything is switched off for people who ask for reduced motion.
+   ============================================================================= */
+@keyframes kf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kf-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kf-pop {
+  0% {
+    transform: scale(0.94);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes kf-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kf-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kf-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kf-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

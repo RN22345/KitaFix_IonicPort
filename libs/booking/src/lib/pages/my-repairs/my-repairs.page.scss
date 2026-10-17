@@ -1,10 +1,28 @@
 // Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
 
 .hero {
+  position: relative;
+  overflow: hidden;
   padding: calc(env(safe-area-inset-top, 0px) + 1.1rem) 1rem 1.25rem;
-  background: linear-gradient(160deg, var(--kf-hero-from), var(--kf-hero-to));
-  border-radius: 0 0 26px 26px;
+  background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
+  border-radius: 0 0 28px 28px;
   color: var(--kf-on-hero);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 70%);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+  }
 
   h1 {
     margin: 0;
@@ -90,4 +108,28 @@ ion-segment-button {
 
 .empty-state p {
   margin: 0;
+}
+
+.rise {
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.limit-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 14px;
+  background: var(--kf-warn-soft);
+  color: var(--kf-text);
+  font-size: 0.82rem;
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+
+  ion-icon {
+    flex: none;
+    font-size: 1.15rem;
+    color: var(--kf-warn);
+  }
 }

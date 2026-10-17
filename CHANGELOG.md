@@ -7,6 +7,22 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Changed (Team 2 - booking polish)
+- More colour and motion: each issue has its own icon and colour, status badges and repair cards are tinted by status, Home and Repairs headers have a blue-to-violet gradient, and steps, cards and chips animate in. Everything respects the phone's reduced-motion setting. New shared tokens (`--kf-violet/orange/pink/teal`, `data-tone`, `kf-*` keyframes) are documented in `libs/theme/README.md`.
+- Home: "Quick book" issue tiles open New Booking with that issue already picked.
+- New Booking, Device step: brand and model are picked from a list (tap to open; the brand list starts with popular brands, the model list with the brand's newest-looking models). A green check confirms a listed device. Ticking "Not in the list" lets the customer type any brand and model. Past devices still work as one-tap picks.
+- New Booking, Review: the service picker is gone. The service follows from the picked issues (`serviceForIssues`); Review shows the issues as coloured tiles and a price breakdown.
+- After booking, a success screen with the reference number replaces the toast.
+- The device catalog now lists each brand's models newest-looking first (`browseOrder` in the builder) and `extra-devices.json` is kept newest first.
+
+### Added (Team 2 - anti-spam limit)
+- A customer can have at most 3 active repairs (pending, in progress or testing). The Book tab shows how many are left, and locks with a list of the active repairs at 3; Home and Repairs say so too. Enforced in the database by migration `0023_team2_booking_limits.sql` (trigger `repairs_limit_active_bookings`, SQLSTATE `KF001`).
+- 0023 also cancels old bookings made before the limit: pending bookings whose date has passed, and the oldest pending ones of customers still over 3. In-progress and testing repairs are never touched.
+- 0023 applied to the hosted project 2026-10-17 after a rolled-back dry run. Clean-up result: the demo customer went from 12 active (all pending, 8 past their date) to 3; 13 repairs are now cancelled. Security advisors: no new warnings (both new trigger functions are not callable over the API).
+
+### Fixed (Team 2)
+- "No past dates" was a CHECK constraint, which Postgres re-checks on every update: once a booking's date had passed, nobody could cancel it or move its status (Team 3 included). 0023 replaces it with a trigger that only checks the date when a booking is made or moved.
+
 ### Changed (Team 2 - UX redesign)
 - Dark mode by default, with a softer light mode (blue-grey background, off-white surfaces). Switch in the account menu; remembered per device. All colours are shared `--kf-*` tokens in `src/global.scss`; new shared library `libs/theme`.
 - Tabs are now Home / Book / Repairs. Removed duplicate ways into My Repairs (two Home tiles and a "See all" button), the dead "Technicians - Coming soon" tile, the Home search and the status counts.

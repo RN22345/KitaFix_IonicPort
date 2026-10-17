@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ServiceOption } from '../models/catalog.model';
-import { issueCoveredBy, suggestService } from './service-match';
+import { issueCoveredBy, serviceForIssues, suggestService } from './service-match';
 
 const services = [
   { id: 's1', name: 'Screen Replacement', base_price: 1499 },
@@ -35,5 +35,18 @@ describe('suggestService', () => {
   it('returns null when no service fits (camera only)', () => {
     expect(suggestService(services, ['issue_camera'])).toBeNull();
     expect(suggestService(services, [])).toBeNull();
+  });
+});
+
+describe('serviceForIssues', () => {
+  it('uses the matching service when there is one', () => {
+    expect(serviceForIssues(services, ['issue_screen', 'issue_camera'])?.name).toBe('Screen Replacement');
+  });
+
+  it('falls back to a general service, then to the cheapest', () => {
+    const withDiagnosis = [...services, { id: 's6', name: 'General Diagnosis', base_price: 300 }] as ServiceOption[];
+    expect(serviceForIssues(withDiagnosis, ['issue_camera'])?.name).toBe('General Diagnosis');
+    expect(serviceForIssues(services, ['issue_camera'])?.name).toBe('Software Reset');
+    expect(serviceForIssues([], ['issue_camera'])).toBeNull();
   });
 });

@@ -8,8 +8,8 @@ so it can be copied over as-is.
 
 | Route | Page | Purpose |
 | --- | --- | --- |
-| `/tabs/dashboard` (tab "Home") | `lib/pages/dashboard` | Greeting, Book a repair, active repairs with progress, light/dark switch |
-| `/tabs/new-booking` (tab "Book") | `lib/pages/new-booking` | 3 steps: Device (past devices, brand/model suggestions, issues) -> Schedule (branch, date, free hours) -> Review (suggested service, technician, estimate) |
+| `/tabs/dashboard` (tab "Home") | `lib/pages/dashboard` | Greeting, Book a repair, Quick book issue tiles, active repairs with progress, light/dark switch |
+| `/tabs/new-booking` (tab "Book") | `lib/pages/new-booking` | 3 steps: Device (past devices, brand/model from the list or typed, issues) -> Schedule (branch, date, free hours) -> Review (issues, technician, estimate) -> success screen. Locked at 3 active repairs |
 | `/tabs/my-repairs` (tab "Repairs") | `lib/pages/my-repairs` | Active / History, search, cancel, reschedule (modal), book again |
 | `/tabs/my-devices` | - | Redirects to New Booking (past devices are one-tap picks there) |
 
@@ -18,10 +18,17 @@ UI pieces: `lib/ui/status-badge`, `lib/ui/repair-card` (with progress bar), `lib
 Device suggestions: `lib/data-access/device-catalog` reads `src/assets/data/device-catalog.json`
 (built by `tools/device-catalog/build-device-catalog.mjs` from Google Play's supported-devices list
 plus `tools/device-catalog/extra-devices.json`, refreshed weekly by `.github/workflows/device-catalog.yml`).
-Typed brands/models that are not in the list are always accepted.
+The customer picks from the list, or ticks "Not in the list" to type any brand and model
+(also used automatically when the list cannot load). Before typing, the model list shows the
+top of the brand's catalog order, which the builder makes newest-looking first.
 
-Service suggestion and pricing: `lib/pricing/service-match.ts` (`suggestService`, `issueCoveredBy`)
-and `lib/pricing/price-estimate.ts` (the issue a service already fixes is not charged twice).
+Service and pricing: the customer never picks a service. `lib/pricing/service-match.ts`
+(`serviceForIssues`, `suggestService`, `issueCoveredBy`) derives it from the issues; with no
+matching service it falls back to a "Diagnosis"/"General" service if Team 3 adds one, otherwise
+the cheapest. `lib/pricing/price-estimate.ts` does not charge the fixed issue twice.
+
+Anti-spam: at most `MAX_ACTIVE_BOOKINGS` (3) active repairs per customer
+(`RepairsService.bookingsLeft`; database trigger `repairs_limit_active_bookings` in 0023).
 Colours come from the shared `--kf-*` tokens (`src/global.scss`, `libs/theme`).
 
 ## Database objects

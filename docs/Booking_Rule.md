@@ -44,7 +44,8 @@ other customers' data (it is `security definer` for that reason).
 | Location required | select with default | `repairs_location_not_blank` |
 | Service required | `Validators.required` | FK `service_id` |
 | At least **1** of the 6 issues | `atLeastOneIssue` validator on the issue chips | `repairs_at_least_one_issue` |
-| Date not in the past | `notPastDate` + picker `min` | `repairs_booking_date_not_past` |
+| Date not in the past | `notPastDate` + picker `min` | trigger `repairs_booking_date_rule` (0023; only when booked or moved) |
+| At most 3 active repairs | Book tab locked at 3 (`MAX_ACTIVE_BOOKINGS`) | trigger `repairs_limit_active_bookings` (0023, SQLSTATE KF001) |
 | Time required, from the slot list | select over free slots | slot overlap constraint |
 
 ## 4. Who may change what
