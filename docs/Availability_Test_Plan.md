@@ -32,7 +32,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | # | Test | Steps | Expected result |
 | --- | --- | --- | --- |
 | B1 | Cancel a pending booking | Book a future repair -> Cancel -> confirm | Status becomes `cancelled`, badge grey; the cancelled hour appears again in the free slot list |
-| B2 | Cancel an in-progress booking | Staff sets status to `in_progress` (stub SQL: `update repairs set status='in_progress'`) -> customer taps Cancel | Allowed (rule: pending or in_progress) |
+| B2 | Cancel an in-progress booking | Admin sets status to `in_progress` (stub SQL: `update repairs set status='in_progress'`) -> customer taps Cancel | Allowed (rule: pending or in_progress) |
 | B3 | Cancel a testing booking | Status `testing` -> Cancel | Button disabled; API update fails `42501` |
 | B4 | Reschedule a pending booking | Pending repair -> Reschedule -> pick another free hour | Saved, list shows the new date/time; old slot becomes free |
 | B5 | Reschedule to a taken hour | Two bookings exist; reschedule one onto the other's hour | Fails with the friendly slot-taken message; slot list refreshes; row unchanged |
@@ -43,7 +43,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | B10 | Race: two inserts at the same moment | Two SQL sessions (or two browsers) insert the same branch/date/time; commit both | Exactly one succeeds; the other gets `23P01`. The DB constraint, not the UI, decided |
 | B11 | RLS: only my rows | Sign in as customer B; run `select * from repairs` | Only B's rows are returned |
 | B12 | At most 3 active repairs | Have 3 pending / in-progress / testing repairs, open Book | Book tab shows "You have 3 active repairs" with the list; Home says "You're all booked". A 4th insert via API fails with `KF001`. Cancel one -> booking works again |
-| B13 | Old bookings can still change | A repair whose date has passed: staff moves it to `testing`, or the customer cancels it while pending | Allowed (before 0023 this failed with 23514). Moving a booking to a past date still fails |
+| B13 | Old bookings can still change | A repair whose date has passed: an admin moves it to `testing`, or the customer cancels it while pending | Allowed (before 0023 this failed with 23514). Moving a booking to a past date still fails |
 
 ## C. Screen and UX tests
 
@@ -55,7 +55,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | C4 | Price estimate | Pick Screen + Battery, go to Review | Screen Replacement 1499 + Battery check 250 = 1749; no service picker on Review |
 | C7 | Device from the list | Device step: tap Brand -> Samsung; Model list opens by itself; type `s24` -> Galaxy S24 | Green check and "Found in our list". Typing an unlisted model and pressing Next shows "That model isn't in our list..." until it is picked or "Not in the list" is ticked |
 | C8 | Quick book + success | Home -> Quick book "Battery" -> finish the steps -> Book repair | Battery is already picked; a "You're booked!" screen shows the date, branch and reference |
-| C5 | Live status update (recommended) | Real mode. Open My repairs. From Studio/staff app set the repair to `in_progress` | The badge updates on the customer screen without refresh (Realtime publication) |
+| C5 | Live status update (recommended) | Real mode. Open My repairs. From Studio/admin app set the repair to `in_progress` | The badge updates on the customer screen without refresh (Realtime publication) |
 | C6 | Refresh + error handling | Pull to refresh; then stop Supabase and try again | List refreshes; when Supabase is down a friendly error banner appears with Retry |
 
 ## D. Result sheet (fill during the demo run)
@@ -88,7 +88,7 @@ It rolls everything back and prints PASS/FAIL lines you can copy into section D.
 | | | C5 | | |
 | | | C6 | | |
 
-## E. Ready-made SQL for the staff-side steps (local stubs only)
+## E. Ready-made SQL for the admin-side steps (local stubs only)
 
 ```sql
 -- make a repair in progress (run as postgres in Studio; guard trigger allows it)

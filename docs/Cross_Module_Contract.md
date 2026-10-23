@@ -9,7 +9,7 @@ Module Plan v4, sections 5, 6 and 12, and the frozen contract (rule R4).
 | --- | --- | --- | --- |
 | Technician picker in the booking form | Team 1 | `technicians` + `profiles.full_name` | `select t.id, p.full_name, t.skills from technicians t join profiles p on p.id = t.profile_id where t.active is true` |
 | Customer name for dashboard/profile | Team 1 | `profiles.full_name` | `select id, full_name, role from profiles where id = auth.uid()` |
-| RLS helpers | Team 1 | `is_staff()`, `my_role()`, `current_user_no()` | called from our guard trigger + future policies (rule R5: call, never edit) |
+| RLS helpers | Team 1 | `is_admin()`, `my_role()`, `current_user_no()` | called from our guard trigger + future policies (rule R5: call, never edit) |
 | Auth session | Supabase Auth | `auth.uid()` | via `supabase.auth.getUser()` in `SupabaseCurrentUserService` |
 | Service menu + prices | Team 3 | `services` | `select id, name, description, base_price from services where active is true` |
 | Status values | Team 3 | `repair_status` enum | we only compare against the frozen values (rule R8) |
@@ -21,8 +21,8 @@ Module Plan v4, sections 5, 6 and 12, and the frozen contract (rule R4).
 
 | Consumer | Need | Object | How they use it |
 | --- | --- | --- | --- |
-| Team 3 (Repair Queue) | list of bookings to repair | `public.repairs` | `select` (their staff RLS policy in 0030), joins to `profiles` for the customer name |
-| Team 3 (status workflow) | write workflow columns | `repairs.status`, `staff_notes`, `technician_id`, `confirmed_by`, `confirmed_at` | `update` under their staff policy; our guard trigger lets staff through untouched |
+| Team 3 (Repair Queue) | list of bookings to repair | `public.repairs` | `select` (their admin RLS policy in 0030), joins to `profiles` for the customer name |
+| Team 3 (status workflow) | write workflow columns | `repairs.status`, `staff_notes`, `technician_id`, `confirmed_by`, `confirmed_at` | `update` under their admin policy; our guard trigger lets admins through untouched |
 | Team 4 (reports, reviews) | completed repairs + statuses | `public.repairs` | read-only; their views aggregate our rows (`v_repair_status_summary`, `v_technician_performance`) |
 | Team 4 (reviews) | "review only after completed" | `repairs.status` | their trigger/view checks `status = 'completed'`; a review references the repair id |
 | Everyone | "a booking happened" event | the new `repairs` row | it becomes visible to Team 3/4 immediately (plus Supabase Realtime if they subscribe) |

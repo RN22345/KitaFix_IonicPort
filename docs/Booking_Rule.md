@@ -53,9 +53,9 @@ other customers' data (it is `security definer` for that reason).
 `repairs` has two owners (Module Plan v4, section 5). The guard trigger
 `repairs_guard_customer_update()` splits the columns:
 
-| Column group | Customer | Staff (Team 3) |
+| Column group | Customer | Admin (Team 3 / Team 4) |
 | --- | --- | --- |
-| booking columns (device, location, date, time, service, issues) | can set them only at **insert**; later only **date + time** (reschedule) | full control (staff-side reschedule is recommended for Team 3) |
+| booking columns (device, location, date, time, service, issues) | can set them only at **insert**; later only **date + time** (reschedule) | full control (admin-side reschedule is recommended for Team 3) |
 | `status` | may only set `cancelled` | full workflow (`pending -> in_progress -> testing -> completed`, or `cancelled`) |
 | `technician_id` | may **request** one at insert; cannot change later | assign / change freely |
 | `staff_notes`, `confirmed_by`, `confirmed_at` | never | full control |

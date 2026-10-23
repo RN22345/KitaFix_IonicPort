@@ -74,7 +74,7 @@ export const IDENTITY_ROUTES: Routes = [
 ```
 
 Use **unique top-level paths** for your tabs (e.g. `login`, `profile`,
-`staff-accounts`). The booking module already uses `dashboard`, `new-booking`,
+`user-accounts`). The booking module already uses `dashboard`, `new-booking`,
 `my-repairs`.
 
 ## 4. Wire it into the app shell (two files)
@@ -105,7 +105,7 @@ providers: [
 ```
 
 `src/app/tabs/tabs.page.ts` - add your tab buttons (only for customer-facing
-screens; the staff app will have its own shell later):
+screens; the admin app will have its own shell later):
 
 ```html
 <ion-tab-button tab="profile" href="/tabs/profile">
@@ -148,7 +148,7 @@ does not need editing.
 | Need | How |
 | --- | --- |
 | Another team's data | Query the table (RLS must allow read) or call their function |
-| Shared helpers | `is_staff()`, `my_role()`, `current_user_no()` (call only, rule R5) |
+| Shared helpers | `is_admin()`, `my_role()`, `current_user_no()` (call only, rule R5) |
 | Display-only components | Import from the other team's **barrel** (e.g. `RepairCardComponent`) |
 | Status values | The `repair_status` enum only (rule R8) |
 
@@ -166,6 +166,6 @@ Never import another team's page or internal file (rules R6, R9).
 - [ ] `npm run build` passes.
 - [ ] PR opened with the template; CI green.
 
-If your module needs a different app shell (like the staff Angular Material
+If your module needs a different app shell (like the admin Angular Material
 app), don't duplicate everything - add a second project under `apps/` and open an
 issue so the group can agree on the shared parts first.

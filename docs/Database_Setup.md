@@ -57,7 +57,8 @@ This deletes the local database and re-runs **everything** in
 | 0001 | `*_local_stub_team1_identity.sql` | profiles, technicians, role helpers (Team 1 stand-in) |
 | 0002 | `*_local_stub_team3_services.sql` | services table (Team 3 stand-in) |
 | 0020 | `0020_team2_booking.sql` | **OURS**: repairs, availability constraint, RLS, guard trigger, `get_taken_slots` |
-| 0090 | `*_local_stub_team3_repairs_staff.sql` | staff RLS policies (Team 3 stand-in) |
+| 0024 | `0024_merge_staff_into_admin.sql` | one `admin` role, `is_admin()`, admin-only role changes |
+| 0090 | `*_local_stub_team3_repairs_staff.sql` | admin RLS policies (Team 3 stand-in) |
 
 The stub files say right at the top: **delete before merging** - in the group
 repo the real files from Teams 1 and 3 replace them.
@@ -78,7 +79,7 @@ Studio -> Authentication -> Add user (or use the app's signup once Team 1 ships)
 | customer@kitafix.test | Alex Santos | customer |
 | marcos.tech@kitafix.test | Marco Reyes | technician |
 | dina.tech@kitafix.test | Dina Villanueva | technician |
-| staff@kitafix.test | Sam Cruz | staff |
+| admin@kitafix.test | Sam Cruz | admin |
 
 ## 4. Load demo data
 
@@ -88,7 +89,7 @@ Studio -> Authentication -> Add user (or use the app's signup once Team 1 ships)
 update public.profiles set role = 'technician'
 where full_name in ('Marco Reyes', 'Dina Villanueva');
 
-update public.profiles set role = 'staff'
+update public.profiles set role = 'admin'
 where full_name = 'Sam Cruz';
 ```
 

@@ -25,10 +25,10 @@ create policy services_read_authenticated on public.services
   for select to authenticated
   using (true);
 
-drop policy if exists services_staff_write on public.services;
-create policy services_staff_write on public.services
+drop policy if exists services_admin_write on public.services;
+create policy services_admin_write on public.services
   for all to authenticated
-  using (public.is_staff())
-  with check (public.is_staff());
+  using ((select public.is_admin()))
+  with check ((select public.is_admin()));
 
 grant select, insert, update, delete on public.services to authenticated;

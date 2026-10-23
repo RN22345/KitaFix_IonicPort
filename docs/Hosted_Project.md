@@ -21,10 +21,10 @@ Schema migrations were applied through the Supabase **Management API**
 
 | Migration | Result |
 | --- | --- |
-| `0001_local_stub_team1_identity.sql` | profiles, technicians, `user_role`, `is_staff()` / `my_role()` / `current_user_no()`, signup trigger, RLS |
+| `0001_local_stub_team1_identity.sql` | profiles, technicians, `user_role`, `is_admin()` / `my_role()` / `current_user_no()`, signup trigger, RLS |
 | `0002_local_stub_team3_services.sql` | `services` table + RLS |
 | `0020_team2_booking.sql` | `repairs`, availability exclusion constraint, customer RLS, guard trigger, `get_taken_slots()`, realtime |
-| `0090_local_stub_team3_repairs_staff.sql` | staff/technician RLS on `repairs` |
+| `0090_local_stub_team3_repairs_staff.sql` | admin/technician RLS on `repairs` |
 | `seed_demo_data.sql` | 5 services, 2 technicians, 2 sample bookings |
 
 > The three `*_local_stub_*` files are Team 1 / Team 3 stand-ins. When those
@@ -39,9 +39,9 @@ The generated contract was pulled from the live project into
 | Email | Role | Purpose |
 | --- | --- | --- |
 | `customer@kitafix.test` | customer | Dashboard / Booking / My repairs |
-| `marcos.tech@kitafix.test` | technician | Staff-side assignment demos |
-| `dina.tech@kitafix.test` | technician | Staff-side assignment demos |
-| `staff@kitafix.test` | staff | Repair Queue / status changes |
+| `marcos.tech@kitafix.test` | technician | Admin-side assignment demos |
+| `dina.tech@kitafix.test` | technician | Admin-side assignment demos |
+| `admin@kitafix.test` | admin | Repair Queue / status changes |
 
 **Password:** shared in the group chat, not committed to this public repo.
 The temporary `/dev-login` screen in the app accepts these accounts.

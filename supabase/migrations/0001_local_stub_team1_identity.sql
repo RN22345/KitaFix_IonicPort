@@ -7,14 +7,14 @@
 -- Delete this file as soon as the real Team 1 migration is in the repo.
 -- It mirrors the frozen contract Team 2 depends on (Module Plan v4, section 12):
 --   profiles(id, full_name, phone, role, active)   -> name + role for displays
---   user_role enum                                 -> customer/technician/staff/admin
+--   user_role enum                                 -> customer/technician/admin (0024)
 --   technicians(id, profile_id, skills, active)    -> booking form picker
---   is_staff(), my_role(), current_user_no()       -> Team 1 RLS helpers
+--   is_admin(), my_role(), current_user_no()       -> Team 1 RLS helpers
 -- =============================================================================
 
 do $$
 begin
-  create type public.user_role as enum ('customer', 'technician', 'staff', 'admin');
+  create type public.user_role as enum ('customer', 'technician', 'admin');
 exception
   when duplicate_object then null;
 end
@@ -44,7 +44,10 @@ create policy profiles_update_own on public.profiles
   using (id = auth.uid())
   with check (id = auth.uid());
 
-grant select, insert, update on public.profiles to authenticated;
+-- Users may edit only these columns; role and active change through the
+-- admin-only functions in 0024 (set_user_role, set_user_active).
+grant select on public.profiles to authenticated;
+grant update (full_name, phone, avatar_url) on public.profiles to authenticated;
 
 -- Auto-create a profile on signup (simplified version of Team 1's trigger).
 create or replace function public.t1_stub_handle_new_user()
@@ -84,7 +87,7 @@ as $$
   );
 $$;
 
-create or replace function public.is_staff()
+create or replace function public.is_admin()
 returns boolean
 language sql
 stable
@@ -92,7 +95,7 @@ security definer
 set search_path = public, pg_temp
 as $$
   select coalesce(
-    (select p.role in ('staff', 'admin') from public.profiles p where p.id = auth.uid()),
+    (select p.role = 'admin' and p.active from public.profiles p where p.id = auth.uid()),
     false
   );
 $$;
@@ -108,7 +111,7 @@ as $$
 $$;
 
 grant execute on function public.my_role() to authenticated;
-grant execute on function public.is_staff() to authenticated;
+grant execute on function public.is_admin() to authenticated;
 grant execute on function public.current_user_no() to authenticated;
 
 create table if not exists public.technicians (
@@ -127,10 +130,10 @@ create policy technicians_read_authenticated on public.technicians
   for select to authenticated
   using (true);
 
-drop policy if exists technicians_staff_write on public.technicians;
-create policy technicians_staff_write on public.technicians
+drop policy if exists technicians_admin_write on public.technicians;
+create policy technicians_admin_write on public.technicians
   for all to authenticated
-  using (public.is_staff())
-  with check (public.is_staff());
+  using ((select public.is_admin()))
+  with check ((select public.is_admin()));
 
 grant select, insert, update, delete on public.technicians to authenticated;

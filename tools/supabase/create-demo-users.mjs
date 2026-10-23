@@ -34,7 +34,7 @@ const users = [
   { email: 'customer@kitafix.test', full_name: 'Alex Santos' },
   { email: 'marcos.tech@kitafix.test', full_name: 'Marco Reyes' },
   { email: 'dina.tech@kitafix.test', full_name: 'Dina Villanueva' },
-  { email: 'staff@kitafix.test', full_name: 'Sam Cruz' },
+  { email: 'admin@kitafix.test', full_name: 'Sam Cruz' },
 ];
 
 for (const user of users) {
@@ -64,4 +64,4 @@ for (const user of users) {
 
 console.log('\nNow set roles (SQL editor or apply-sql.mjs):');
 console.log("  update public.profiles set role = 'technician' where full_name in ('Marco Reyes','Dina Villanueva');");
-console.log("  update public.profiles set role = 'staff' where full_name = 'Sam Cruz';");
+console.log("  update public.profiles set role = 'admin' where full_name = 'Sam Cruz';");
