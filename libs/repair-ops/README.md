@@ -4,9 +4,9 @@ Staff screens for the repair shop. Built to the Module Plan v4 "Required feature
 
 | Screen | Route | What it does |
 | --- | --- | --- |
-| Admin Portal | `/tabs/admin-portal` | Cards: All / Pending / Confirmed + latest repairs |
-| Repair Queue | `/tabs/repair-queue` | List, 3 filters, Confirm, Update status, Assign/Change technician |
-| Service Catalog | `/tabs/service-catalog` | Add, edit, turn a service on or off |
+| Admin Portal | `/staff/admin-portal` | Cards: All / Pending / Confirmed + latest repairs |
+| Repair Queue | `/staff/repair-queue` | List, 3 filters, Confirm, Update status, Assign/Change technician |
+| Service Catalog | `/staff/service-catalog` | Add, edit, turn a service on or off |
 
 Database: `supabase/migrations/0030_team3_repair_ops.sql` (services table, staff RLS, status trigger).
 

@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, isDevMode } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { getSupabaseClient } from '@kitafix/booking';
 import { environment } from '../../../environments/environment';
@@ -30,4 +30,45 @@ export const authGuard: CanActivateFn = async () => {
   }
 
   return router.createUrlTree(['/dev-login']);
+};
+
+export const homeRouteGuard: CanActivateFn = async () => {
+  const router = inject(Router);
+
+  if (environment.useMockData) {
+    const destination = environment.staffPreviewMode && isDevMode()
+      ? '/staff/admin-portal'
+      : '/tabs';
+    return router.createUrlTree([destination]);
+  }
+
+  try {
+    const db = getSupabaseClient(environment.supabaseUrl, environment.supabaseAnonKey);
+    const { data: sessionData, error: sessionError } = await db.auth.getSession();
+    const session = sessionData.session;
+    if (sessionError || !session) {
+      return router.createUrlTree(['/dev-login']);
+    }
+
+    const { data: profile, error: profileError } = await db
+      .from('profiles')
+      .select('role, active')
+      .eq('id', session.user.id)
+      .maybeSingle();
+    if (profileError || !profile?.active) {
+      return router.createUrlTree(['/dev-login']);
+    }
+
+    if (environment.staffPreviewMode && isDevMode()) {
+      return router.createUrlTree(['/staff/admin-portal']);
+    }
+
+    const { data: isStaff, error: roleError } = await db.rpc('is_staff');
+    const staffRole = profile.role === 'staff' || profile.role === 'admin';
+    return !roleError && isStaff === true && staffRole
+      ? router.createUrlTree(['/staff/admin-portal'])
+      : router.createUrlTree(['/tabs']);
+  } catch {
+    return router.createUrlTree(['/dev-login']);
+  }
 };

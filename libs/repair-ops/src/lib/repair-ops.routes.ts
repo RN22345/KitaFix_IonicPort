@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { staffOnlyGuard } from './staff-only.guard';
 
 /**
  * Team 3 owns these routes (rule R7). No empty-path redirect here: Team 2's
@@ -7,16 +8,19 @@ import { Routes } from '@angular/router';
 export const REPAIR_OPS_ROUTES: Routes = [
   {
     path: 'admin-portal',
+    canActivate: [staffOnlyGuard],
     loadComponent: () =>
       import('./pages/admin-portal/admin-portal.page').then((m) => m.AdminPortalPage),
   },
   {
     path: 'repair-queue',
+    canActivate: [staffOnlyGuard],
     loadComponent: () =>
       import('./pages/repair-queue/repair-queue.page').then((m) => m.RepairQueuePage),
   },
   {
     path: 'service-catalog',
+    canActivate: [staffOnlyGuard],
     loadComponent: () =>
       import('./pages/service-catalog/service-catalog.page').then((m) => m.ServiceCatalogPage),
   },

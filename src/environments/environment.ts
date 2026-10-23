@@ -15,6 +15,9 @@ export const environment = {
 
   useMockData: false,
 
+  /** Temporary local UI preview; ignored in production builds. */
+  staffPreviewMode: true,
+
   /** Shared hosted project (ap-south-1). */
   supabaseUrl: 'https://pkfataaehrjdipdbrthz.supabase.co',
   /** anon key: safe to ship in a client app, protected by RLS. Never the service_role key. */

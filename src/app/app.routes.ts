@@ -1,12 +1,8 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './shared/session/auth.guard';
+import { authGuard, homeRouteGuard } from './shared/session/auth.guard';
 
 /**
- * The app shell only declares lazy routes that point into each team's library
- * (rule R7). Team 2's screens live behind '@kitafix/booking' -> BOOKING_ROUTES.
- *
- * In the merged group app the tabs list grows with the other teams' routes
- * (identity, repair-ops, insights); Team 2 only owns the booking entries.
+ * Customer booking and staff operations use separate navigation shells.
  */
 export const routes: Routes = [
   {
@@ -18,6 +14,13 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('@kitafix/booking').then((m) => m.BOOKING_ROUTES),
       },
+    ],
+  },
+  {
+    path: 'staff',
+    loadComponent: () => import('./staff/staff-tabs.page').then((m) => m.StaffTabsPage),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'admin-portal' },
       {
         path: '',
         loadChildren: () => import('@kitafix/repair-ops').then((m) => m.REPAIR_OPS_ROUTES),
@@ -28,6 +31,17 @@ export const routes: Routes = [
     path: 'dev-login',
     loadComponent: () => import('./shared/session/dev-login.page').then((m) => m.DevLoginPage),
   },
-  { path: '', redirectTo: 'tabs', pathMatch: 'full' },
-  { path: '**', redirectTo: 'tabs' },
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [homeRouteGuard],
+    loadComponent: () =>
+      import('./shared/session/landing-redirect.page').then((m) => m.LandingRedirectPage),
+  },
+  {
+    path: '**',
+    canActivate: [homeRouteGuard],
+    loadComponent: () =>
+      import('./shared/session/landing-redirect.page').then((m) => m.LandingRedirectPage),
+  },
 ];

@@ -74,6 +74,16 @@ import { RepairOpsService } from '../../services/repair-ops.service';
         --ion-color-primary-tint: #2e7dff;
         font-family: var(--kf-font);
       }
+      ion-header {
+        background: var(--ion-color-primary);
+        overflow: hidden;
+        border-radius: 0 0 20px 20px;
+      }
+      ion-header ion-toolbar {
+        --border-width: 0;
+        --border-color: transparent;
+      }
+
       ion-title,
       ion-button,
       ion-card,
@@ -95,6 +105,10 @@ import { RepairOpsService } from '../../services/repair-ops.service';
       .cards b { font-size: 1.8rem; color: var(--ion-color-primary); }
       .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
       .center { display: flex; justify-content: center; padding: 24px; }
+
+      ion-button {
+      --border-radius: 20px;
+      }
     `,
   ],
 })
@@ -118,7 +132,7 @@ export class AdminPortalPage implements OnInit {
 
   open(filter: QueueFilter): void {
     this.ops.filter.set(filter);
-    void this.router.navigate(['/tabs/repair-queue']);
+    void this.router.navigate(['/staff/repair-queue']);
   }
 
   async refresh(event: Event): Promise<void> {

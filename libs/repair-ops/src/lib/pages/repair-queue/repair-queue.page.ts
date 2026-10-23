@@ -90,6 +90,15 @@ import { RepairOpsService } from '../../services/repair-ops.service';
         --ion-color-primary-tint: #2e7dff;
         font-family: var(--kf-font);
       }
+      ion-header {
+        background: var(--ion-color-primary);
+        overflow: hidden;
+        border-radius: 0 0 20px 20px;
+      }
+      ion-header ion-toolbar {
+        --border-width: 0;
+        --border-color: transparent;
+      }
       ion-title,
       ion-button,
       ion-card,
@@ -113,6 +122,16 @@ import { RepairOpsService } from '../../services/repair-ops.service';
       .actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
       .center { display: flex; justify-content: center; padding: 24px; }
       .empty { text-align: center; color: var(--ion-color-medium); padding: 24px; }
+      @media (max-width: 480px) {
+        ion-segment-button {
+          min-width: 0;
+          white-space: normal;
+        }
+        ion-segment-button::part(native) {
+          white-space: normal;
+          line-height: 1.15;
+        }
+      }
     `,
   ],
 })

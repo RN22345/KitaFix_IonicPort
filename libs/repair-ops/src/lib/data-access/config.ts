@@ -4,6 +4,8 @@ import { InjectionToken } from '@angular/core';
 export interface RepairOpsConfig {
   /** true -> in-memory .ts data (offline demo). false -> real Supabase. */
   useMockData: boolean;
+  /** Development-only staff UI preview using mock data. */
+  staffPreviewMode?: boolean;
   supabaseUrl: string;
   supabaseAnonKey: string;
   currency: string;

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, isDevMode, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -58,15 +58,51 @@ export class DevLoginPage {
     this.error.set(null);
     try {
       const db = getSupabaseClient(environment.supabaseUrl, environment.supabaseAnonKey);
-      const { error } = await db.auth.signInWithPassword({
+      const { error: signInError } = await db.auth.signInWithPassword({
         email: this.email,
         password: this.password,
       });
-      if (error) {
-        this.error.set(error.message);
+      if (signInError) {
+        this.error.set(signInError.message);
         return;
       }
-      await this.router.navigateByUrl('/tabs', { replaceUrl: true });
+
+      const { data: sessionData, error: sessionError } = await db.auth.getSession();
+      const session = sessionData.session;
+      if (sessionError || !session) {
+        await db.auth.signOut();
+        this.error.set('Could not verify the signed-in account. Please try again.');
+        return;
+      }
+
+      const { data: profile, error: profileError } = await db
+        .from('profiles')
+        .select('role, active')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      if (profileError || !profile?.active) {
+        await db.auth.signOut();
+        this.error.set('This account is inactive or has no profile. Contact an administrator.');
+        return;
+      }
+
+      if (environment.staffPreviewMode && isDevMode()) {
+        await this.router.navigateByUrl('/staff/admin-portal', { replaceUrl: true });
+        return;
+      }
+
+      const { data: isStaff, error: roleError } = await db.rpc('is_staff');
+      if (roleError) {
+        await db.auth.signOut();
+        this.error.set('Could not verify this account role. Please try again.');
+        return;
+      }
+
+      const staffRole = profile.role === 'staff' || profile.role === 'admin';
+      const destination = isStaff === true && staffRole
+        ? '/staff/admin-portal'
+        : '/tabs/dashboard';
+      await this.router.navigateByUrl(destination, { replaceUrl: true });
     } catch (caught) {
       this.error.set(caught instanceof Error ? caught.message : 'Sign in failed.');
     } finally {

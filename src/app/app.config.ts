@@ -25,6 +25,7 @@ export const appConfig: ApplicationConfig = {
       supabaseUrl: environment.supabaseUrl,
       supabaseAnonKey: environment.supabaseAnonKey,
       currency: environment.currency,
+      staffPreviewMode: environment.staffPreviewMode,
     }),
   ],
 };

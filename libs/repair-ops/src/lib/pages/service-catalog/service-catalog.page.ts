@@ -72,6 +72,15 @@ import { ServiceCatalogService } from '../../services/service-catalog.service';
         --ion-color-primary-tint: #2e7dff;
         font-family: var(--kf-font);
       }
+      ion-header {
+        background: var(--ion-color-primary);
+        overflow: hidden;
+        border-radius: 0 0 20px 20px;
+      }
+      ion-header ion-toolbar {
+        --border-width: 0;
+        --border-color: transparent;
+      }
       ion-title,
       ion-button,
       ion-card,
