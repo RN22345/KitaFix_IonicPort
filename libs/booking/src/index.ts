@@ -42,7 +42,7 @@ export * from './lib/data-access/mock/mock-data';
 export * from './lib/services/repairs.service';
 export * from './lib/services/repairs-realtime.service';
 
-/* UI pieces that the staff app may reuse for status display */
+/* UI pieces that the admin app may reuse for status display */
 export * from './lib/ui/status-badge/status-badge.component';
 export * from './lib/ui/repair-card/repair-card.component';
 export * from './lib/ui/reschedule-modal/reschedule-modal.component';

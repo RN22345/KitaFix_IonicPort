@@ -49,7 +49,7 @@ node tools/supabase/create-demo-users.mjs pkfataaehrjdipdbrthz
 ```
 
 Accounts: `customer@kitafix.test`, `marcos.tech@kitafix.test`,
-`dina.tech@kitafix.test`, `staff@kitafix.test`. Set their roles with the SQL the
+`dina.tech@kitafix.test`, `admin@kitafix.test`. Set their roles with the SQL the
 script prints (or run it through `apply-sql.mjs`).
 
 ## 4. Smoke test the database (no browser)

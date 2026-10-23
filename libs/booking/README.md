@@ -44,7 +44,7 @@ Owned by Team 2 (`supabase/migrations/0020_team2_booking.sql`):
 | `get_taken_slots(location, date, exclude)` | function | taken hours for the form, no customer data leaked |
 
 Read-only dependencies: `profiles`, `technicians` (Team 1), `services` (Team 3),
-`repair_status` enum (Team 3), `is_staff()` (Team 1).
+`repair_status` enum (Team 3), `is_admin()` (Team 1).
 
 ## Data access (`lib/data-access/`)
 
@@ -90,5 +90,5 @@ Dev-only placeholder data (also exported for demos/tests):
 - R1/R6: everything public goes through this README + `src/index.ts`; nobody
   deep-imports us, we deep-import nobody.
 - R4/R8: status values and issue flag names come from the frozen enum/table.
-- R5: `is_staff()` is called, never redefined (except the clearly marked local
+- R5: `is_admin()` is called, never redefined (except the clearly marked local
   stub migration for standalone dev).

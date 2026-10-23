@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Changed (group decision - one admin role)
+- `staff` and `admin` are now one role, `admin`. `user_role` is `customer | technician | admin`; every staff profile became admin. Migration `0024_merge_staff_into_admin.sql`.
+- `is_staff()` is replaced by `is_admin()` (true only for an active admin). Policies are renamed `*_admin_*` and call `(select public.is_admin())`. The local stubs 0001, 0002 and 0090 match. Teams 1, 3 and 4 use the new names in their real migrations.
+- Demo account `staff@kitafix.test` is now `admin@kitafix.test`.
+
+### Security
+- A signed-in user could change their own `role` (and make themselves admin) through `profiles_update_own`. Users may now update only `full_name`, `phone` and `avatar_url`. Admins change roles and turn accounts on or off with `set_user_role(target, new_role)` and `set_user_active(target, is_active)`; neither works on the admin's own account. `set_user_role` also keeps `technicians` in step.
+
 ### Changed (Team 2 - booking polish)
 - More colour and motion: each issue has its own icon and colour, status badges and repair cards are tinted by status, Home and Repairs headers have a blue-to-violet gradient, and steps, cards and chips animate in. Everything respects the phone's reduced-motion setting. New shared tokens (`--kf-violet/orange/pink/teal`, `data-tone`, `kf-*` keyframes) are documented in `libs/theme/README.md`.
 - Home: "Quick book" issue tiles open New Booking with that issue already picked.

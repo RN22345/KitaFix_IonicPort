@@ -27,7 +27,7 @@ releases:
 | --- | --- |
 | `v0.1.0` | Team 2 booking module + shared contract + hosted database |
 | `v0.2.0` | + login end to end (Team 1) |
-| `v0.3.0` | + staff queue / status workflow (Team 3) |
+| `v0.3.0` | + admin queue / status workflow (Team 3) |
 | `v0.4.0` | + reviews and reports (Team 4) |
 | `v1.0.0` | full offline demo, all four modules integrated |
 

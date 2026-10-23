@@ -9,9 +9,10 @@ run it. Full walkthrough with screenshots-level detail is in
 | File | Purpose | Merge into group repo? |
 | --- | --- | --- |
 | `migrations/0020_team2_booking.sql` | **OURS.** repairs booking columns, availability exclusion constraint, customer RLS, guard trigger, `get_taken_slots`, realtime. | YES - keep the number |
+| `migrations/0024_merge_staff_into_admin.sql` | **GROUP CHANGE.** One `admin` role (no more `staff`), `is_admin()` replaces `is_staff()`, users can no longer change their own role, admin-only `set_user_role` / `set_user_active`. | YES - Team 1, 3 and 4 copy the names |
 | `migrations/0001_local_stub_team1_identity.sql` | Stand-in for Team 1 (profiles, technicians, role helpers) so we can run alone. | **NO - delete before merging** |
 | `migrations/0002_local_stub_team3_services.sql` | Stand-in for Team 3 `services` table. | **NO - delete before merging** |
-| `migrations/0090_local_stub_team3_repairs_staff.sql` | Stand-in for Team 3 staff RLS on repairs. | **NO - delete before merging** |
+| `migrations/0090_local_stub_team3_repairs_staff.sql` | Stand-in for Team 3 admin RLS on repairs. | **NO - delete before merging** |
 | `seed_demo_data.sql` | Small demo dataset (run by hand after signup). | NO - local demo only |
 | `queries.sql` | Every query the module runs, as raw SQL, for testing by hand. | Handy reference |
 
@@ -74,4 +75,4 @@ Run these as two different customers (JWT requests, not the SQL editor):
 - [ ] Customer A cannot set another `customer_id` on insert (`42501`).
 - [ ] Customer A cannot change `status` to anything but `cancelled` (`42501`).
 - [ ] Customer A cannot cancel a `completed` repair (`42501`).
-- [ ] Staff (`is_staff()`) can read/update the queue (stub 0090 until Team 3 ships).
+- [ ] Admins (`is_admin()`) can read/update the queue (stub 0090 until Team 3 ships).

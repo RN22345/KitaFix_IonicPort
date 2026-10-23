@@ -8,7 +8,7 @@ import { getSupabaseClient } from '../data-access/supabase-client';
  * Recommended feature: live status update on the customer screen
  * (Supabase Realtime, Module Plan v4).
  *
- * The status column belongs to Team 3. When they change it in the staff app,
+ * The status column belongs to Team 3. When they change it in the admin app,
  * this channel pushes the new row to the customer screen.
  *
  * In mock mode this is a no-op: the in-memory data does not push changes.

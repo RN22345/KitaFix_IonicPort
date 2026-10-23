@@ -39,7 +39,7 @@ end $f$;
 do $t$
 declare
   cust uuid := (select id from auth.users where email = 'customer@kitafix.test');
-  -- "customer B": any signed-in user that is not staff and has no assignments
+  -- "customer B": any signed-in user that is not an admin and has no assignments
   other uuid := gen_random_uuid();
   tech uuid := (select id from auth.users where email = 'marcos.tech@kitafix.test');
   svc  uuid := (select id from public.services order by name limit 1);

@@ -100,7 +100,7 @@ The reviewer's checklist lives in
 
 - Read another team's data through the database (or their barrel export), never
   by importing their components (rules R6, R9).
-- Call shared helpers (`is_staff()`, `my_role()`, `current_user_no()`) - never
+- Call shared helpers (`is_admin()`, `my_role()`, `current_user_no()`) - never
   redefine or edit them (rule R5).
 - Status strings come from the `repair_status` enum only (rule R8 - this was the
   #1 bug in the old build).

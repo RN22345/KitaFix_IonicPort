@@ -231,10 +231,21 @@ export type Database = {
           booking_time: string
         }[]
       }
-      is_staff: { Args: never; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
       my_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      set_user_active: {
+        Args: { is_active: boolean; target: string }
+        Returns: undefined
+      }
+      set_user_role: {
+        Args: {
+          new_role: Database["public"]["Enums"]["user_role"]
+          target: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
@@ -244,7 +255,7 @@ export type Database = {
         | "testing"
         | "completed"
         | "cancelled"
-      user_role: "customer" | "technician" | "staff" | "admin"
+      user_role: "customer" | "technician" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -379,7 +390,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
-      user_role: ["customer", "technician", "staff", "admin"],
+      user_role: ["customer", "technician", "admin"],
     },
   },
 } as const

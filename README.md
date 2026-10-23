@@ -77,7 +77,7 @@ owned docs, and a manual test plan. Details:
 One team owns one Angular library, its tables and its RLS policies - never edit
 another team's (`R1`). Database changes go in `NNNN_teamN_*.sql` (`R2`) with RLS
 for every table (`R3`). The generated types are the contract (`R4`); shared
-helpers such as `is_staff()` are called, never redefined (`R5`). Import another
+helpers such as `is_admin()` are called, never redefined (`R5`). Import another
 library only through its barrel file (`R6`), keep each team's routes inside its
 own library (`R7`), and use the `repair_status` enum only - no invented status
 strings (`R8`). Talk to other modules through the database, not their components
