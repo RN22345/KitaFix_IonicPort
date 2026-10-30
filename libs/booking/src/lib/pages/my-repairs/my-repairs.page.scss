@@ -133,3 +133,143 @@ ion-segment-button {
     color: var(--kf-warn);
   }
 }
+// Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: calc(env(safe-area-inset-top, 0px) + 1.1rem) 1rem 1.25rem;
+  background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
+  border-radius: 0 0 28px 28px;
+  color: var(--kf-on-hero);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 70%);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+}
+
+.hero-sub {
+  margin: 0.2rem 0 1rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.search {
+  --background: var(--kf-surface);
+  --border-radius: 14px;
+  --box-shadow: none;
+  --color: var(--kf-text);
+  --placeholder-color: var(--kf-muted);
+  --icon-color: var(--kf-muted);
+  padding: 0;
+  min-height: 46px;
+}
+
+.body {
+  padding: 1rem;
+}
+
+.filters {
+  --background: var(--kf-surface-2);
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  padding: 3px;
+}
+
+ion-segment-button {
+  --indicator-color: var(--kf-surface);
+  --indicator-height: 100%;
+  --padding-start: 0.2rem;
+  --padding-end: 0.2rem;
+  text-transform: none;
+  letter-spacing: 0;
+  --color: var(--kf-muted);
+  --color-checked: var(--kf-text);
+  --border-radius: 999px;
+  --indicator-box-shadow: none;
+  min-height: 38px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.error-note {
+  display: block;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  margin-bottom: 0.85rem;
+  border-radius: 16px;
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-line);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--kf-muted);
+}
+
+.empty-state ion-icon {
+  font-size: 2.4rem;
+  color: var(--kf-accent);
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.rise {
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.limit-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 14px;
+  background: var(--kf-warn-soft);
+  color: var(--kf-text);
+  font-size: 0.82rem;
+  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+
+  ion-icon {
+    flex: none;
+    font-size: 1.15rem;
+    color: var(--kf-warn);
+  }
+}
+
+/* Added soft modal styling utilizing Angular deep selector */
+::ng-deep .soft-modal {
+  --border-radius: 28px;
+}

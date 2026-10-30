@@ -148,9 +148,10 @@ export class MyRepairsPage implements OnInit {
     await refresher?.complete?.();
   }
 
-  async confirmCancel(repair: Repair): Promise<void> {
+async confirmCancel(repair: Repair): Promise<void> {
     const alert = await this.alert.create({
       header: 'Cancel booking',
+      cssClass: 'soft-modal',
       message: `Cancel ${repair.device_brand} ${repair.device_model} on ${formatBookingDate(
         repair.booking_date,
       )}? This cannot be undone.`,

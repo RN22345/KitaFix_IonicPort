@@ -148,7 +148,8 @@
                 label="Brand"
                 labelPlacement="floating"
                 fill="outline"
-                [placeholder]="typingFreely() ? 'e.g. Cherry Mobile' : 'Tap to choose, or start typing'"
+                [placeholder]="typingFreely() ? 'e.g. Cherry Mobile' : 'Choose brand from the list'"
+                [readonly]="!typingFreely()"
                 autocomplete="off"
                 autocapitalize="words"
                 [debounce]="100"
@@ -156,6 +157,8 @@
                 (ionFocus)="openList('brand', $event)"
                 (ionBlur)="closeSuggestions()"
                 (ionInput)="onBrandInput($event)"
+                class="brand-field"
+                [class.pick-list]="!typingFreely()"
               >
                 @if (!typingFreely()) {
                   <ion-icon
@@ -199,13 +202,15 @@
                 label="Model"
                 labelPlacement="floating"
                 fill="outline"
-                [placeholder]="typingFreely() ? 'As shown in Settings > About phone' : modelPlaceholder()"
+                [placeholder]="typingFreely() ? 'As shown in Settings > About phone' : 'Choose the brand\'s model'"
+                [readonly]="!typingFreely()"
                 autocomplete="off"
                 [debounce]="120"
                 formControlName="device_model"
                 (ionFocus)="openList('model', $event)"
                 (ionBlur)="closeSuggestions()"
                 (ionInput)="onModelInput($event)"
+                [class.pick-list]="!typingFreely()"
               >
                 @if (!typingFreely()) {
                   <ion-icon
@@ -341,21 +346,76 @@
                 <span>Checking available hours...</span>
               </div>
             } @else {
-              <div class="chips slots" role="radiogroup" aria-label="Time">
-                @for (slot of slotTimes; track slot; let i = $index) {
+              <div class="clock-picker" role="group" aria-label="Time">
+                <div class="clock-readout" aria-live="polite">
                   <button
                     type="button"
-                    role="radio"
-                    class="chip slot"
-                    [style.--i]="i"
-                    [class.selected]="values().booking_time === slot"
-                    [attr.aria-checked]="values().booking_time === slot"
-                    [disabled]="isUnavailable(slot)"
-                    (click)="pickSlot(slot)"
+                    class="seg"
+                    [class.active]="clockPhase() === 'hour'"
+                    aria-label="Change hour"
+                    (click)="showHours()"
                   >
-                    {{ slot }}
+                    {{ clockReadout().hour }}
                   </button>
-                }
+                  <span class="colon" aria-hidden="true">:</span>
+                  <button
+                    type="button"
+                    class="seg"
+                    [class.active]="clockPhase() === 'minute'"
+                    [disabled]="!canBrowseMinutes()"
+                    aria-label="Change minutes"
+                    (click)="showMinutes()"
+                  >
+                    {{ clockReadout().minute }}
+                  </button>
+                  @if (periods().length > 1) {
+                    <div class="period" role="radiogroup" aria-label="AM or PM">
+                      @for (period of periods(); track period) {
+                        <button
+                          type="button"
+                          role="radio"
+                          [class.selected]="activePeriod() === period"
+                          [attr.aria-checked]="activePeriod() === period"
+                          (click)="pickPeriod(period)"
+                        >
+                          {{ period }}
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <span class="period-label">{{ activePeriod() }}</span>
+                  }
+                </div>
+
+                <div
+                  class="clock"
+                  role="radiogroup"
+                  [attr.aria-label]="clockPhase() === 'hour' ? 'Hour' : 'Minutes'"
+                >
+                  @if (handAngle() !== null) {
+                    <span class="hand" aria-hidden="true" [style.--angle]="handAngle() + 'deg'"></span>
+                  }
+                  @for (mark of clockMarks(); track mark.key) {
+                    <button
+                      type="button"
+                      role="radio"
+                      class="clock-mark"
+                      [style.--x]="mark.x + '%'"
+                      [style.--y]="mark.y + '%'"
+                      [class.selected]="mark.selected"
+                      [attr.aria-checked]="mark.selected"
+                      [attr.aria-label]="mark.aria"
+                      [disabled]="mark.disabled"
+                      (click)="pickMark(mark)"
+                    >
+                      {{ mark.label }}
+                    </button>
+                  }
+                </div>
+
+                <p class="field-hint">
+                  {{ clockPhase() === 'hour' ? 'Tap an hour on the clock' : 'Now tap the minutes' }}
+                </p>
               </div>
               @if (freeSlots().length === 0) {
                 <ion-note class="error" color="warning">
