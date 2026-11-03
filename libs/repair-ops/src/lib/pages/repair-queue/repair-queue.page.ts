@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import {
-  ActionSheetController, AlertController, IonButton, IonCard, IonCardContent, IonContent,
+  AlertController, IonButton, IonCard, IonCardContent, IonContent,
   IonHeader, IonNote, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton,
   IonSpinner, IonTitle, IonToolbar, ToastController,
 } from '@ionic/angular';
 import {
   StatusBadgeComponent, formatBookingDate, formatTime, issueLabels, shortRepairId, statusMeta,
 } from '@kitafix/booking';
-import { RepairStatus } from '@kitafix/shared-types';
 import { repairOpsErrorMessage } from '../../models/repair-ops-error';
 import { QueueFilter, QueueRepair, isConfirmed, nextStatuses } from '../../models/repair-ops.model';
 import { RepairOpsService } from '../../services/repair-ops.service';
@@ -21,114 +20,36 @@ import { RepairOpsService } from '../../services/repair-ops.service';
     IonRefresherContent, IonSegment, IonSegmentButton, IonSpinner, IonTitle, IonToolbar,
     StatusBadgeComponent,
   ],
-  template: `
-    <ion-header>
-      <ion-toolbar color="primary"><ion-title>Repair Queue</ion-title></ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding">
-      <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-        <ion-refresher-content></ion-refresher-content>
-      </ion-refresher>
-
-      <ion-segment [value]="filter()" (ionChange)="onFilter($event)">
-        <ion-segment-button value="all">All</ion-segment-button>
-        <ion-segment-button value="waiting">Waiting for repair</ion-segment-button>
-        <ion-segment-button value="processed">Already processed</ion-segment-button>
-      </ion-segment>
-
-      @if (error(); as message) {
-        <ion-note color="danger">{{ message }}</ion-note>
-      }
-
-      @if (loading()) {
-        <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
-      } @else {
-        @for (repair of visible(); track repair.id) {
-          <ion-card>
-            <ion-card-content>
-              <div class="head">
-                <strong>{{ id(repair.id) }}</strong>
-                <app-status-badge [status]="repair.status"></app-status-badge>
-              </div>
-              <div class="customer">{{ repair.customer_name }}</div>
-              <ion-note>
-                {{ repair.device_brand }} {{ repair.device_model }} · {{ repair.service_name }}
-              </ion-note>
-              <p class="issues">Issues: {{ issues(repair) }}</p>
-              <p class="meta">
-                {{ date(repair.booking_date) }}, {{ time(repair.booking_time) }} ·
-                Technician: {{ repair.technician_name ?? 'Unassigned' }}
-              </p>
-              <div class="actions">
-                <ion-button size="small" color="success" [disabled]="!canConfirm(repair)" (click)="confirm(repair)">
-                  {{ confirmed(repair) ? 'Confirmed' : 'Confirm' }}
-                </ion-button>
-                <ion-button size="small" fill="outline" [disabled]="finished(repair)" (click)="assign(repair)">
-                  {{ repair.technician_id ? 'Change technician' : 'Assign technician' }}
-                </ion-button>
-                <ion-button size="small" fill="outline" [disabled]="finished(repair)" (click)="changeStatus(repair)">
-                  Update status
-                </ion-button>
-              </div>
-            </ion-card-content>
-          </ion-card>
-        } @empty {
-          <p class="empty">No repairs match this filter.</p>
-        }
-      }
-    </ion-content>
-  `,
-  styles: [
-    `
-      :host {
-        --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
-        --ion-color-primary: #0b5ed7;
-        --ion-color-primary-rgb: 11, 94, 215;
-        --ion-color-primary-contrast: #ffffff;
-        --ion-color-primary-contrast-rgb: 255, 255, 255;
-        --ion-color-primary-shade: #0a4cad;
-        --ion-color-primary-tint: #2e7dff;
-        font-family: var(--kf-font);
-      }
-      ion-title,
-      ion-button,
-      ion-card,
-      ion-content,
-      ion-note,
-      ion-label,
-      p,
-      span,
-      strong,
-      .customer,
-      .issues,
-      .meta,
-      .head,
-      .actions,
-      .empty {
-        font-family: var(--kf-font);
-      }
-      .head { display: flex; justify-content: space-between; align-items: center; }
-      .customer { font-size: 1.05rem; font-weight: 600; margin-top: 4px; }
-      .issues, .meta { margin: 6px 0 0; font-size: 0.85rem; }
-      .actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
-      .center { display: flex; justify-content: center; padding: 24px; }
-      .empty { text-align: center; color: var(--ion-color-medium); padding: 24px; }
-    `,
-  ],
+  templateUrl: './repair-queue.page.html',
+  styleUrl: './repair-queue.page.scss',
 })
 export class RepairQueuePage implements OnInit {
   private readonly ops = inject(RepairOpsService);
   private readonly alerts = inject(AlertController);
-  private readonly sheets = inject(ActionSheetController);
   private readonly toasts = inject(ToastController);
 
   readonly visible = this.ops.visible;
   readonly filter = this.ops.filter;
   readonly loading = this.ops.loading;
   readonly error = this.ops.error;
+  readonly expandedRepairIds = signal<Set<string>>(new Set());
   readonly id = shortRepairId;
   readonly date = formatBookingDate;
   readonly time = formatTime;
+
+  toggleDetails(repairId: string): void {
+    this.expandedRepairIds.update((expanded) => {
+      const next = new Set(expanded);
+      if (next.has(repairId)) next.delete(repairId);
+      else next.add(repairId);
+      return next;
+    });
+  }
+
+  dateTime(value: string): string {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString();
+  }
 
   ngOnInit(): void {
     void this.ops.ensureLoaded();
@@ -160,24 +81,28 @@ export class RepairQueuePage implements OnInit {
   }
 
   async changeStatus(repair: QueueRepair): Promise<void> {
-    const sheet = await this.sheets.create({
+    const statuses = nextStatuses(repair.status);
+    if (statuses.length === 0) return;
+
+    const alert = await this.alerts.create({
       header: `Update ${shortRepairId(repair.id)}`,
-      subHeader: `Now: ${statusMeta(repair.status).label}`,
-      buttons: [
-        ...nextStatuses(repair.status).map((to: RepairStatus) => ({
-          text: statusMeta(to).label,
-          role: to === 'cancelled' ? 'destructive' : undefined,
-          handler: () => {
-            void this.run(
-              () => this.ops.changeStatus(repair, to),
-              `${shortRepairId(repair.id)} is now ${statusMeta(to).label}`,
-            );
-          },
-        })),
-        { text: 'Close', role: 'cancel' },
-      ],
+      message: `Current status: ${statusMeta(repair.status).label}`,
+      inputs: statuses.map((to) => ({
+        type: 'radio' as const,
+        label: statusMeta(to).label,
+        value: to,
+      })),
+      buttons: [{ text: 'Cancel', role: 'cancel' }, { text: 'Update', role: 'confirm' }],
     });
-    await sheet.present();
+    await alert.present();
+    const { role, data } = await alert.onDidDismiss();
+    const selected = statuses.find((status) => status === data?.values);
+    if (role !== 'confirm' || !selected) return;
+
+    await this.run(
+      () => this.ops.changeStatus(repair, selected),
+      `${shortRepairId(repair.id)} is now ${statusMeta(selected).label}`,
+    );
   }
 
   async assign(repair: QueueRepair): Promise<void> {

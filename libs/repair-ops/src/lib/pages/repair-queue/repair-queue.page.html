@@ -1,0 +1,99 @@
+<ion-header>
+  <ion-toolbar color="primary"><ion-title>Repair Queue</ion-title></ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-segment [value]="filter()" (ionChange)="onFilter($event)">
+    <ion-segment-button value="all">All</ion-segment-button>
+    <ion-segment-button value="waiting">Waiting for repair</ion-segment-button>
+    <ion-segment-button value="processed">Already processed</ion-segment-button>
+  </ion-segment>
+
+  @if (error(); as message) {
+    <ion-note color="danger">{{ message }}</ion-note>
+  }
+
+  @if (loading()) {
+    <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+  } @else {
+    @for (repair of visible(); track repair.id) {
+      <ion-card>
+        <ion-card-content>
+          <div class="head">
+            <strong>{{ id(repair.id) }}</strong>
+            <app-status-badge [status]="repair.status"></app-status-badge>
+          </div>
+          <div class="customer">{{ repair.customer_name }}</div>
+          <ion-note>
+            {{ repair.device_brand }} {{ repair.device_model }} · {{ repair.service_name }}
+          </ion-note>
+          <p class="issues">Issues: {{ issues(repair) }}</p>
+          <p class="meta">
+            {{ date(repair.booking_date) }}, {{ time(repair.booking_time) }} ·
+            Technician: {{ repair.technician_name ?? 'Unassigned' }}
+          </p>
+          <ion-button
+            class="details-toggle"
+            fill="clear"
+            size="small"
+            [attr.aria-expanded]="expandedRepairIds().has(repair.id)"
+            [attr.aria-controls]="'repair-details-' + repair.id"
+            (click)="toggleDetails(repair.id)"
+          >
+            {{ expandedRepairIds().has(repair.id) ? 'Hide details' : 'View details' }}
+          </ion-button>
+          @if (expandedRepairIds().has(repair.id)) {
+            <section class="details" [id]="'repair-details-' + repair.id" aria-label="Repair details">
+              <div class="detail">
+                <span>Location</span>
+                <strong>{{ repair.location }}</strong>
+              </div>
+              <div class="detail">
+                <span>Confirmed</span>
+                <strong>{{ repair.confirmed_at ? dateTime(repair.confirmed_at) : 'Not confirmed' }}</strong>
+              </div>
+              <div class="detail">
+                <span>Created</span>
+                <strong>{{ dateTime(repair.created_at) }}</strong>
+              </div>
+              <div class="detail">
+                <span>Last updated</span>
+                <strong>{{ dateTime(repair.updated_at) }}</strong>
+              </div>
+            </section>
+            <section class="message-details" aria-label="Repair messages">
+              <div class="detail-message">
+                <span>Issue description</span>
+                <p class="message-content">
+                  {{ repair.issue_description?.trim() || 'No additional description provided.' }}
+                </p>
+              </div>
+              <div class="detail-message">
+                <span>Staff notes</span>
+                <p class="message-content">
+                  {{ repair.staff_notes?.trim() || 'No staff notes.' }}
+                </p>
+              </div>
+            </section>
+          }
+          <div class="actions">
+            <ion-button size="small" color="success" [disabled]="!canConfirm(repair)" (click)="confirm(repair)">
+              {{ confirmed(repair) ? 'Confirmed' : 'Confirm' }}
+            </ion-button>
+            <ion-button size="small" fill="outline" [disabled]="finished(repair)" (click)="assign(repair)">
+              {{ repair.technician_id ? 'Change technician' : 'Assign technician' }}
+            </ion-button>
+            <ion-button size="small" fill="outline" [disabled]="finished(repair)" (click)="changeStatus(repair)">
+              Update status
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    } @empty {
+      <p class="empty">No repairs match this filter.</p>
+    }
+  }
+</ion-content>

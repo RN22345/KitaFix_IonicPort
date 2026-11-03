@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar color="primary"><ion-title>Service Catalog</ion-title></ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (error(); as message) {
+    <ion-note color="danger">{{ message }}</ion-note>
+  }
+
+  @if (loading()) {
+    <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+  } @else {
+    @for (service of services(); track service.id) {
+      <ion-card [class.off]="!service.active">
+        <ion-card-content>
+          <div class="head">
+            <strong>{{ service.name }}</strong>
+            <span class="price">{{ currency }}{{ service.base_price }}</span>
+          </div>
+          <ion-note>{{ service.description || 'No description' }}</ion-note>
+          <div class="actions">
+            <ion-toggle
+              [checked]="service.active"
+              (ionChange)="toggle(service, $event)"
+            >{{ service.active ? 'Active' : 'Inactive' }}</ion-toggle>
+            <ion-button size="small" fill="outline" (click)="openForm(service)">Edit</ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    } @empty {
+      <p class="empty">No services yet. Tap + to add one.</p>
+    }
+  }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="openForm(null)"><ion-icon name="add-circle-outline"></ion-icon></ion-fab-button>
+  </ion-fab>
+</ion-content>

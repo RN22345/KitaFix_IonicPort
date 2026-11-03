@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar color="primary"><ion-title>Admin Portal</ion-title></ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="cards">
+    <ion-card button (click)="open('all')">
+      <ion-card-content><span>All repairs</span><b>{{ counts().all }}</b></ion-card-content>
+    </ion-card>
+    <ion-card button (click)="open('waiting')">
+      <ion-card-content><span>Pending</span><b>{{ counts().pending }}</b></ion-card-content>
+    </ion-card>
+    <ion-card button (click)="open('processed')">
+      <ion-card-content><span>Confirmed</span><b>{{ counts().confirmed }}</b></ion-card-content>
+    </ion-card>
+  </div>
+
+  @if (error(); as message) {
+    <ion-note color="danger">{{ message }}</ion-note>
+  }
+
+  <h3>Latest repairs</h3>
+  @if (loading()) {
+    <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+  } @else {
+    @for (repair of latest(); track repair.id) {
+      <ion-card>
+        <ion-card-content>
+          <div class="row">
+            <div>
+              <strong>{{ id(repair.id) }}</strong> - {{ repair.customer_name }}<br />
+              <ion-note>{{ repair.device_brand }} {{ repair.device_model }} · {{ date(repair.booking_date) }}</ion-note>
+            </div>
+            <app-status-badge [status]="repair.status"></app-status-badge>
+          </div>
+          <ion-button
+            class="details-toggle"
+            fill="clear"
+            size="small"
+            [attr.aria-expanded]="expandedRepairIds().has(repair.id)"
+            [attr.aria-controls]="'portal-details-' + repair.id"
+            (click)="toggleDetails(repair.id)"
+          >
+            {{ expandedRepairIds().has(repair.id) ? 'Hide details' : 'View details' }}
+          </ion-button>
+          @if (expandedRepairIds().has(repair.id)) {
+            <section class="details" [id]="'portal-details-' + repair.id" aria-label="Repair details">
+              <div class="detail">
+                <span>Service</span>
+                <strong>{{ repair.service_name }}</strong>
+              </div>
+              <div class="detail">
+                <span>Location</span>
+                <strong>{{ repair.location }}</strong>
+              </div>
+              <div class="detail">
+                <span>Booking</span>
+                <strong>{{ date(repair.booking_date) }}, {{ time(repair.booking_time) }}</strong>
+              </div>
+              <div class="detail">
+                <span>Reported issues</span>
+                <strong>{{ issues(repair) }}</strong>
+              </div>
+              <div class="detail">
+                <span>Technician</span>
+                <strong>{{ repair.technician_name ?? 'Unassigned' }}</strong>
+              </div>
+              <div class="detail">
+                <span>Confirmed</span>
+                <strong>{{ repair.confirmed_at ? dateTime(repair.confirmed_at) : 'Not confirmed' }}</strong>
+              </div>
+              <div class="detail">
+                <span>Created</span>
+                <strong>{{ dateTime(repair.created_at) }}</strong>
+              </div>
+              <div class="detail">
+                <span>Last updated</span>
+                <strong>{{ dateTime(repair.updated_at) }}</strong>
+              </div>
+            </section>
+            <section class="message-details" aria-label="Repair messages">
+              <div class="detail-message">
+                <span>Issue description</span>
+                <p class="message-content">
+                  {{ repair.issue_description?.trim() || 'No additional description provided.' }}
+                </p>
+              </div>
+              <div class="detail-message">
+                <span>Staff notes</span>
+                <p class="message-content">
+                  {{ repair.staff_notes?.trim() || 'No staff notes.' }}
+                </p>
+              </div>
+            </section>
+          }
+        </ion-card-content>
+      </ion-card>
+    } @empty {
+      <ion-note>No repairs yet.</ion-note>
+    }
+    <ion-button class="queue-button" expand="block" (click)="open('all')">
+      Open full Repair Queue
+    </ion-button>
+  }
+</ion-content>

@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
 
-/**
- * Team 3 owns these routes (rule R7). No empty-path redirect here: Team 2's
- * BOOKING_ROUTES already redirects '' to 'dashboard'.
- */
+/** Team 3-owned routes; open the Admin Portal when entering the module root. */
 export const REPAIR_OPS_ROUTES: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'admin-portal' },
   {
     path: 'admin-portal',
     loadComponent: () =>

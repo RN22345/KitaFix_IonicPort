@@ -2,11 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './shared/session/auth.guard';
 
 /**
- * The app shell only declares lazy routes that point into each team's library
- * (rule R7). Team 2's screens live behind '@kitafix/booking' -> BOOKING_ROUTES.
- *
- * In the merged group app the tabs list grows with the other teams' routes
- * (identity, repair-ops, insights); Team 2 only owns the booking entries.
+ * This local shell loads repair-ops only. The booking library remains available
+ * for shared data access and UI helpers used by Team 3.
  */
 export const routes: Routes = [
   {
@@ -14,10 +11,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./tabs/tabs.page').then((m) => m.TabsPage),
     children: [
-      {
-        path: '',
-        loadChildren: () => import('@kitafix/booking').then((m) => m.BOOKING_ROUTES),
-      },
       {
         path: '',
         loadChildren: () => import('@kitafix/repair-ops').then((m) => m.REPAIR_OPS_ROUTES),

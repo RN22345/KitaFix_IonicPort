@@ -17,84 +17,8 @@ import { ServiceCatalogService } from '../../services/service-catalog.service';
     IonButton, IonCard, IonCardContent, IonContent, IonFab, IonFabButton, IonHeader, IonIcon,
     IonNote, IonRefresher, IonRefresherContent, IonSpinner, IonTitle, IonToggle, IonToolbar,
   ],
-  template: `
-    <ion-header>
-      <ion-toolbar color="primary"><ion-title>Service Catalog</ion-title></ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding">
-      <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-        <ion-refresher-content></ion-refresher-content>
-      </ion-refresher>
-
-      @if (error(); as message) {
-        <ion-note color="danger">{{ message }}</ion-note>
-      }
-
-      @if (loading()) {
-        <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
-      } @else {
-        @for (service of services(); track service.id) {
-          <ion-card [class.off]="!service.active">
-            <ion-card-content>
-              <div class="head">
-                <strong>{{ service.name }}</strong>
-                <span class="price">{{ currency }}{{ service.base_price }}</span>
-              </div>
-              <ion-note>{{ service.description || 'No description' }}</ion-note>
-              <div class="actions">
-                <ion-toggle
-                  [checked]="service.active"
-                  (ionChange)="toggle(service, $event)"
-                >{{ service.active ? 'Active' : 'Inactive' }}</ion-toggle>
-                <ion-button size="small" fill="outline" (click)="openForm(service)">Edit</ion-button>
-              </div>
-            </ion-card-content>
-          </ion-card>
-        } @empty {
-          <p class="empty">No services yet. Tap + to add one.</p>
-        }
-      }
-
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button (click)="openForm(null)"><ion-icon name="add-circle-outline"></ion-icon></ion-fab-button>
-      </ion-fab>
-    </ion-content>
-  `,
-  styles: [
-    `
-      :host {
-        --kf-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
-        --ion-color-primary: #0b5ed7;
-        --ion-color-primary-rgb: 11, 94, 215;
-        --ion-color-primary-contrast: #ffffff;
-        --ion-color-primary-contrast-rgb: 255, 255, 255;
-        --ion-color-primary-shade: #0a4cad;
-        --ion-color-primary-tint: #2e7dff;
-        font-family: var(--kf-font);
-      }
-      ion-title,
-      ion-button,
-      ion-card,
-      ion-content,
-      ion-note,
-      ion-label,
-      p,
-      span,
-      strong,
-      .head,
-      .price,
-      .actions,
-      .empty {
-        font-family: var(--kf-font);
-      }
-      .head { display: flex; justify-content: space-between; }
-      .price { font-weight: 600; color: var(--ion-color-primary); }
-      .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-      .off { opacity: 0.6; }
-      .center { display: flex; justify-content: center; padding: 24px; }
-      .empty { text-align: center; color: var(--ion-color-medium); padding: 24px; }
-    `,
-  ],
+  templateUrl: './service-catalog.page.html',
+  styleUrl: './service-catalog.page.scss',
 })
 export class ServiceCatalogPage implements OnInit {
   private readonly catalog = inject(ServiceCatalogService);
