@@ -1,4 +1,4 @@
-import { isDevMode, Provider } from '@angular/core';
+import { Provider } from '@angular/core';
 import { REPAIR_OPS_CONFIG, RepairOpsConfig } from './data-access/config';
 import {
   MockRepairOpsRepository,
@@ -17,8 +17,7 @@ import {
  * so provideBooking must also be in app.config.ts.
  */
 export function provideRepairOps(config: RepairOpsConfig): Provider[] {
-  const useMockData = config.useMockData || (config.staffPreviewMode === true && isDevMode());
-  const data: Provider[] = useMockData
+  const data: Provider[] = config.useMockData
     ? [
         { provide: RepairOpsRepository, useClass: MockRepairOpsRepository },
         { provide: ServiceCatalogRepository, useClass: MockServiceCatalogRepository },
