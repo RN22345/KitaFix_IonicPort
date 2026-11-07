@@ -531,13 +531,8 @@
           }
         }
       </form>
-    }
-  </div>
-</ion-content>
 
-@if (!booked() && !locked()) {
-  <ion-footer class="ion-no-border">
-    <ion-toolbar>
+      <!-- Back / Next: at the end of the page (scrolls with the form) -->
       <div class="actions">
         @if (step() > 0) {
           <ion-button
@@ -551,12 +546,7 @@
             Back
           </ion-button>
         }
-        <ion-button
-          class="primary-action"
-          shape="round"
-          [disabled]="saving()"
-          (click)="next()"
-        >
+        <ion-button class="primary-action" shape="round" [disabled]="saving()" (click)="next()">
           @if (saving()) {
             <ion-spinner name="dots"></ion-spinner>
           } @else if (isLastStep()) {
@@ -568,6 +558,6 @@
           }
         </ion-button>
       </div>
-    </ion-toolbar>
-  </ion-footer>
-}
+    }
+  </div>
+</ion-content>

@@ -22,6 +22,7 @@ button {
 .wrap {
   max-width: 640px;
   margin: 0 auto;
+  padding-bottom: 100px;
 }
 
 /* ---------- Header: step title + progress line ---------- */
@@ -823,24 +824,16 @@ ion-datetime {
 }
 
 /* ---------- Footer ---------- */
-ion-footer ion-toolbar {
-  --background: color-mix(in srgb, var(--kf-surface) 92%, transparent);
-  --border-width: 0;
-  border-top: 1px solid var(--kf-line);
-  padding: 0.5rem 1rem 0.7rem;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
+
 .actions {
   display: flex;
   gap: 0.6rem;
-  max-width: 640px;
-  margin: 0 auto;
+  margin-top: 1.6rem;
 }
 .primary-action {
   --background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
   --color: var(--kf-on-hero);
-  --box-shadow: var(--kf-shadow-lift);
+  --box-shadow: 0 14px 28px -10px var(--kf-accent);
   flex: 1;
   height: 50px;
   margin: 0;
@@ -850,9 +843,11 @@ ion-footer ion-toolbar {
   letter-spacing: 0;
 }
 .back-action {
+  --background: var(--kf-surface);
   --color: var(--kf-accent);
   --border-color: var(--kf-accent);
   --border-width: 1.5px;
+  --box-shadow: var(--kf-shadow);
   --background-activated: var(--kf-accent-soft);
   flex: 0 0 32%;
   height: 50px;

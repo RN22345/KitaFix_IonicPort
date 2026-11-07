@@ -372,10 +372,15 @@ button {
   margin: 0 -1rem;
   padding: 0.3rem 1rem 0.7rem;
   overflow-x: auto;
-  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
 
+  &:active {
+    cursor: grabbing;
+  }
   &::-webkit-scrollbar {
     display: none;
   }

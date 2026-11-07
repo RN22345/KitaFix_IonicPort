@@ -46,15 +46,32 @@
     </section>
 
     <!-- 2. Service categories -->
-    <section class="block" style="--i: 1">
+      <section class="block" style="--i: 1">
       <div class="block-head">
         <div>
           <p class="eyebrow">What we fix</p>
           <h2>Service categories</h2>
         </div>
-        <span class="swipe">Swipe <ion-icon name="arrow-forward-outline"></ion-icon></span>
+        <div class="arrows">
+          <button type="button" (click)="ovalTrack.scrollBy({ left: -260, behavior: 'smooth' })" aria-label="Previous categories">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button type="button" (click)="ovalTrack.scrollBy({ left: 260, behavior: 'smooth' })" aria-label="Next categories">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
       </div>
-      <div class="ovals" role="list">
+      <div
+        class="ovals"
+        role="list"
+        #ovalTrack
+        (pointerdown)="dragStart($event)"
+        (pointermove)="dragMove($event)"
+        (pointerup)="dragEnd()"
+        (pointerleave)="dragEnd()"
+        (pointercancel)="dragEnd()"
+        (wheel)="wheelScroll($event)"
+      >
         @for (category of categories(); track category.key; let i = $index) {
           <button
             type="button"
@@ -62,7 +79,7 @@
             class="oval"
             [attr.data-tone]="category.tone"
             [style.--i]="i"
-            (click)="openService(category)"
+            (click)="onOval(category)"
           >
             <span class="oval-ico"><ion-icon [name]="category.icon"></ion-icon></span>
             <span class="oval-name">{{ category.name }}</span>

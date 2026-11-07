@@ -279,4 +279,42 @@ export class DashboardPage implements OnInit {
       queryParams: offer.issue ? { issue: offer.issue } : {},
     });
   }
+
+    // ---- mouse drag / wheel scrolling for the service category row ----
+  private ovalDrag = { active: false, startX: 0, startLeft: 0, moved: false };
+
+  dragStart(event: PointerEvent): void {
+    if (event.pointerType !== 'mouse') return; // touch already scrolls natively
+    const track = event.currentTarget as HTMLElement;
+    this.ovalDrag = { active: true, startX: event.clientX, startLeft: track.scrollLeft, moved: false };
+  }
+
+  dragMove(event: PointerEvent): void {
+    if (!this.ovalDrag.active) return;
+    const track = event.currentTarget as HTMLElement;
+    const dx = event.clientX - this.ovalDrag.startX;
+    if (Math.abs(dx) > 5) this.ovalDrag.moved = true;
+    track.scrollLeft = this.ovalDrag.startLeft - dx;
+  }
+
+  dragEnd(): void {
+    this.ovalDrag.active = false;
+  }
+
+  /** Plain mouse wheel scrolls the row sideways when it can. */
+  wheelScroll(event: WheelEvent): void {
+    const track = event.currentTarget as HTMLElement;
+    if (track.scrollWidth <= track.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    event.preventDefault();
+    track.scrollLeft += event.deltaY;
+  }
+
+  /** A drag must not count as a tap on a category. */
+  onOval(category: ServiceCategory): void {
+    if (this.ovalDrag.moved) {
+      this.ovalDrag.moved = false;
+      return;
+    }
+    this.openService(category);
+  }
 }

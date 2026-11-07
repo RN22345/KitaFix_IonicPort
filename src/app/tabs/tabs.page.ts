@@ -3,7 +3,8 @@ import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angu
 import { TopNavComponent } from '@kitafix/booking';
 
 /**
- * Shell for the booking screens: a floating top nav above the tabs.
+ * Shell for the booking screens: a floating top nav above the tabs, and a
+ * floating bottom nav that sits over the page content.
  * NOTE: Ionic's IonTabs renders its own <ion-router-outlet>. Do NOT add another one here.
  */
 @Component({
@@ -19,7 +20,7 @@ import { TopNavComponent } from '@kitafix/booking';
             <ion-icon name="home-outline"></ion-icon>
             <ion-label>Home</ion-label>
           </ion-tab-button>
-          <ion-tab-button tab="new-booking" href="/tabs/new-booking">
+          <ion-tab-button tab="new-booking" href="/tabs/new-booking" class="book">
             <ion-icon name="add-circle-outline"></ion-icon>
             <ion-label>Book</ion-label>
           </ion-tab-button>
@@ -45,41 +46,49 @@ import { TopNavComponent } from '@kitafix/booking';
         flex: 1 1 auto;
         min-height: 0;
       }
+
+            /* Pages scroll behind the floating bar: leave room at the end of the page. */
+      .shell ::ng-deep ion-content::part(scroll) {
+        padding-bottom: 130px;
+      }
+      /* ---------- Floating bar ---------- */
       ion-tab-bar {
         --background: transparent;
         --border: none;
-        position: relative;
+        position: absolute;
+        left: 50%;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 0.7rem);
+        transform: translateX(-50%);
+        z-index: 20;
+        box-sizing: border-box;
+        contain: none;
+        overflow: visible;
         width: calc(100% - 1.6rem);
-        max-width: 440px;
-        height: auto;
-        margin: 0 auto calc(env(safe-area-inset-bottom, 0px) + 0.6rem);
+        max-width: 420px;
+        height: 66px;
+        margin: 0;
         padding: 0.35rem;
         gap: 0.25rem;
         border: 1px solid var(--kf-line);
-        border-radius: 28px;
-        background: color-mix(in srgb, var(--kf-surface) 86%, transparent);
-        backdrop-filter: blur(18px) saturate(1.6);
-        -webkit-backdrop-filter: blur(18px) saturate(1.6);
-        box-shadow: var(--kf-shadow-lift);
+        border-radius: 30px;
+        background: color-mix(in srgb, var(--kf-surface) 82%, transparent);
+        backdrop-filter: blur(20px) saturate(1.7);
+        -webkit-backdrop-filter: blur(20px) saturate(1.7);
+        box-shadow:
+          0 18px 40px -12px rgba(0, 0, 0, 0.45),
+          var(--kf-shadow-lift);
       }
-      ion-tab-bar::before {
-        content: '';
-        position: absolute;
-        inset: 0 22% auto;
-        height: 2px;
-        border-radius: 2px;
-        background: linear-gradient(90deg, transparent, var(--kf-accent), transparent);
-        opacity: 0.6;
-      }
+
       ion-tab-button {
         --color: var(--kf-muted);
         --color-selected: var(--kf-on-hero);
         --background: transparent;
         --background-focused: transparent;
         --ripple-color: var(--kf-accent-soft);
-        --padding-top: 0.55rem;
-        --padding-bottom: 0.5rem;
-        border-radius: 22px;
+        --padding-top: 0.5rem;
+        --padding-bottom: 0.45rem;
+        height: 100%;
+        border-radius: 24px;
         font-size: 0.7rem;
         font-weight: 600;
         transition:
@@ -104,6 +113,64 @@ import { TopNavComponent } from '@kitafix/booking';
       }
       ion-tab-button.tab-selected ion-label {
         font-weight: 700;
+      }
+
+      /* ---------- Book button: compact, raised, green, glowing ---------- */
+      ion-tab-button.book,
+      ion-tab-button.book.tab-selected {
+        --color: #ffffff;
+        --color-selected: #ffffff;
+        --padding-top: 0.35rem;
+        --padding-bottom: 0.3rem;
+        flex: 0 0 76px;
+        max-width: 76px;
+        align-self: flex-start;
+        height: calc(100% + 10px);
+        margin-top: -10px;
+        border-radius: 22px;
+        background: linear-gradient(145deg, #19e0a4, #00a67c 60%, #00876a);
+        box-shadow:
+          0 0 0 4px var(--kf-bg),
+          0 10px 20px -8px rgba(0, 220, 150, 0.75);
+        animation: book-glow 2.4s ease-in-out infinite;
+      }
+      ion-tab-button.book:active {
+        transform: scale(0.94) translateY(-2px);
+      }
+      ion-tab-button.book ion-icon {
+        font-size: 1.55rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 60, 40, 0.45));
+      }
+      ion-tab-button.book.tab-selected ion-icon {
+        transform: translateY(-1px) scale(1.08) rotate(90deg);
+      }
+      ion-tab-button.book ion-label {
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-shadow: 0 1px 3px rgba(0, 60, 40, 0.4);
+      }
+
+      @keyframes book-glow {
+        0%,
+        100% {
+          box-shadow:
+            0 0 0 4px var(--kf-bg),
+            0 10px 20px -8px rgba(0, 220, 150, 0.6);
+        }
+        50% {
+          box-shadow:
+            0 0 0 4px var(--kf-bg),
+            0 12px 26px -6px rgba(0, 240, 165, 0.95),
+            0 0 16px 4px rgba(0, 230, 160, 0.45);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        ion-tab-button.book,
+        ion-tab-button.book.tab-selected {
+          animation: none;
+        }
       }
     `,
   ],
