@@ -1,152 +1,227 @@
-<ion-content [fullscreen]="true">
-  <section class="hero">
-    <div class="hero-top">
-      <div class="greeting">
-        <span class="greeting-label">{{ greeting() }},</span>
-        <strong class="greeting-name">{{ name() }}</strong>
-      </div>
-      <div class="hero-actions">
-        <ion-button id="bell-trigger" fill="clear" size="small" class="bell" aria-label="Notifications">
-          <ion-icon slot="icon-only" name="notifications-outline"></ion-icon>
-          @if (unreadCount() > 0) {
-            <span class="bell-dot" aria-hidden="true"></span>
-          }
-        </ion-button>
-        <button id="avatar-trigger" type="button" class="avatar" aria-label="Account menu">{{ initial() }}</button>
-      </div>
-    </div>
-
-    <div class="cta">
-      <div class="cta-row">
-        <div class="cta-copy">
-          @if (bookingsLeft() > 0) {
-            <h2>Something broken?</h2>
-            <p>Tell us what's wrong and pick a time. It takes about a minute.</p>
-          } @else {
-            <h2>You're all booked</h2>
-            <p>You have {{ maxActive }} active repairs. You can book again when one is done.</p>
-          }
-        </div>
-        <img class="cta-art" src="assets/icons/service-repair.png" alt="" />
-      </div>
-      @if (bookingsLeft() > 0) {
-        <ion-button class="cta-btn" (click)="goToNewBooking()">
-          <ion-icon slot="start" name="add-outline"></ion-icon>
-          Book a repair
-        </ion-button>
-      } @else {
-        <ion-button class="cta-btn calm" (click)="goToMyRepairs()">
-          <ion-icon slot="start" name="hourglass-outline"></ion-icon>
-          See my repairs
-        </ion-button>
-      }
-    </div>
-  </section>
-
-  <ion-popover
-    trigger="bell-trigger"
-    triggerAction="click"
-    class="menu-popover"
-    (didDismiss)="markAllRead()"
-  >
-    <ng-template>
-      <ion-list lines="none">
-        @for (item of notifications(); track item.id) {
-          <ion-item button detail="false" routerLink="/tabs/my-repairs">
-            <ion-icon slot="start" name="construct-outline" [color]="item.read ? 'medium' : 'primary'"></ion-icon>
-            <ion-label class="ion-text-wrap">
-              <h3>Repair update</h3>
-              <p>{{ item.message }}</p>
-            </ion-label>
-          </ion-item>
-        } @empty {
-          <ion-item detail="false">
-            <ion-icon slot="start" name="notifications-outline"></ion-icon>
-            <ion-label>No new notifications</ion-label>
-          </ion-item>
-        }
-      </ion-list>
-    </ng-template>
-  </ion-popover>
-
-  <ion-popover trigger="avatar-trigger" triggerAction="click" class="menu-popover" #accountMenu>
-    <ng-template>
-      <ion-list lines="none">
-        <ion-item button detail="false" (click)="toggleTheme()">
-          <ion-icon slot="start" [name]="themeMode() === 'dark' ? 'sunny-outline' : 'moon-outline'"></ion-icon>
-          <ion-label>{{ themeMode() === 'dark' ? 'Light mode' : 'Dark mode' }}</ion-label>
-        </ion-item>
-        <ion-item button detail="false" (click)="accountMenu.dismiss(); signOut()">
-          <ion-icon slot="start" name="log-out-outline"></ion-icon>
-          <ion-label>Sign out</ion-label>
-        </ion-item>
-      </ion-list>
-    </ng-template>
-  </ion-popover>
-
-  <div class="body">
+<ion-content>
+  <div class="page">
     @if (error(); as message) {
       <div class="error-box" role="alert">
         <p>{{ message }}</p>
-        <ion-button fill="outline" size="small" (click)="retry()">
-          <ion-icon slot="start" name="refresh-outline"></ion-icon>
-          Retry
-        </ion-button>
+        <button type="button" (click)="retry()"><ion-icon name="refresh-outline"></ion-icon> Retry</button>
       </div>
     }
 
-    @if (bookingsLeft() > 0) {
-      <div class="section-head">
-        <h3>Quick book</h3>
-        <span class="section-hint">What's wrong?</span>
+    <!-- 1. Welcome banner -->
+    <section class="banner">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+
+      <div class="logo-stage" aria-hidden="true">
+        <span class="halo"></span>
+        <span class="logo-card"><img src="assets/logo-light.png" alt="" /></span>
+        <span class="orb o1"><ion-icon name="calendar-outline"></ion-icon></span>
+        <span class="orb o2"><ion-icon name="construct-outline"></ion-icon></span>
+        <span class="orb o3"><ion-icon name="checkmark-outline"></ion-icon></span>
       </div>
-      <div class="quick">
-        @for (issue of issues; track issue.key; let i = $index) {
+
+      <div class="banner-copy">
+        <p class="hello">{{ greeting() }}, <strong>{{ name() }}</strong></p>
+        <h1>Welcome to <span>KitaFix</span></h1>
+        <p class="what">
+          <strong>What is KitaFix?</strong> Your phone repair shop in your pocket. Tell us what is wrong, pick a
+          branch, date and time, then follow your repair from drop-off to pick-up.
+        </p>
+        <ul class="perks">
+          <li><ion-icon name="shield-checkmark-outline"></ion-icon> Trusted technicians</li>
+          <li><ion-icon name="flash-outline"></ion-icon> Book in a minute</li>
+          <li><ion-icon name="sparkles-outline"></ion-icon> Live tracking</li>
+        </ul>
+        <div class="banner-actions">
+          <button type="button" class="cta" (click)="goToNewBooking()">
+            Book now <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+          @if (activeCount() > 0) {
+            <button type="button" class="glass" (click)="goToMyRepairs()">
+              <span class="live"></span> {{ activeCount() }} active repair{{ activeCount() === 1 ? '' : 's' }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Service categories -->
+      <section class="block" style="--i: 1">
+      <div class="block-head">
+        <div>
+          <p class="eyebrow">What we fix</p>
+          <h2>Service categories</h2>
+        </div>
+        <div class="arrows">
+          <button type="button" (click)="ovalTrack.scrollBy({ left: -260, behavior: 'smooth' })" aria-label="Previous categories">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button type="button" (click)="ovalTrack.scrollBy({ left: 260, behavior: 'smooth' })" aria-label="Next categories">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+      <div
+        class="ovals"
+        role="list"
+        #ovalTrack
+        (pointerdown)="dragStart($event)"
+        (pointermove)="dragMove($event)"
+        (pointerup)="dragEnd()"
+        (pointerleave)="dragEnd()"
+        (pointercancel)="dragEnd()"
+        (wheel)="wheelScroll($event)"
+      >
+        @for (category of categories(); track category.key; let i = $index) {
           <button
             type="button"
-            class="quick-tile"
-            [attr.data-tone]="issue.tone"
+            role="listitem"
+            class="oval"
+            [attr.data-tone]="category.tone"
             [style.--i]="i"
-            (click)="bookFor(issue.key)"
+            (click)="onOval(category)"
           >
-            <span class="quick-icon"><ion-icon [name]="issue.icon"></ion-icon></span>
-            <span class="quick-label">{{ issue.label }}</span>
+            <span class="oval-ico"><ion-icon [name]="category.icon"></ion-icon></span>
+            <span class="oval-name">{{ category.name }}</span>
           </button>
         }
       </div>
-    }
+    </section>
 
-    <div class="section-head">
-      <h3>Active repairs</h3>
-      @if (active().length > 0) {
-        <span class="count">{{ active().length }}</span>
-      }
-    </div>
-
-    @if (loading() && active().length === 0) {
-      <div class="center">
-        <ion-spinner name="crescent"></ion-spinner>
+    <!-- 3. Special offers -->
+    <section class="block" style="--i: 2">
+      <div class="block-head">
+        <div>
+          <p class="eyebrow">Save more</p>
+          <h2>Special offers</h2>
+        </div>
+        <div class="arrows">
+          <button type="button" (click)="scrollOffers(-1)" aria-label="Previous offers">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button type="button" (click)="scrollOffers(1)" aria-label="Next offers">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
       </div>
-    } @else if (active().length === 0) {
-      <div class="empty-state">
-        <ion-icon name="checkmark-done-outline"></ion-icon>
-        <p>No repairs in progress. When you book one, you can follow it here.</p>
-      </div>
-    } @else {
-      @for (repair of shownActive(); track repair.id; let i = $index) {
-        <app-repair-card class="rise" [style.--i]="i" [repair]="repair"></app-repair-card>
-      }
-    }
 
-    @if (repairs().length > 0) {
-      <ion-button class="all-link" expand="block" fill="clear" (click)="goToMyRepairs()">
-        @if (active().length > shownActive().length) {
-          See all {{ active().length }} active repairs
-        } @else {
-          See all repairs and history
+      <div class="offers" #offerTrack (scroll)="onOfferScroll()">
+        @for (offer of offers; track offer.code; let i = $index) {
+          <article class="offer" [attr.data-tone]="offer.tone">
+            <span class="offer-tag">{{ offer.tag }}</span>
+            <span class="offer-big">{{ offer.big }}</span>
+            <h3>{{ offer.title }}</h3>
+            <p>{{ offer.text }}</p>
+            <div class="offer-foot">
+              <span class="when"><ion-icon name="time-outline"></ion-icon> {{ offer.when }}</span>
+              <button type="button" (click)="useOffer(offer)">
+                <ion-icon name="pricetag-outline"></ion-icon> {{ offer.code }}
+              </button>
+            </div>
+          </article>
         }
-        <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-      </ion-button>
-    }
+      </div>
+      <div class="dots" role="tablist" aria-label="Offer position">
+        @for (offer of offers; track offer.code; let i = $index) {
+          <button
+            type="button"
+            [class.on]="offerIndex() === i"
+            (click)="goToOffer(i)"
+            [attr.aria-label]="'Go to offer ' + (i + 1)"
+          ></button>
+        }
+      </div>
+    </section>
+
+    <!-- 4. Ranking -->
+    <section class="block" style="--i: 3">
+      <div class="block-head">
+        <div>
+          <p class="eyebrow">Loyalty</p>
+          <h2>Your customer rank</h2>
+        </div>
+      </div>
+      <div class="rank" [attr.data-tone]="rank().tier.tone">
+        <div class="rank-top">
+          <span class="rank-badge"><ion-icon [name]="rank().tier.icon"></ion-icon></span>
+          <div>
+            <h3>{{ rank().tier.label }}</h3>
+            <p>{{ rank().completed }} completed repair{{ rank().completed === 1 ? '' : 's' }}</p>
+          </div>
+        </div>
+        <div class="meter"><span [style.width.%]="rank().progress"></span></div>
+        <p class="rank-next">
+          @if (rank().next; as next) {
+            {{ rank().remaining }} more completed repair{{ rank().remaining === 1 ? '' : 's' }} to become
+            <strong>{{ next.label }}</strong>.
+          } @else {
+            You reached our top tier. Thank you for trusting KitaFix!
+          }
+        </p>
+        <ol class="ladder">
+          @for (tier of tiers; track tier.key) {
+            <li
+              [attr.data-tone]="tier.tone"
+              [class.reached]="rank().completed >= tier.minRepairs"
+              [class.current]="tier.key === rank().tier.key"
+            >
+              <span class="rung"><ion-icon [name]="tier.icon"></ion-icon></span>
+              <strong>{{ tier.label }}</strong>
+              <small>{{ tier.minRepairs === 0 ? 'Start here' : tier.minRepairs + ' repairs' }}</small>
+            </li>
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- 5. How it works -->
+    <section class="block" style="--i: 4">
+      <div class="block-head">
+        <div>
+          <p class="eyebrow">Simple as 1-2-3-4</p>
+          <h2>How it works</h2>
+        </div>
+      </div>
+      <ol class="steps">
+        @for (step of steps; track step.title; let i = $index) {
+          <li [style.--i]="i">
+            <span class="num">{{ i + 1 }}</span>
+            <span class="step-ico"><ion-icon [name]="step.icon"></ion-icon></span>
+            <div>
+              <strong>{{ step.title }}</strong>
+              <p>{{ step.text }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+      <button type="button" class="cta-wide" (click)="goToNewBooking()">
+        Book now <ion-icon name="arrow-forward-outline"></ion-icon>
+      </button>
+    </section>
   </div>
 </ion-content>
+
+<!-- Service pop-up (zooms in) -->
+@if (selected(); as s) {
+  <div class="pop-backdrop" (click)="closeService()"></div>
+  <div class="pop" role="dialog" aria-modal="true" [attr.aria-label]="s.name" [attr.data-tone]="s.tone">
+    <button type="button" class="pop-close" (click)="closeService()" aria-label="Close">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+    <span class="pop-ico"><ion-icon [name]="s.icon"></ion-icon></span>
+    <h3>{{ s.name }}</h3>
+    <p class="pop-blurb">{{ s.blurb }}</p>
+    <ul class="pop-points">
+      @for (point of s.includes; track point) {
+        <li><ion-icon name="checkmark-circle"></ion-icon> {{ point }}</li>
+      }
+    </ul>
+    <div class="pop-meta">
+      <span><ion-icon name="timer-outline"></ion-icon> {{ s.eta }}</span>
+      <span><ion-icon name="pricetag-outline"></ion-icon> {{ s.price }}</span>
+    </div>
+    <button type="button" class="pop-book" (click)="bookService(s)">
+      Book this service <ion-icon name="arrow-forward-outline"></ion-icon>
+    </button>
+  </div>
+}

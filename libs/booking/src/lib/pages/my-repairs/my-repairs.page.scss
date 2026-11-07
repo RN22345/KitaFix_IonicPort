@@ -1,135 +1,357 @@
 // Colours: shared --kf-* tokens (src/global.scss), so light and dark both work.
+:host {
+  font-family: var(--kf-font);
+  color: var(--kf-text);
+}
 
+ion-content {
+  --background: var(--kf-bg);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0.9rem 1rem 2rem;
+}
+
+/* ------------------------------------------------------------ title section */
 .hero {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
-  padding: calc(env(safe-area-inset-top, 0px) + 1.1rem) 1rem 1.25rem;
+  margin-bottom: 1rem;
+  padding: 1.4rem 1.2rem 1.1rem;
+  border-radius: 32px;
   background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
-  border-radius: 0 0 28px 28px;
   color: var(--kf-on-hero);
+  box-shadow: var(--kf-shadow-lift);
+  animation: kf-rise var(--kf-slow) var(--kf-ease) both;
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: -80px;
-    right: -60px;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 70%);
-    pointer-events: none;
+.blob {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.b1 {
+  top: -90px;
+  right: -60px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 68%);
+}
+.b2 {
+  bottom: -110px;
+  left: -50px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 70%);
+}
+
+.hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0.55rem 0 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  opacity: 0.88;
+}
+
+.new {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 1.05rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kf-on-hero);
+  color: var(--kf-hero-from);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: var(--kf-shadow);
+  transition: transform var(--kf-fast) var(--kf-ease);
+
+  &:active {
+    transform: scale(0.93);
   }
-
-  > * {
-    position: relative;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
+  &.off {
+    background: rgba(255, 255, 255, 0.22);
+    color: var(--kf-on-hero);
   }
 }
 
-.hero-sub {
-  margin: 0.2rem 0 1rem;
-  font-size: 0.9rem;
-  opacity: 0.9;
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.1rem;
 }
 
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--kf-on-hero);
+  text-align: left;
+  backdrop-filter: blur(6px);
+  transition:
+    transform var(--kf-fast) var(--kf-ease),
+    background var(--kf-fast);
+
+  strong {
+    font-size: 1.35rem;
+    line-height: 1.1;
+  }
+  span {
+    font-size: 0.66rem;
+    opacity: 0.85;
+  }
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* ------------------------------------------------------------ search + tabs */
 .search {
   --background: var(--kf-surface);
-  --border-radius: 14px;
-  --box-shadow: none;
+  --border-radius: 18px;
+  --box-shadow: var(--kf-shadow);
   --color: var(--kf-text);
   --placeholder-color: var(--kf-muted);
   --icon-color: var(--kf-muted);
-  padding: 0;
-  min-height: 46px;
+  padding: 0 0 0.6rem;
 }
 
-.body {
-  padding: 1rem;
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 0.35rem;
+  margin: 0 -0.2rem 1rem;
+  padding: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border: 1px solid var(--kf-line);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--kf-surface) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--kf-shadow);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-.filters {
-  --background: var(--kf-surface-2);
+.tab {
+  flex: 1 0 auto;
+  min-width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: 17px;
+  background: transparent;
+  color: var(--kf-muted);
+  transition:
+    background var(--kf-slow) var(--kf-ease),
+    color var(--kf-fast),
+    transform var(--kf-fast) var(--kf-ease);
+
+  ion-icon {
+    font-size: 1.15rem;
+  }
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &.on {
+    background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
+    color: var(--kf-on-hero);
+    box-shadow: 0 8px 18px -8px var(--kf-accent);
+
+    ion-icon {
+      animation: kf-pop var(--kf-slow) var(--kf-ease);
+    }
+    .tab-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: var(--kf-on-hero);
+    }
+  }
+}
+
+.tab-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.tab-count {
+  min-width: 22px;
+  padding: 0.02rem 0.4rem;
   border-radius: 999px;
-  margin-bottom: 1rem;
-  padding: 3px;
+  background: var(--kf-surface-2);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-align: center;
 }
 
-ion-segment-button {
-  --indicator-color: var(--kf-surface);
-  --indicator-height: 100%;
-  --padding-start: 0.2rem;
-  --padding-end: 0.2rem;
-  text-transform: none;
-  letter-spacing: 0;
-  --color: var(--kf-muted);
-  --color-checked: var(--kf-text);
-  --border-radius: 999px;
-  --indicator-box-shadow: none;
-  min-height: 38px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
+/* ------------------------------------------------------------------ states */
+.error-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--kf-danger);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--kf-danger) 10%, var(--kf-surface));
+  font-size: 0.84rem;
 
-.error-note {
-  display: block;
-  padding: 0.25rem 0 0.5rem;
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--kf-danger);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--kf-danger);
+    font-weight: 600;
+  }
 }
 
 .skeleton-card {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  padding: 1rem;
-  margin-bottom: 0.85rem;
-  border-radius: 16px;
-  background: var(--kf-surface);
+  margin-bottom: 0.9rem;
+  padding: 1.1rem;
   border: 1px solid var(--kf-line);
+  border-radius: 24px;
+  background: var(--kf-surface);
 }
 
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 2.5rem 1rem;
+  padding: 2.2rem 1rem;
+  border: 1px dashed var(--kf-line);
+  border-radius: 28px;
+  background: var(--kf-surface);
   text-align: center;
-  color: var(--kf-muted);
+  animation: kf-rise var(--kf-slow) var(--kf-ease) both;
+
+  h3 {
+    margin: 0.8rem 0 0.2rem;
+    font-size: 1.05rem;
+  }
+  p {
+    margin: 0;
+    max-width: 280px;
+    font-size: 0.84rem;
+    color: var(--kf-muted);
+  }
 }
 
-.empty-state ion-icon {
-  font-size: 2.4rem;
+.empty-ico {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 24px;
+  background: var(--kf-accent-soft);
   color: var(--kf-accent);
+  font-size: 2rem;
+  animation: kf-pop var(--kf-slow) var(--kf-ease);
 }
 
-.empty-state p {
-  margin: 0;
-}
-
-.rise {
-  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
-  animation-delay: calc(var(--i, 0) * 50ms);
+.empty-cta {
+  margin-top: 1rem;
+  padding: 0.75rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--kf-hero-from), var(--kf-hero-to));
+  color: var(--kf-on-hero);
+  font-weight: 700;
+  box-shadow: var(--kf-shadow-lift);
 }
 
 .limit-note {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
-  margin: 0 0 1rem;
-  padding: 0.7rem 0.85rem;
-  border-radius: 14px;
+  margin: 0 0 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 18px;
   background: var(--kf-warn-soft);
   color: var(--kf-text);
-  font-size: 0.82rem;
-  animation: kf-rise var(--kf-slow) var(--kf-ease) backwards;
+  font-size: 0.8rem;
+  line-height: 1.4;
 
   ion-icon {
     flex: none;
-    font-size: 1.15rem;
+    margin-top: 0.1rem;
     color: var(--kf-warn);
+    font-size: 1.1rem;
+  }
+}
+
+.rise {
+  animation: kf-rise var(--kf-slow) var(--kf-ease) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .hero,
+  .empty-state,
+  .empty-ico,
+  .tab.on ion-icon {
+    animation: none;
   }
 }

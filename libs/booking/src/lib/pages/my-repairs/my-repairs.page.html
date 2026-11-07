@@ -1,11 +1,36 @@
-<ion-content [fullscreen]="true">
+<ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <section class="hero">
-    <h1>Repairs</h1>
-    <p class="hero-sub">Follow, reschedule or cancel your bookings.</p>
+  <div class="page">
+    <!-- Title section -->
+    <header class="hero">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <div class="hero-top">
+        <div class="hero-text">
+          <p class="eyebrow"><ion-icon name="sparkles-outline"></ion-icon> My bookings</p>
+          <h1>Repair history</h1>
+          <p class="sub">Track every repair, save favourites and rate finished jobs.</p>
+        </div>
+        <button type="button" class="new" [class.off]="bookingsLeft() === 0" (click)="goToNewBooking()">
+          <ion-icon [name]="bookingsLeft() === 0 ? 'hourglass-outline' : 'add-outline'"></ion-icon>
+          {{ bookingsLeft() === 0 ? 'Limit reached' : 'New' }}
+        </button>
+      </div>
+      <div class="stats">
+        <button type="button" class="stat" (click)="pick('active')">
+          <strong>{{ counts().active }}</strong><span>In the shop</span>
+        </button>
+        <button type="button" class="stat" (click)="pick('done')">
+          <strong>{{ counts().done }}</strong><span>Completed</span>
+        </button>
+        <button type="button" class="stat" (click)="pick('favorites')">
+          <strong>{{ counts().favorites }}</strong><span>Favourites</span>
+        </button>
+      </div>
+    </header>
 
     <ion-searchbar
       class="search"
@@ -15,24 +40,29 @@
       [showClearButton]="'focus'"
       (ionInput)="onSearch($event)"
     ></ion-searchbar>
-  </section>
 
-  <div class="body">
-    <ion-segment class="filters" [value]="filter()" (ionChange)="onFilterChange($event)">
-      <ion-segment-button value="active">
-        <ion-label>Active ({{ counts().active }})</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="history">
-        <ion-label>History ({{ counts().history }})</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <nav class="tabs" role="tablist" aria-label="Repair filters">
+      @for (tab of tabs; track tab.key) {
+        <button
+          type="button"
+          role="tab"
+          class="tab"
+          [class.on]="filter() === tab.key"
+          [attr.aria-selected]="filter() === tab.key"
+          (click)="pick(tab.key)"
+        >
+          <ion-icon [name]="tab.icon"></ion-icon>
+          <span class="tab-label">{{ tab.label }}</span>
+          <span class="tab-count">{{ countOf(tab.key) }}</span>
+        </button>
+      }
+    </nav>
 
     @if (error(); as message) {
-      <ion-note color="danger" class="error-note">{{ message }}</ion-note>
-      <ion-button size="small" fill="outline" (click)="retry()">
-        <ion-icon slot="start" name="refresh-outline"></ion-icon>
-        Retry
-      </ion-button>
+      <div class="error-box" role="alert">
+        <ion-note color="danger">{{ message }}</ion-note>
+        <button type="button" (click)="retry()"><ion-icon name="refresh-outline"></ion-icon> Retry</button>
+      </div>
     }
 
     @if (loading() && repairs().length === 0) {
@@ -45,7 +75,10 @@
       }
     } @else if (visibleRepairs().length === 0) {
       <div class="empty-state">
-        <ion-icon name="calendar-outline"></ion-icon>
+        <span class="empty-ico">
+          <ion-icon [name]="filter() === 'favorites' && !search().trim() ? 'heart-outline' : 'calendar-outline'"></ion-icon>
+        </span>
+        <h3>Nothing here</h3>
         <p>
           @if (search().trim()) {
             No repairs match "{{ search().trim() }}".
@@ -53,24 +86,32 @@
             @switch (filter()) {
               @case ('active') {
                 @if (repairs().length === 0) {
-                  No bookings yet.
+                  No bookings yet. Your first one is a minute away.
                 } @else {
-                  Nothing in the shop right now. Finished repairs are under History.
+                  Nothing in the shop right now.
                 }
               }
-              @case ('history') {
+              @case ('favorites') {
+                No favourites yet. Tap the heart on any repair to keep it here.
+              }
+              @case ('cancelled') {
+                You have no cancelled repairs.
+              }
+              @case ('done') {
                 No finished repairs yet.
               }
-
+              @default {
+                No bookings yet. Your first one is a minute away.
+              }
             }
           }
         </p>
         @if (!search().trim() && repairs().length === 0) {
-          <ion-button size="small" (click)="goToNewBooking()">Book your first repair</ion-button>
+          <button type="button" class="empty-cta" (click)="goToNewBooking()">Book your first repair</button>
         }
       </div>
     } @else {
-      @if (filter() === 'active' && bookingsLeft() === 0) {
+      @if ((filter() === 'active' || filter() === 'all') && bookingsLeft() === 0) {
         <p class="limit-note">
           <ion-icon name="hourglass-outline"></ion-icon>
           <span>You have {{ maxActive }} active repairs, the most at once. Cancel one you no longer need to book another.</span>
@@ -82,6 +123,8 @@
           [style.--i]="i"
           [repair]="repair"
           [showActions]="true"
+          [bookAgainBlock]="blockReason(repair)"
+          (open)="openDetail($event)"
           (cancel)="confirmCancel($event)"
           (reschedule)="openReschedule($event)"
           (bookAgain)="bookAgain($event)"
@@ -90,6 +133,15 @@
     }
   </div>
 </ion-content>
+
+<app-repair-detail
+  [(isOpen)]="detailOpen"
+  [repair]="liveDetail()"
+  [bookAgainBlock]="detailBlock()"
+  (bookAgain)="bookAgain($event)"
+  (cancel)="cancelFromDetail($event)"
+  (reschedule)="rescheduleFromDetail($event)"
+></app-repair-detail>
 
 <app-reschedule-modal
   [(isOpen)]="rescheduleOpen"
