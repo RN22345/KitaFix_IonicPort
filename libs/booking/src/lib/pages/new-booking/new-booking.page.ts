@@ -167,6 +167,17 @@ export class NewBookingPage implements OnInit {
   readonly loadingSlots = signal(false);
   readonly selectedDate = signal('');
 
+  /** Time dropdown: open/closed, and the slots split into AM and PM. */
+  readonly timeOpen = signal(false);
+  readonly timeGroups = computed(() => {
+    const morning = this.slotTimes.filter((slot) => timeToMinutes(slot) < 12 * 60);
+    const afternoon = this.slotTimes.filter((slot) => timeToMinutes(slot) >= 12 * 60);
+    return [
+      { label: 'AM', icon: 'sunny-outline', slots: morning },
+      { label: 'PM', icon: 'moon-outline', slots: afternoon },
+    ].filter((group) => group.slots.length > 0);
+  });
+
   /** Which device field shows its list. */
   readonly activeField = signal<'brand' | 'model' | null>(null);
   private readonly brandQuery = signal('');
@@ -417,6 +428,7 @@ export class NewBookingPage implements OnInit {
     this.step.set(index);
     this.showErrors.set(false);
     this.activeField.set(null);
+    this.timeOpen.set(false);
     void this.content?.scrollToTop(0);
   }
 
@@ -543,7 +555,15 @@ export class NewBookingPage implements OnInit {
   pickLocation(location: string): void {
     this.form.controls.location.setValue(location);
     this.form.controls.booking_time.setValue('');
+    this.timeOpen.set(false);
     void this.loadSlots();
+  }
+
+  toggleTime(): void {
+    if (!this.values().booking_date) {
+      return;
+    }
+    this.timeOpen.update((open) => !open);
   }
 
   pickSlot(slot: string): void {
@@ -552,6 +572,7 @@ export class NewBookingPage implements OnInit {
     }
     this.form.controls.booking_time.setValue(normalizeTime(slot));
     this.form.controls.booking_time.markAsTouched();
+    this.timeOpen.set(false);
   }
 
   onDateChange(event: Event): void {
@@ -564,6 +585,7 @@ export class NewBookingPage implements OnInit {
     this.form.controls.booking_date.setValue(isoDate);
     this.form.controls.booking_time.setValue('');
     this.selectedDate.set(isoDate);
+    this.timeOpen.set(false);
     void this.loadSlots();
   }
 
@@ -677,6 +699,7 @@ export class NewBookingPage implements OnInit {
     this.modelQuery.set('');
     this.manualDevice.set(false);
     this.showAllDevices.set(false);
+    this.timeOpen.set(false);
     this.applyDefaultDate();
     this.direction.set('forward');
     this.step.set(0);

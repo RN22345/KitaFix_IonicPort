@@ -11,6 +11,7 @@ import { statusMeta } from '../../models/repair.model';
   host: { '[attr.data-tone]': 'meta().tone' },
   template: `
     <span class="badge" [class.live]="live()">
+      <span class="pulse" aria-hidden="true"></span>
       <ion-icon [name]="meta().icon"></ion-icon>
       {{ meta().label }}
     </span>
@@ -25,22 +26,37 @@ import { statusMeta } from '../../models/repair.model';
         display: inline-flex;
         align-items: center;
         gap: 0.3rem;
-        padding: 0.3rem 0.6rem;
+        padding: 0.35rem 0.75rem 0.35rem 0.6rem;
         border-radius: 999px;
         background: var(--tone-soft);
+        box-shadow: inset 0 0 0 1px var(--tone-soft);
         color: var(--tone);
         font-size: 0.72rem;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.01em;
         white-space: nowrap;
       }
-      /* In the shop right now: the icon breathes. */
-      .live ion-icon {
-        animation: breathe 1.8s ease-in-out infinite;
+      .badge ion-icon {
+        font-size: 0.95rem;
       }
-      @keyframes breathe {
-        50% {
-          opacity: 0.45;
-          transform: scale(0.88);
+      .pulse {
+        display: none;
+      }
+      /* In the shop right now: a live dot pulses next to the icon. */
+      .live .pulse {
+        display: block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--tone);
+        animation: pulse 1.6s ease-out infinite;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 var(--tone-soft);
+        }
+        100% {
+          box-shadow: 0 0 0 8px transparent;
         }
       }
     `,

@@ -5,10 +5,26 @@
     <title>KitaFix - Booking</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Book and track your device repairs with KitaFix." />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0b1220" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" type="image/png" href="assets/icons/favicon.png" />
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+    <link rel="preload" href="assets/fonts/poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="assets/fonts/poppins/Poppins-SemiBold.ttf" as="font" type="font/ttf" crossorigin />
+    <style>
+      /* Paint the right background instantly (same values as the theme tokens). */
+      html {
+        background: #e8edf5;
+      }
+      html.ion-palette-dark {
+        background: #0b1220;
+      }
+    </style>
     <script>
       // Apply the saved theme before the app boots (no white flash). Keep in sync with libs/theme.
       try {
