@@ -388,58 +388,76 @@
                   <span>Checking available hours...</span>
                 </div>
               } @else {
-                <div class="time-dd" [class.open]="timeOpen()">
-                  <button
-                    type="button"
-                    class="time-trigger"
-                    [class.filled]="!!values().booking_time"
-                    [class.invalid]="isInvalid('booking_time')"
-                    [disabled]="!values().booking_date"
-                    aria-haspopup="listbox"
-                    [attr.aria-expanded]="timeOpen()"
-                    (click)="toggleTime()"
-                  >
-                    <span class="tt-icon"><ion-icon name="time-outline"></ion-icon></span>
-                    <span class="tt-text">
-                      @if (values().booking_time) {
-                        <small>Selected time</small>
-                        <strong>{{ prettyTime(values().booking_time) }}</strong>
-                      } @else {
-                        <small>Appointment time</small>
-                        <strong>Select a time</strong>
-                      }
-                    </span>
-                    <ion-icon name="chevron-down-outline" class="tt-caret"></ion-icon>
-                  </button>
+                <div class="clock-picker" role="group" aria-label="Time">
+                  <div class="clock-readout" aria-live="polite">
+                    <button
+                      type="button"
+                      class="seg"
+                      [class.active]="clockPhase() === 'hour'"
+                      aria-label="Change hour"
+                      (click)="showHours()"
+                    >
+                      {{ clockReadout().hour }}
+                    </button>
+                    <span class="colon" aria-hidden="true">:</span>
+                    <button
+                      type="button"
+                      class="seg"
+                      [class.active]="clockPhase() === 'minute'"
+                      [disabled]="!canBrowseMinutes()"
+                      aria-label="Change minutes"
+                      (click)="showMinutes()"
+                    >
+                      {{ clockReadout().minute }}
+                    </button>
+                    @if (periods().length > 1) {
+                      <div class="period" role="radiogroup" aria-label="AM or PM">
+                        @for (period of periods(); track period) {
+                          <button
+                            type="button"
+                            role="radio"
+                            [class.selected]="activePeriod() === period"
+                            [attr.aria-checked]="activePeriod() === period"
+                            (click)="pickPeriod(period)"
+                          >
+                            {{ period }}
+                          </button>
+                        }
+                      </div>
+                    } @else {
+                      <span class="period-label">{{ activePeriod() }}</span>
+                    }
+                  </div>
 
-                  @if (timeOpen()) {
-                    <div class="time-panel" role="listbox" aria-label="Available times">
-                      @for (group of timeGroups(); track group.label) {
-                        <div class="tp-group">
-                          <p class="tp-head"><ion-icon [name]="group.icon"></ion-icon> {{ group.label }}</p>
-                          <div class="tp-grid">
-                            @for (slot of group.slots; track slot) {
-                              <button
-                                type="button"
-                                role="option"
-                                class="tp-slot"
-                                [class.selected]="values().booking_time === slot"
-                                [class.off]="isUnavailable(slot)"
-                                [disabled]="isUnavailable(slot)"
-                                [attr.aria-selected]="values().booking_time === slot"
-                                (click)="pickSlot(slot)"
-                              >
-                                <span class="tp-time">{{ prettyTime(slot) }}</span>
-                                @if (isUnavailable(slot)) {
-                                  <span class="tp-note">{{ isPast(slot) ? 'Passed' : 'Booked' }}</span>
-                                }
-                              </button>
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  }
+                  <div
+                    class="clock"
+                    role="radiogroup"
+                    [attr.aria-label]="clockPhase() === 'hour' ? 'Hour' : 'Minutes'"
+                  >
+                    @if (handAngle() !== null) {
+                      <span class="hand" aria-hidden="true" [style.--angle]="handAngle() + 'deg'"></span>
+                    }
+                    @for (mark of clockMarks(); track mark.key) {
+                      <button
+                        type="button"
+                        role="radio"
+                        class="clock-mark"
+                        [style.--x]="mark.x + '%'"
+                        [style.--y]="mark.y + '%'"
+                        [class.selected]="mark.selected"
+                        [attr.aria-checked]="mark.selected"
+                        [attr.aria-label]="mark.aria"
+                        [disabled]="mark.disabled"
+                        (click)="pickMark(mark)"
+                      >
+                        {{ mark.label }}
+                      </button>
+                    }
+                  </div>
+
+                  <p class="field-hint">
+                    {{ clockPhase() === 'hour' ? 'Tap an hour on the clock' : 'Now tap the minutes' }}
+                  </p>
                 </div>
                 @if (freeSlots().length === 0) {
                   <ion-note class="error" color="warning">

@@ -218,7 +218,7 @@ export class MyRepairsPage implements OnInit {
   /** Severe warning: the customer must tick the box before the cancel goes through. */
   async confirmCancel(repair: Repair): Promise<void> {
     const alert = await this.alert.create({
-      cssClass: 'kf-danger-alert',
+      cssClass: ['kf-danger-alert', 'soft-modal'],
       header: 'Warning: cancel this repair?',
       subHeader: `${repair.device_brand} ${repair.device_model} - ${formatBookingDate(repair.booking_date)}`,
       message:

@@ -355,3 +355,8 @@ h1 {
     animation: none;
   }
 }
+
+/* Soft rounded corners for the cancel alert */
+::ng-deep .soft-modal {
+  --border-radius: 28px;
+}

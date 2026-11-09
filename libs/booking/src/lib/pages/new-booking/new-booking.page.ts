@@ -92,6 +92,45 @@ const DEVICE_CHIP_LIMIT = 6;
  */
 type DeviceCheck = 'empty' | 'listed' | 'past' | 'manual' | 'brand' | 'model';
 
+type Period = 'AM' | 'PM';
+
+/** A bookable slot split into 24-hour parts, for the clock face. */
+interface SlotEntry {
+  slot: string;
+  hour24: number;
+  minute: number;
+}
+
+/** One tappable number on the clock face. */
+interface ClockMark {
+  key: string;
+  label: string;
+  aria: string;
+  hour24: number;
+  /** Set on minute marks; hour marks have none. */
+  slot: string | null;
+  x: number;
+  y: number;
+  disabled: boolean;
+  selected: boolean;
+}
+
+/** How far from the centre the numbers sit, as a percentage of the dial. */
+const CLOCK_RADIUS = 38;
+
+const pad2 = (value: number) => String(value).padStart(2, '0');
+const periodOf = (hour24: number): Period => (hour24 < 12 ? 'AM' : 'PM');
+const hour12 = (hour24: number) => hour24 % 12 || 12;
+
+/** Dial position for an angle in degrees (0 = 12 o'clock, clockwise). */
+function dialPoint(angle: number): { x: number; y: number } {
+  const radians = (angle * Math.PI) / 180;
+  return {
+    x: Number((CLOCK_RADIUS * Math.sin(radians)).toFixed(2)),
+    y: Number((-CLOCK_RADIUS * Math.cos(radians)).toFixed(2)),
+  };
+}
+
 /**
  * New Booking in 3 steps: Device (what and what's wrong) -> Schedule (branch,
  * date, time) -> Review (summary, optional technician, estimate).
@@ -167,17 +206,6 @@ export class NewBookingPage implements OnInit {
   readonly loadingSlots = signal(false);
   readonly selectedDate = signal('');
 
-  /** Time dropdown: open/closed, and the slots split into AM and PM. */
-  readonly timeOpen = signal(false);
-  readonly timeGroups = computed(() => {
-    const morning = this.slotTimes.filter((slot) => timeToMinutes(slot) < 12 * 60);
-    const afternoon = this.slotTimes.filter((slot) => timeToMinutes(slot) >= 12 * 60);
-    return [
-      { label: 'AM', icon: 'sunny-outline', slots: morning },
-      { label: 'PM', icon: 'moon-outline', slots: afternoon },
-    ].filter((group) => group.slots.length > 0);
-  });
-
   /** Which device field shows its list. */
   readonly activeField = signal<'brand' | 'model' | null>(null);
   private readonly brandQuery = signal('');
@@ -212,6 +240,113 @@ export class NewBookingPage implements OnInit {
   readonly freeSlots = computed(() =>
     this.slotTimes.filter((slot) => !this.takenSet().has(slot) && !this.isPast(slot)),
   );
+
+  // ---------- analog time picker ----------
+
+  /** Pick the hour first; hours with several slots then ask for the minutes. */
+  readonly clockPhase = signal<'hour' | 'minute'>('hour');
+  /** The hour (0-23) whose minutes are showing. */
+  readonly clockHour = signal<number | null>(null);
+  private readonly periodChoice = signal<Period | null>(null);
+
+  private readonly slotEntries = computed<SlotEntry[]>(() =>
+    this.slotTimes.map((slot) => {
+      const minutes = timeToMinutes(slot);
+      return { slot, hour24: Math.floor(minutes / 60), minute: minutes % 60 };
+    }),
+  );
+
+  /** AM / PM, but only the halves of the day that have slots. */
+  readonly periods = computed<Period[]>(() => {
+    const found = new Set(this.slotEntries().map((entry) => periodOf(entry.hour24)));
+    return (['AM', 'PM'] as Period[]).filter((period) => found.has(period));
+  });
+
+  private readonly selectedEntry = computed<SlotEntry | null>(() => {
+    const time = this.values().booking_time;
+    if (!time) return null;
+    const chosen = normalizeTime(time);
+    return this.slotEntries().find((entry) => normalizeTime(entry.slot) === chosen) ?? null;
+  });
+
+  readonly activePeriod = computed<Period>(() => {
+    const periods = this.periods();
+    const forced = this.periodChoice();
+    if (forced && periods.includes(forced)) return forced;
+    const selected = this.selectedEntry();
+    if (selected) return periodOf(selected.hour24);
+    return periods[0] ?? 'AM';
+  });
+
+  /** The hour shown in the readout and, with several slots, the one to pick minutes in. */
+  private readonly displayHour = computed<number | null>(() => {
+    const browsing = this.clockHour();
+    if (this.clockPhase() === 'minute' && browsing !== null) return browsing;
+    const selected = this.selectedEntry();
+    return selected && periodOf(selected.hour24) === this.activePeriod() ? selected.hour24 : null;
+  });
+
+  readonly canBrowseMinutes = computed(() => {
+    const hour = this.displayHour();
+    return hour !== null && this.slotEntries().filter((entry) => entry.hour24 === hour).length > 1;
+  });
+
+  readonly clockReadout = computed(() => {
+    const hour = this.displayHour();
+    const selected = this.selectedEntry();
+    return {
+      hour: hour === null ? '--' : String(hour12(hour)),
+      minute: hour !== null && selected?.hour24 === hour ? pad2(selected.minute) : '--',
+    };
+  });
+
+  readonly clockMarks = computed<ClockMark[]>(() => {
+    const entries = this.slotEntries();
+    const selected = this.selectedEntry();
+    const browsing = this.clockPhase() === 'minute' ? this.clockHour() : null;
+
+    if (browsing !== null) {
+      return entries
+        .filter((entry) => entry.hour24 === browsing)
+        .map((entry) => ({
+          key: `m-${entry.slot}`,
+          label: pad2(entry.minute),
+          aria: formatTime(entry.slot),
+          hour24: entry.hour24,
+          slot: entry.slot,
+          ...dialPoint(entry.minute * 6),
+          disabled: this.isUnavailable(entry.slot),
+          selected: selected?.slot === entry.slot,
+        }));
+    }
+
+    const period = this.activePeriod();
+    return Array.from({ length: 12 }, (_, index) => {
+      const hour = index + 1;
+      const hour24 = (hour % 12) + (period === 'PM' ? 12 : 0);
+      const inHour = entries.filter((entry) => entry.hour24 === hour24);
+      return {
+        key: `h-${period}-${hour}`,
+        label: String(hour),
+        aria: `${hour} ${period}`,
+        hour24,
+        slot: null,
+        ...dialPoint((hour % 12) * 30),
+        disabled: inHour.every((entry) => this.isUnavailable(entry.slot)),
+        selected: selected?.hour24 === hour24,
+      };
+    });
+  });
+
+  /** Where the hand points, in degrees; null while nothing on this face is picked. */
+  readonly handAngle = computed<number | null>(() => {
+    const selected = this.selectedEntry();
+    if (!selected) return null;
+    if (this.clockPhase() === 'minute') {
+      return this.clockHour() === selected.hour24 ? selected.minute * 6 : null;
+    }
+    return periodOf(selected.hour24) === this.activePeriod() ? (selected.hour24 % 12) * 30 : null;
+  });
 
   // ---------- device lists ----------
 
@@ -428,7 +563,7 @@ export class NewBookingPage implements OnInit {
     this.step.set(index);
     this.showErrors.set(false);
     this.activeField.set(null);
-    this.timeOpen.set(false);
+    this.resetClock();
     void this.content?.scrollToTop(0);
   }
 
@@ -480,8 +615,9 @@ export class NewBookingPage implements OnInit {
 
   openList(field: 'brand' | 'model', event?: Event): void {
     if (this.typingFreely()) return;
-    if (field === 'brand') this.brandQuery.set(this.form.controls.device_brand.value);
-    if (field === 'model') this.modelQuery.set(this.form.controls.device_model.value);
+    // The fields are read-only here, so there is nothing to filter by: always show the full list.
+    if (field === 'brand') this.brandQuery.set('');
+    if (field === 'model') this.modelQuery.set('');
     this.activeField.set(field);
     // Bring the field to the top so its list has room above the keyboard.
     const target = event?.target as HTMLElement | null;
@@ -555,15 +691,48 @@ export class NewBookingPage implements OnInit {
   pickLocation(location: string): void {
     this.form.controls.location.setValue(location);
     this.form.controls.booking_time.setValue('');
-    this.timeOpen.set(false);
+    this.resetClock();
     void this.loadSlots();
   }
 
-  toggleTime(): void {
-    if (!this.values().booking_date) {
+  /** Back to the hour face (the slot itself is cleared by the caller). */
+  private resetClock(): void {
+    this.clockPhase.set('hour');
+    this.clockHour.set(null);
+    this.periodChoice.set(null);
+  }
+
+  showHours(): void {
+    this.clockPhase.set('hour');
+  }
+
+  showMinutes(): void {
+    const hour = this.displayHour();
+    if (hour === null || !this.canBrowseMinutes()) return;
+    this.clockHour.set(hour);
+    this.clockPhase.set('minute');
+  }
+
+  pickPeriod(period: Period): void {
+    this.periodChoice.set(period);
+    this.clockPhase.set('hour');
+  }
+
+  /** An hour either books its only slot, or opens the minutes for that hour. */
+  pickMark(mark: ClockMark): void {
+    if (mark.disabled) return;
+    if (mark.slot) {
+      this.pickSlot(mark.slot);
       return;
     }
-    this.timeOpen.update((open) => !open);
+    const inHour = this.slotEntries().filter((entry) => entry.hour24 === mark.hour24);
+    if (inHour.length === 1) {
+      this.clockHour.set(null);
+      this.pickSlot(inHour[0].slot);
+      return;
+    }
+    this.clockHour.set(mark.hour24);
+    this.clockPhase.set('minute');
   }
 
   pickSlot(slot: string): void {
@@ -572,7 +741,6 @@ export class NewBookingPage implements OnInit {
     }
     this.form.controls.booking_time.setValue(normalizeTime(slot));
     this.form.controls.booking_time.markAsTouched();
-    this.timeOpen.set(false);
   }
 
   onDateChange(event: Event): void {
@@ -584,8 +752,8 @@ export class NewBookingPage implements OnInit {
     const isoDate = date.slice(0, 10);
     this.form.controls.booking_date.setValue(isoDate);
     this.form.controls.booking_time.setValue('');
+    this.resetClock();
     this.selectedDate.set(isoDate);
-    this.timeOpen.set(false);
     void this.loadSlots();
   }
 
@@ -699,7 +867,7 @@ export class NewBookingPage implements OnInit {
     this.modelQuery.set('');
     this.manualDevice.set(false);
     this.showAllDevices.set(false);
-    this.timeOpen.set(false);
+    this.resetClock();
     this.applyDefaultDate();
     this.direction.set('forward');
     this.step.set(0);
