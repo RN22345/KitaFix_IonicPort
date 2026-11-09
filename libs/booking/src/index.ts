@@ -47,6 +47,11 @@ export * from './lib/ui/status-badge/status-badge.component';
 export * from './lib/ui/repair-card/repair-card.component';
 export * from './lib/ui/reschedule-modal/reschedule-modal.component';
 
+export * from './lib/ui/repair-detail/repair-detail.component';
+export * from './lib/ui/top-nav/top-nav.component';
+export * from './lib/models/rank.model';
+export * from './lib/services/repair-extras.service';
+
 /* Routes + providers (host app wiring) */
 export * from './lib/booking.routes';
 export * from './lib/booking.providers';

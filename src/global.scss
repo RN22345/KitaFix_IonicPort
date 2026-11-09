@@ -158,38 +158,146 @@
   --ion-overlay-background-color: #131c2e;
 }
 
+/* ============================================================================
+   Base
+   ============================================================================ */
 ion-content {
   --background: var(--kf-bg);
   --color: var(--kf-text);
 }
 
+body {
+  background: var(--kf-bg);
+  color: var(--kf-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================================
+   Floating tab bar
+   ============================================================================ */
 ion-tab-bar {
-  --border: 1px solid var(--kf-line);
-  padding-top: 4px;
+  --background: color-mix(in srgb, var(--kf-surface) 94%, transparent);
+  --border: none;
+  margin: 0 14px 10px;
+  padding: 6px;
+  border: 1px solid var(--kf-line);
+  border-radius: 24px;
+  box-shadow: var(--kf-shadow-lift);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
 }
 
 ion-tab-button {
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.7rem;
+  border-radius: 18px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
   --ripple-color: var(--kf-accent-soft);
+  transition:
+    background var(--kf-fast) var(--kf-ease),
+    transform var(--kf-fast) var(--kf-ease);
+}
+
+ion-tab-button.tab-selected {
+  background: var(--kf-accent-soft);
+}
+
+ion-tab-button:active {
+  transform: scale(0.96);
 }
 
 ion-tab-button.tab-selected ion-icon {
   animation: kf-pop var(--kf-slow) var(--kf-ease);
 }
 
+/* ============================================================================
+   Overlays (popovers, sheets, alerts, toasts)
+   ============================================================================ */
+ion-popover.kf-popover {
+  --width: 310px;
+  --max-width: calc(100vw - 24px);
+  --background: var(--kf-surface);
+  --box-shadow: var(--kf-shadow-lift);
+  --backdrop-opacity: 0.22;
+}
+
+ion-popover.kf-popover::part(content) {
+  border: 1px solid var(--kf-line);
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+ion-modal.kf-sheet {
+  --background: var(--kf-bg);
+  --border-radius: 28px;
+  --backdrop-opacity: 0.4;
+}
+
+ion-modal.kf-sheet::part(handle) {
+  width: 46px;
+  height: 5px;
+  background: var(--kf-line);
+}
+
+ion-modal.kf-detail {
+  --background: var(--kf-bg);
+}
+
 ion-toast {
-  --border-radius: 14px;
+  --border-radius: 16px;
+  font-family: var(--kf-font);
 }
 
 ion-alert {
-  --border-radius: 18px;
+  --border-radius: 22px;
+  --background: var(--kf-surface);
+  font-family: var(--kf-font);
 }
 
-body {
-  background: var(--kf-bg);
-  color: var(--kf-text);
+/* Severe warning when cancelling a repair */
+ion-alert.kf-danger-alert {
+  --max-width: 350px;
+  --backdrop-opacity: 0.55;
+
+  .alert-wrapper {
+    border: 2px solid var(--kf-danger);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--kf-danger) 18%, transparent);
+    animation: kf-shake 420ms var(--kf-ease) 120ms;
+  }
+  .alert-title {
+    color: var(--kf-danger);
+    font-weight: 700;
+  }
+  .alert-sub-title {
+    color: var(--kf-text);
+    font-weight: 600;
+  }
+  .alert-message {
+    color: var(--kf-text);
+    line-height: 1.5;
+  }
+  .alert-checkbox-label {
+    white-space: normal;
+    font-weight: 600;
+    color: var(--kf-text);
+  }
+  .alert-button.kf-destroy {
+    color: var(--kf-on-accent);
+    background: var(--kf-danger);
+    font-weight: 700;
+    border-radius: 12px;
+    margin: 4px 8px 10px;
+  }
+  .alert-button.kf-keep {
+    color: var(--kf-accent);
+    font-weight: 700;
+  }
 }
 
+/* ============================================================================
+   Typography + fonts
+   ============================================================================ */
 // Poppins (SIL OFL, see src/assets/fonts/poppins/OFL.txt). Paths resolve from this file.
 @font-face {
   font-family: 'Poppins';
@@ -269,7 +377,7 @@ body {
 @keyframes kf-rise {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -288,13 +396,24 @@ body {
 
 @keyframes kf-pop {
   0% {
-    transform: scale(0.94);
+    transform: scale(0.92);
   }
   60% {
-    transform: scale(1.03);
+    transform: scale(1.08);
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes kf-zoom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
