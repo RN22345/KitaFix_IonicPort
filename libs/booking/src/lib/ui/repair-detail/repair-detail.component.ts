@@ -12,6 +12,7 @@ import {
   statusMeta,
 } from '../../models/repair.model';
 import { estimatePriceForRepair, formatCurrency } from '../../pricing/price-estimate';
+import { serviceFixesIssues } from '../../pricing/service-match';
 import { RepairExtrasService } from '../../services/repair-extras.service';
 import { RepairsService } from '../../services/repairs.service';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
@@ -181,7 +182,7 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
 
               <section class="card">
                 <h3>Services availed</h3>
-                @if (service(); as s) {
+                @if (shownService(); as s) {
                   <div class="svc">
                     <span class="svc-ico"><ion-icon name="construct-outline"></ion-icon></span>
                     <div>
@@ -204,9 +205,11 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
                 @if (note()) {
                   <p class="note">"{{ note() }}"</p>
                 }
-                @if (service(); as s) {
+                @if (estimate().total > 0) {
                   <dl class="price">
-                    <div><dt>{{ s.name }}</dt><dd>{{ money(estimate().base) }}</dd></div>
+                    @if (shownService(); as s) {
+                      <div><dt>{{ s.name }}</dt><dd>{{ money(estimate().base) }}</dd></div>
+                    }
                     @if (estimate().issueFees > 0) {
                       <div><dt>Extra bench fees</dt><dd>{{ money(estimate().issueFees) }}</dd></div>
                     }
@@ -841,6 +844,11 @@ export class RepairDetailComponent {
   readonly service = computed(() => {
     const r = this.repair();
     return r ? (this.booking.serviceOptions().find((item) => item.id === r.service_id) ?? null) : null;
+  });
+    /** The stored service, only when it really fixes one of the picked issues (not a fallback). */
+  readonly shownService = computed(() => {
+    const s = this.service();
+    return s && serviceFixesIssues(s, this.issues().map((issue) => issue.key)) ? s : null;
   });
   readonly technician = computed(() => {
     const r = this.repair();
