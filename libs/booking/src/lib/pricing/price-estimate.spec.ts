@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ServiceOption } from '../models/catalog.model';
-import { estimatePrice, formatCurrency } from './price-estimate';
+import { Repair } from '../models/repair.model';
+import { estimatePrice, estimatePriceForRepair, formatCurrency } from './price-estimate';
 
 const screenReplacement = { id: 's1', name: 'Screen Replacement', base_price: 1499 } as ServiceOption;
 
@@ -38,5 +39,27 @@ describe('estimatePrice - no double charge', () => {
 
   it('still adds fees for other issues', () => {
     expect(estimatePrice(battery, ['issue_battery', 'issue_camera']).total).toBe(1199);
+  });
+});
+
+describe('estimatePriceForRepair - stored fallback service (My Repairs matches Review)', () => {
+  const repairWith = (flags: Partial<Repair>) => ({ issue_camera: false, issue_battery: false, ...flags }) as Repair;
+  const fallback = { id: 's9', name: 'Software Reset', base_price: 500 } as ServiceOption;
+  const battery = { id: 's2', name: 'Battery Replacement', base_price: 899 } as ServiceOption;
+
+  it('does not charge a fallback service that fixes none of the picked issues', () => {
+    expect(estimatePriceForRepair(repairWith({ issue_camera: true }), fallback)).toEqual({
+      base: 0,
+      issueFees: 300,
+      total: 300,
+    });
+  });
+
+  it('charges the service when it fixes a picked issue', () => {
+    expect(estimatePriceForRepair(repairWith({ issue_battery: true, issue_camera: true }), battery)).toEqual({
+      base: 899,
+      issueFees: 300,
+      total: 1199,
+    });
   });
 });

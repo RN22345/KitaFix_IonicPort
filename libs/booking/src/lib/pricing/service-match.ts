@@ -27,6 +27,15 @@ export function issueCoveredBy(service: Pick<ServiceOption, 'name'> | null | und
   return null;
 }
 
+/** Whether the service fixes one of the picked issues. */
+export function serviceFixesIssues(
+  service: Pick<ServiceOption, 'name'> | null | undefined,
+  issues: readonly IssueFlagKey[],
+): boolean {
+  const covered = issueCoveredBy(service);
+  return covered !== null && issues.includes(covered);
+}
+
 /**
  * The main job for the picked issues: among services that fix one of them,
  * the one with the highest base price (the other issues are added as fees).
