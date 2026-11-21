@@ -88,6 +88,9 @@ class MockRepairsDb {
       staff_notes: null,
       confirmed_by: null,
       confirmed_at: null,
+      repair_started_at: null,
+      service_name_snapshot: null,
+      service_price_snapshot: null,
       created_at: timestamp,
       updated_at: timestamp,
     };

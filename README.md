@@ -63,7 +63,7 @@ docs/                     plan, setup guides, per-module docs
 | --- | --- | --- | --- | --- |
 | 1 | Identity & People | `libs/identity` | `0010_team1_identity.sql` | not started |
 | 2 | Booking & Scheduling | `libs/booking` | `0020_team2_booking.sql` | **done (reference)** |
-| 3 | Shop & Repair Operations | `libs/repair-ops` | `0030_team3_repair_ops.sql` | not started |
+| 3 | Shop & Repair Operations | `libs/repair-ops` | `0030_team3_repair_ops.sql`, `0031_team3_repair_ops_features.sql` | implemented; apply migrations |
 | 4 | Feedback & Insights | `libs/insights` | `0040_team4_insights.sql` | not started |
 
 Team 2's module is the template for everyone: library shape, repository

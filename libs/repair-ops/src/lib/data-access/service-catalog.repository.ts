@@ -58,7 +58,7 @@ export class MockServiceCatalogRepository extends ServiceCatalogRepository {
     if (!current) return Promise.reject(new RepairOpsError('NOT_FOUND', 'That service was not found.'));
     return this.update(id, {
       name: current.name,
-      description: current.description,
+      description: current.description ?? '',
       base_price: current.base_price,
       active,
     });

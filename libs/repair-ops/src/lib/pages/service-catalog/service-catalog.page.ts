@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   AlertController, IonButton, IonCard, IonCardContent, IonContent, IonFab, IonFabButton,
-  IonHeader, IonIcon, IonNote, IonRefresher, IonRefresherContent, IonSpinner, IonTitle,
+  IonHeader, IonIcon,   IonNote, IonRefresher, IonRefresherContent, IonSearchbar, IonSpinner, IonTitle,
   IonToggle, IonToolbar, ToastController,
 } from '@ionic/angular';
 import { REPAIR_OPS_CONFIG } from '../../data-access/config';
@@ -15,7 +15,7 @@ import { ServiceCatalogService } from '../../services/service-catalog.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     IonButton, IonCard, IonCardContent, IonContent, IonFab, IonFabButton, IonHeader, IonIcon,
-    IonNote, IonRefresher, IonRefresherContent, IonSpinner, IonTitle, IonToggle, IonToolbar,
+    IonNote, IonRefresher, IonRefresherContent, IonSearchbar, IonSpinner, IonTitle, IonToggle, IonToolbar,
   ],
   templateUrl: './service-catalog.page.html',
   styleUrl: './service-catalog.page.scss',
@@ -29,6 +29,15 @@ export class ServiceCatalogPage implements OnInit {
   readonly loading = this.catalog.loading;
   readonly error = this.catalog.error;
   readonly currency = inject(REPAIR_OPS_CONFIG).currency;
+  readonly search = signal('');
+  readonly filteredServices = computed(() => {
+    const query = this.search().trim().toLocaleLowerCase();
+    if (!query) return this.services();
+    return this.services().filter((service) => (
+      service.name.toLocaleLowerCase().includes(query)
+      || (service.description ?? '').toLocaleLowerCase().includes(query)
+    ));
+  });
 
   ngOnInit(): void {
     void this.catalog.load();
@@ -37,6 +46,12 @@ export class ServiceCatalogPage implements OnInit {
   async refresh(event: Event): Promise<void> {
     await this.catalog.load();
     (event as CustomEvent).detail.complete();
+  }
+
+  setSearch(event: Event): void {
+    const detailValue = (event as CustomEvent<{ value?: unknown }>).detail?.value;
+    const targetValue = (event.target as HTMLInputElement | null)?.value;
+    this.search.set(String(detailValue ?? targetValue ?? ''));
   }
 
   async toggle(service: ServiceItem, event: Event): Promise<void> {
@@ -51,13 +66,13 @@ export class ServiceCatalogPage implements OnInit {
     }
   }
 
-  /** Add (service = null) or edit. Required: name and price. */
+  /** Add (service = null) or edit. Required: name, description, price and status. */
   async openForm(service: ServiceItem | null): Promise<void> {
     const alert = await this.alerts.create({
       header: service ? 'Edit service' : 'Add service',
       inputs: [
         { name: 'name', type: 'text', placeholder: 'Service name *', value: service?.name ?? '' },
-        { name: 'description', type: 'textarea', placeholder: 'Description', value: service?.description ?? '' },
+        { name: 'description', type: 'textarea', placeholder: 'Description *', value: service?.description ?? '' },
         { name: 'price', type: 'number', placeholder: 'Price *', min: 0, value: service?.base_price ?? '' },
       ],
       buttons: [{ text: 'Cancel', role: 'cancel' }, { text: 'Save', role: 'confirm' }],
@@ -66,11 +81,23 @@ export class ServiceCatalogPage implements OnInit {
     const { role, data } = await alert.onDidDismiss();
     if (role !== 'confirm') return;
 
+    const statusAlert = await this.alerts.create({
+      header: 'Choose service status',
+      inputs: [
+        { type: 'radio', label: 'Active', value: 'active', checked: service?.active ?? true },
+        { type: 'radio', label: 'Inactive', value: 'inactive', checked: service ? !service.active : false },
+      ],
+      buttons: [{ text: 'Cancel', role: 'cancel' }, { text: 'Continue', role: 'confirm' }],
+    });
+    await statusAlert.present();
+    const { role: statusRole, data: statusData } = await statusAlert.onDidDismiss();
+    if (statusRole !== 'confirm' || (statusData?.values !== 'active' && statusData?.values !== 'inactive')) return;
+
     const input: ServiceInput = {
       name: String(data.values.name ?? ''),
-      description: String(data.values.description ?? '').trim() || null,
+      description: String(data.values.description ?? '').trim(),
       base_price: Number(data.values.price),
-      active: service?.active ?? true,
+      active: statusData.values === 'active',
     };
     try {
       if (service) await this.catalog.edit(service.id, input);

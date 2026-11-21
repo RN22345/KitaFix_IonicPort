@@ -20,6 +20,22 @@ ion-header ion-toolbar {
   --border-color: transparent;
 }
 
+.header-search-toolbar {
+  --background: var(--ion-color-primary);
+  --padding-top: 2px;
+  --padding-bottom: 8px;
+}
+
+.header-search-toolbar ion-searchbar {
+  --background: #ffffff;
+  --border-radius: 20px;
+  --box-shadow: none;
+  --icon-color: var(--ion-color-primary);
+  --placeholder-color: #7a8798;
+  --color: #1f2937;
+  padding-inline: 8px;
+}
+
 ion-title,
 ion-button,
 ion-card,

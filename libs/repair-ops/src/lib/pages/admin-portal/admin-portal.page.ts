@@ -7,7 +7,8 @@ import {
 import {
   StatusBadgeComponent, formatBookingDate, formatTime, issueLabels, shortRepairId,
 } from '@kitafix/booking';
-import { QueueFilter, QueueRepair } from '../../models/repair-ops.model';
+import { repairOpsErrorMessage } from '../../models/repair-ops-error';
+import { QueueFilter, QueueRepair, RepairOpsHistory } from '../../models/repair-ops.model';
 import { RepairOpsService } from '../../services/repair-ops.service';
 
 /** Screen 1 - Admin Portal: summary cards + the latest repairs. */
@@ -28,13 +29,19 @@ export class AdminPortalPage implements OnInit {
   readonly counts = this.ops.counts;
   readonly loading = this.ops.loading;
   readonly error = this.ops.error;
+  readonly history = this.ops.history;
+  readonly historyLoading = this.ops.historyLoading;
   readonly expandedRepairIds = signal<Set<string>>(new Set());
   readonly id = shortRepairId;
   readonly date = formatBookingDate;
   readonly time = formatTime;
 
   issues(repair: QueueRepair): string {
-    return issueLabels(repair).join(', ') || '-';
+    return repair.issue_description?.trim() || issueLabels(repair).join(', ') || '-';
+  }
+
+  notes(repairId: string): RepairOpsHistory[] {
+    return (this.history()[repairId] ?? []).filter((entry) => entry.event_type === 'note');
   }
 
   dateTime(value: string): string {
@@ -43,12 +50,19 @@ export class AdminPortalPage implements OnInit {
   }
 
   toggleDetails(repairId: string): void {
+    let opening = false;
     this.expandedRepairIds.update((expanded) => {
       const next = new Set(expanded);
-      if (next.has(repairId)) next.delete(repairId);
-      else next.add(repairId);
+      opening = !next.has(repairId);
+      if (opening) next.add(repairId);
+      else next.delete(repairId);
       return next;
     });
+    if (opening) {
+      void this.ops.loadHistory(repairId).catch((error) => {
+        this.ops.error.set(repairOpsErrorMessage(error));
+      });
+    }
   }
 
   latest() {

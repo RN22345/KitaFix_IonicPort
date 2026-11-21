@@ -1,5 +1,12 @@
 <ion-header>
   <ion-toolbar color="primary"><ion-title>Service Catalog</ion-title></ion-toolbar>
+  <ion-toolbar class="header-search-toolbar">
+    <ion-searchbar
+      placeholder="Search service name or description"
+      [value]="search()"
+      (ionInput)="setSearch($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
@@ -13,7 +20,7 @@
   @if (loading()) {
     <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
   } @else {
-    @for (service of services(); track service.id) {
+    @for (service of filteredServices(); track service.id) {
       <ion-card [class.off]="!service.active">
         <ion-card-content>
           <div class="head">
@@ -31,7 +38,7 @@
         </ion-card-content>
       </ion-card>
     } @empty {
-      <p class="empty">No services yet. Tap + to add one.</p>
+      <p class="empty">{{ search().trim() ? 'No services match your search.' : 'No services yet. Tap + to add one.' }}</p>
     }
   }
 

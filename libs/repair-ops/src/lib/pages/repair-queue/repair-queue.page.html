@@ -1,5 +1,14 @@
 <ion-header>
-  <ion-toolbar color="primary"><ion-title>Repair Queue</ion-title></ion-toolbar>
+  <ion-toolbar color="primary">
+    <ion-title>Repair Queue</ion-title>
+  </ion-toolbar>
+  <ion-toolbar class="header-search-toolbar">
+    <ion-searchbar
+      placeholder="Search ID, customer, item, or issue"
+      [value]="search()"
+      (ionInput)="setSearch($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
@@ -7,10 +16,114 @@
   </ion-refresher>
 
   <ion-segment [value]="filter()" (ionChange)="onFilter($event)">
-    <ion-segment-button value="all">All</ion-segment-button>
-    <ion-segment-button value="waiting">Waiting for repair</ion-segment-button>
-    <ion-segment-button value="processed">Already processed</ion-segment-button>
+    <ion-segment-button value="all">
+      <span class="segment-full">All</span>
+      <span class="segment-short">All</span>
+    </ion-segment-button>
+    <ion-segment-button value="waiting">
+      <span class="segment-full">Waiting for repair</span>
+      <span class="segment-short">Waiting</span>
+    </ion-segment-button>
+    <ion-segment-button value="processed">
+      <span class="segment-full">Already processed</span>
+      <span class="segment-short">Processed</span>
+    </ion-segment-button>
   </ion-segment>
+
+  <section class="queue-tools" aria-label="Repair queue filters">
+    <div class="filter-toggle-row">
+      <ion-button
+        size="small"
+        fill="clear"
+        [attr.aria-expanded]="filterPanelOpen()"
+        (click)="toggleFilterPanel()"
+      >
+        {{ filterPanelOpen() ? 'Hide filters' : 'Show filters' }}
+        <span aria-hidden="true">{{ filterPanelOpen() ? '▲' : '▼' }}</span>
+      </ion-button>
+    </div>
+    @if (filterPanelOpen()) {
+      <div class="filter-grid">
+        <ion-select label="Status" labelPlacement="stacked" interface="popover"
+          [value]="statusFilter()" (ionChange)="setStatusFilter($event)">
+          <ion-select-option value="all">All statuses</ion-select-option>
+          @for (status of statuses; track status) {
+            <ion-select-option [value]="status">{{ statusMeta(status).label }}</ion-select-option>
+          }
+        </ion-select>
+        <ion-select label="Technician" labelPlacement="stacked" interface="popover"
+          [value]="technicianFilter()" (ionChange)="setTechnicianFilter($event)">
+          <ion-select-option value="">All technicians</ion-select-option>
+          <ion-select-option value="unassigned">Unassigned</ion-select-option>
+          @for (technician of technicians(); track technician.id) {
+            <ion-select-option [value]="technician.id">{{ technician.name }}</ion-select-option>
+          }
+        </ion-select>
+        <ion-select label="Service" labelPlacement="stacked" interface="popover"
+          [value]="serviceFilter()" (ionChange)="setServiceFilter($event)">
+          <ion-select-option value="">All services</ion-select-option>
+          @for (service of services(); track service.id) {
+            <ion-select-option [value]="service.id">{{ service.name }}</ion-select-option>
+          }
+        </ion-select>
+        <ion-input type="date" label="Scheduled from" labelPlacement="stacked"
+          [value]="scheduledFrom()" (ionChange)="setDateFilter('scheduledFrom', $event)"></ion-input>
+        <ion-input type="date" label="Scheduled to" labelPlacement="stacked"
+          [value]="scheduledTo()" (ionChange)="setDateFilter('scheduledTo', $event)"></ion-input>
+        <ion-input type="date" label="Repair started from" labelPlacement="stacked"
+          [value]="repairFrom()" (ionChange)="setDateFilter('repairFrom', $event)"></ion-input>
+        <ion-input type="date" label="Repair started to" labelPlacement="stacked"
+          [value]="repairTo()" (ionChange)="setDateFilter('repairTo', $event)"></ion-input>
+      </div>
+    }
+  </section>
+
+  <section class="sort-tools" aria-label="Sort repair queue">
+    <span>Sort by:</span>
+    <div class="sort-category-wrap">
+      <button
+        type="button"
+        class="sort-category"
+        aria-label="Sort category"
+        [attr.aria-expanded]="categoryMenuOpen()"
+        (click)="toggleCategoryMenu()"
+      >
+        {{ sortCategoryLabel() }}
+        <span class="sort-chevron" aria-hidden="true">⌄</span>
+      </button>
+      @if (categoryMenuOpen()) {
+        <div class="sort-menu sort-category-menu" role="menu">
+          @for (category of sortCategories; track category.value) {
+            <button
+              type="button"
+              role="menuitem"
+              [class.selected]="sortKey() === category.value"
+              (click)="selectSortKey(category.value)"
+            >
+              {{ category.label }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <div class="sort-direction-wrap">
+      <button
+        type="button"
+        class="sort-direction"
+        aria-label="Sort direction"
+        [attr.aria-expanded]="directionMenuOpen()"
+        (click)="toggleDirectionMenu()"
+      >
+        {{ sortAscending() ? '↑' : '↓' }}
+      </button>
+      @if (directionMenuOpen()) {
+        <div class="sort-menu sort-direction-menu" role="menu">
+          <button type="button" role="menuitem" [class.selected]="sortAscending()" (click)="selectSortAscending(true)">↑ Ascending</button>
+          <button type="button" role="menuitem" [class.selected]="!sortAscending()" (click)="selectSortAscending(false)">↓ Descending</button>
+        </div>
+      }
+    </div>
+  </section>
 
   @if (error(); as message) {
     <ion-note color="danger">{{ message }}</ion-note>
@@ -30,7 +143,7 @@
           <ion-note>
             {{ repair.device_brand }} {{ repair.device_model }} · {{ repair.service_name }}
           </ion-note>
-          <p class="issues">Issues: {{ issues(repair) }}</p>
+          <p class="issues">Issue details: {{ issues(repair) }}</p>
           <p class="meta">
             {{ date(repair.booking_date) }}, {{ time(repair.booking_time) }} ·
             Technician: {{ repair.technician_name ?? 'Unassigned' }}
@@ -56,6 +169,10 @@
                 <strong>{{ repair.confirmed_at ? dateTime(repair.confirmed_at) : 'Not confirmed' }}</strong>
               </div>
               <div class="detail">
+                <span>Repair started</span>
+                <strong>{{ repair.repair_started_at ? dateTime(repair.repair_started_at) : 'Not started' }}</strong>
+              </div>
+              <div class="detail">
                 <span>Created</span>
                 <strong>{{ dateTime(repair.created_at) }}</strong>
               </div>
@@ -64,19 +181,29 @@
                 <strong>{{ dateTime(repair.updated_at) }}</strong>
               </div>
             </section>
-            <section class="message-details" aria-label="Repair messages">
-              <div class="detail-message">
-                <span>Issue description</span>
-                <p class="message-content">
-                  {{ repair.issue_description?.trim() || 'No additional description provided.' }}
-                </p>
+            <section class="message-details" aria-label="Repair history and notes">
+              <div class="history-heading">
+                <strong>Operational history and repair notes</strong>
+                <ion-button size="small" fill="outline" (click)="addNote(repair)">Add note</ion-button>
               </div>
-              <div class="detail-message">
-                <span>Staff notes</span>
-                <p class="message-content">
-                  {{ repair.staff_notes?.trim() || 'No staff notes.' }}
-                </p>
-              </div>
+              @if (historyLoading().has(repair.id)) {
+                <ion-spinner name="dots"></ion-spinner>
+              } @else {
+                @for (item of history()[repair.id] ?? []; track item.id) {
+                  <article class="history-item">
+                    <div class="history-head">
+                      <strong>{{ historySummary(item) }}</strong>
+                      <ion-note>{{ dateTime(item.changed_at) }}</ion-note>
+                    </div>
+                    @if (item.event_type === 'note') {
+                      <p class="message-content">{{ item.note }}</p>
+                    }
+                    <ion-note>Changed by {{ item.actor_name ?? 'Unknown staff member' }}</ion-note>
+                  </article>
+                } @empty {
+                  <ion-note>No operational history or notes recorded.</ion-note>
+                }
+              }
             </section>
           }
           <div class="actions">
@@ -89,11 +216,22 @@
             <ion-button size="small" fill="outline" [disabled]="finished(repair)" (click)="changeStatus(repair)">
               Update status
             </ion-button>
+            <ion-button size="small" fill="outline" [disabled]="!canReschedule(repair)" (click)="reschedule(repair)">
+              Reschedule
+            </ion-button>
           </div>
         </ion-card-content>
       </ion-card>
     } @empty {
-      <p class="empty">No repairs match this filter.</p>
+      <p class="empty">No repairs match these filters.</p>
+    }
+
+    @if (filtered().length > 0) {
+      <div class="pagination" aria-label="Repair queue pagination">
+        <ion-button size="small" fill="outline" [disabled]="page() <= 1" (click)="previousPage()">Previous</ion-button>
+        <span>Page {{ currentPage() }} of {{ pageCount() }} · {{ filtered().length }} repairs</span>
+        <ion-button size="small" fill="outline" [disabled]="page() >= pageCount()" (click)="nextPage()">Next</ion-button>
+      </div>
     }
   }
 </ion-content>

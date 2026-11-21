@@ -4,19 +4,41 @@ import { RepairRow, RepairStatus, ServiceRow } from '@kitafix/shared-types';
 export type QueueRepair = RepairRow & {
   customer_name: string;
   service_name: string;
+  service_price: number | null;
   technician_name: string | null;
+  repair_started_at: string | null;
 };
 
 export type ServiceItem = ServiceRow;
 
 export interface ServiceInput {
   name: string;
-  description: string | null;
+  description: string;
   base_price: number;
   active: boolean;
 }
 
 export type QueueFilter = 'all' | 'waiting' | 'processed';
+export type QueueSortKey = 'id' | 'customer_name' | 'status' | 'booking_date' | 'technician_name';
+export type RepairOpsHistoryType = 'status' | 'technician' | 'schedule' | 'note';
+
+export interface RepairOpsHistory {
+  id: string;
+  repair_id: string;
+  event_type: RepairOpsHistoryType;
+  previous_status: RepairStatus | null;
+  new_status: RepairStatus | null;
+  previous_technician_id: string | null;
+  new_technician_id: string | null;
+  previous_booking_date: string | null;
+  previous_booking_time: string | null;
+  new_booking_date: string | null;
+  new_booking_time: string | null;
+  note: string | null;
+  changed_by: string | null;
+  changed_at: string;
+  actor_name: string | null;
+}
 
 /**
  * The status state machine (same rule as the database trigger
@@ -39,14 +61,14 @@ export function isConfirmed(repair: RepairRow): boolean {
   return repair.confirmed_at !== null;
 }
 
-/** "Waiting for repair" = pending and not confirmed yet. */
+/** "Waiting for repair" = the repair has the pending status. */
 export function isWaiting(repair: RepairRow): boolean {
-  return repair.status === 'pending' && !isConfirmed(repair);
+  return repair.status === 'pending';
 }
 
-/** "Already processed" = everything that is not waiting. */
+/** "Already processed" = everything that is not pending. */
 export function isProcessed(repair: RepairRow): boolean {
-  return !isWaiting(repair);
+  return repair.status !== 'pending';
 }
 
 export function matchesFilter(repair: RepairRow, filter: QueueFilter): boolean {
@@ -67,11 +89,13 @@ export function statusChangeProblem(repair: RepairRow, to: RepairStatus): string
   return null;
 }
 
-/** Service form checks (required: name and price). */
+/** Service form checks (required: name, description, price and status). */
 export function serviceInputProblem(input: ServiceInput): string | null {
   if (!input.name.trim()) return 'Service name is required.';
+  if (!input.description.trim()) return 'Service description is required.';
   if (!Number.isFinite(input.base_price) || input.base_price < 0) {
     return 'Enter a valid price (0 or more).';
   }
+  if (typeof input.active !== 'boolean') return 'Choose a service status.';
   return null;
 }

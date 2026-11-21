@@ -90,9 +90,16 @@
               </div>
               <div class="detail-message">
                 <span>Staff notes</span>
-                <p class="message-content">
-                  {{ repair.staff_notes?.trim() || 'No staff notes.' }}
-                </p>
+                @if (historyLoading().has(repair.id)) {
+                  <ion-spinner name="dots"></ion-spinner>
+                } @else {
+                  @for (item of notes(repair.id); track item.id) {
+                    <p class="message-content">{{ item.note }}</p>
+                    <ion-note>{{ item.actor_name ?? 'Unknown staff member' }} · {{ dateTime(item.changed_at) }}</ion-note>
+                  } @empty {
+                    <p class="message-content">No staff notes.</p>
+                  }
+                }
               </div>
             </section>
           }

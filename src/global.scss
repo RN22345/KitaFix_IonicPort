@@ -53,3 +53,16 @@ body {
 :root {
   --ion-font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* Keep page titles at the leading edge on both phone and desktop layouts. */
+ion-header ion-toolbar {
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+ion-header ion-title {
+  text-align: start;
+  --color: #ffffff;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
+}

@@ -67,7 +67,10 @@ export type Database = {
           issue_screen: boolean
           issue_software: boolean
           location: string
+          repair_started_at: string | null
           service_id: string
+          service_name_snapshot: string | null
+          service_price_snapshot: number | null
           staff_notes: string | null
           status: Database["public"]["Enums"]["repair_status"]
           technician_id: string | null
@@ -92,7 +95,10 @@ export type Database = {
           issue_screen?: boolean
           issue_software?: boolean
           location: string
+          repair_started_at?: string | null
           service_id: string
+          service_name_snapshot?: string | null
+          service_price_snapshot?: number | null
           staff_notes?: string | null
           status?: Database["public"]["Enums"]["repair_status"]
           technician_id?: string | null
@@ -117,7 +123,10 @@ export type Database = {
           issue_screen?: boolean
           issue_software?: boolean
           location?: string
+          repair_started_at?: string | null
           service_id?: string
+          service_name_snapshot?: string | null
+          service_price_snapshot?: number | null
           staff_notes?: string | null
           status?: Database["public"]["Enums"]["repair_status"]
           technician_id?: string | null
@@ -150,6 +159,72 @@ export type Database = {
             columns: ["technician_id"]
             isOneToOne: false
             referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repair_ops_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          event_type: "note" | "schedule" | "status" | "technician"
+          id: string
+          new_booking_date: string | null
+          new_booking_time: string | null
+          new_status: Database["public"]["Enums"]["repair_status"] | null
+          new_technician_id: string | null
+          note: string | null
+          previous_booking_date: string | null
+          previous_booking_time: string | null
+          previous_status: Database["public"]["Enums"]["repair_status"] | null
+          previous_technician_id: string | null
+          repair_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          event_type: "note" | "schedule" | "status" | "technician"
+          id?: string
+          new_booking_date?: string | null
+          new_booking_time?: string | null
+          new_status?: Database["public"]["Enums"]["repair_status"] | null
+          new_technician_id?: string | null
+          note?: string | null
+          previous_booking_date?: string | null
+          previous_booking_time?: string | null
+          previous_status?: Database["public"]["Enums"]["repair_status"] | null
+          previous_technician_id?: string | null
+          repair_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          event_type?: "note" | "schedule" | "status" | "technician"
+          id?: string
+          new_booking_date?: string | null
+          new_booking_time?: string | null
+          new_status?: Database["public"]["Enums"]["repair_status"] | null
+          new_technician_id?: string | null
+          note?: string | null
+          previous_booking_date?: string | null
+          previous_booking_time?: string | null
+          previous_status?: Database["public"]["Enums"]["repair_status"] | null
+          previous_technician_id?: string | null
+          repair_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_ops_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repair_ops_history_repair_id_fkey"
+            columns: ["repair_id"]
+            isOneToOne: false
+            referencedRelation: "repairs"
             referencedColumns: ["id"]
           },
         ]

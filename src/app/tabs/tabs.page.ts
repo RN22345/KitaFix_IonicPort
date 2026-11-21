@@ -31,5 +31,30 @@ import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angu
       </ion-tab-bar>
     </ion-tabs>
   `,
+  styles: [
+    `
+      ion-tab-bar {
+        --background: #ffffff;
+        --border: 1px solid #d5e2f5;
+      }
+
+      ion-tab-button {
+        --color: #64748b;
+        --color-selected: #0b5ed7;
+        --ripple-color: rgba(11, 94, 215, 0.18);
+      }
+
+      ion-tab-button.tab-selected {
+        --color: #0b5ed7;
+        --color-selected: #0b5ed7;
+      }
+
+      @media (hover: hover) {
+        ion-tab-button:hover {
+          --color: #0b5ed7;
+        }
+      }
+    `,
+  ],
 })
 export class TabsPage {}
