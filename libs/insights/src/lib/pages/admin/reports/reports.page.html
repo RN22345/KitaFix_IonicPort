@@ -1,0 +1,66 @@
+  <div class="wrap">
+    <section class="banner">
+      <span class="eyebrow">Admin</span>
+      <h1>Reports</h1>
+      <p>Repair status, customer ratings and technician performance.</p>
+    </section>
+
+    @if (error()) { <p class="error">{{ error() }}</p> }
+
+    @if (nothingYet()) {
+      <section class="card"><p class="empty">No data to report yet. Reports appear after repairs are booked and customers leave reviews.</p></section>
+    } @else {
+      <div class="kpis">
+        <div class="kpi"><span class="kpi-label">Total reviews</span><span class="kpi-value">{{ summary().totalReviews }}</span></div>
+        <div class="kpi"><span class="kpi-label">Average rating</span><span class="kpi-value">{{ summary().averageRating ?? '–' }}<small> / 5</small></span></div>
+      </div>
+
+      <section class="card">
+        <h2>Repairs per status</h2>
+        <p class="sub">How many repairs are in each stage.</p>
+        @for (s of statuses(); track s.status) {
+          <div class="bar-row">
+            <span class="bar-label">{{ s.status }}</span>
+            <div class="bar-track"><div class="bar-fill" [style.width.%]="(s.repairCount / statusMax()) * 100"></div></div>
+            <span class="bar-count">{{ s.repairCount }}</span>
+          </div>
+        } @empty {
+          <p class="empty">No repairs yet.</p>
+        }
+      </section>
+
+      <section class="card">
+        <h2>Rating breakdown</h2>
+        <p class="sub">How many reviews gave 1 to 5 stars.</p>
+        @if (summary().totalReviews === 0) {
+          <p class="empty">No reviews yet.</p>
+        } @else {
+          @for (row of starRows(); track row.star) {
+            <div class="bar-row">
+              <span class="bar-label">{{ row.star }} ★</span>
+              <div class="bar-track"><div class="bar-fill gold" [style.width.%]="row.pct"></div></div>
+              <span class="bar-count">{{ row.count }}</span>
+            </div>
+          }
+        }
+      </section>
+
+      <section class="card">
+        <h2>Technician performance</h2>
+        <p class="sub">Technicians with no reviews are still listed.</p>
+        @for (t of technicians(); track t.technicianName) {
+          <div class="tech-row">
+            <div class="tech-name">{{ t.technicianName }}</div>
+            <div class="tech-grid">
+              <div><span>{{ t.totalRepairs }}</span>Handled</div>
+              <div><span>{{ t.completedRepairs }}</span>Completed</div>
+              <div><span>{{ t.reviewCount }}</span>Reviews</div>
+              <div><span>{{ t.averageRating ?? '–' }}</span>Avg rating</div>
+            </div>
+          </div>
+        } @empty {
+          <p class="empty">No technicians yet.</p>
+        }
+      </section>
+    }
+  </div>

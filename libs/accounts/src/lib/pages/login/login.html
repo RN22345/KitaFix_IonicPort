@@ -1,0 +1,84 @@
+<ion-content [fullscreen]="true" class="acc-content">
+  <main class="acc-page">
+    <header class="acc-brand">
+      <img class="acc-brand__logo" src="assets/kitafix_logo.webp" alt="KitaFix" />
+    </header>
+
+    <h1 class="acc-title">Welcome back</h1>
+    <p class="acc-subtitle">Log in to continue to your account.</p>
+
+  @if (error) {
+    <p class="acc-error" role="alert">
+      @if (invalidCredentials) {
+        Unable to log in. Check your email and password. If you don’t have an account yet,
+        <a class="acc-link" routerLink="/accounts-signup">Sign up</a>.
+      } @else {
+        {{ error }}
+      }
+    </p>
+  }
+
+  @if (invalidCredentials) {
+    <p class="acc-error" role="status">
+      {{ remainingAttempts }} {{ remainingAttempts === 1 ? 'attempt' : 'attempts' }} remaining.
+    </p>
+  }
+
+  @if (notice) {
+    <p class="acc-subtitle" role="status">
+      {{ notice }}
+    </p>
+  }
+
+    @if (locked) {
+      <p class="acc-error" role="status">
+        Too many incorrect login attempts. Try again in {{ countdown }}.
+      </p>
+    }
+    <p class="acc-subtitle">
+    </p>
+
+    <form class="acc-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="acc-field">
+        <label for="email">Email address</label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('email')">
+          <ion-icon name="mail-outline"></ion-icon>
+          <input id="email" type="email" formControlName="email"
+                 placeholder="you@example.com" autocomplete="email" />
+        </div>
+        @if (isInvalid('email')) {
+          <small class="acc-error">Enter a valid email address.</small>
+        }
+      </div>
+
+      <div class="acc-field">
+        <label for="password">Password</label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('password')">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <input id="password" formControlName="password" placeholder="Enter your password"
+                 autocomplete="current-password" [type]="showPassword ? 'text' : 'password'" />
+          <button type="button" class="acc-input__toggle" (click)="showPassword = !showPassword"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        @if (isInvalid('password')) {
+          <small class="acc-error">Enter your password.</small>
+        }
+      </div>
+
+      <a class="acc-link acc-link-right" routerLink="/accounts-forgot-password">Forgot password?</a>
+
+    <button
+        type="submit"
+        class="acc-btn"
+        [disabled]="busy || locked">
+        {{ busy ? 'Logging in...' : 'Log in' }}
+  </button>
+    </form>
+
+    <p class="acc-footer">
+      Don't have an account? <a class="acc-link" routerLink="/accounts-signup">Sign up</a>
+    </p>
+  </main>
+</ion-content>

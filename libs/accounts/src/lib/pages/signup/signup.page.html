@@ -1,0 +1,245 @@
+<ion-content [fullscreen]="true" class="acc-content">
+  <main class="acc-page">
+    <button type="button" class="acc-back" routerLink="/accounts-login" aria-label="Back to log in">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+
+    <h1 class="acc-title">Create account</h1>
+    <p class="acc-subtitle">Book, repair and track your devices with KitaFix.</p>
+
+        <form [attr.aria-busy]="busy()" class="acc-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="acc-avatar">
+        <div class="acc-avatar__img">
+          @if (photoPreview()) {
+            <img [src]="photoPreview()" alt="Profile picture preview" />
+          } @else {
+            <ion-icon name="person-outline"></ion-icon>
+          }
+        </div>
+        <button type="button" class="acc-avatar__btn" (click)="fileInput.click()"
+                aria-label="Upload profile picture">
+          <ion-icon name="camera-outline"></ion-icon>
+        </button>
+        <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onPhotoSelected($event)" />
+      </div>
+      @if (photoPreview()) {
+        <button type="button" class="acc-link-btn" (click)="removePhoto()">Remove photo</button>
+      }
+      @if (photoError()) { <small class="acc-error" role="alert">{{ photoError() }}</small> }
+
+      <div class="acc-row">
+        <div class="acc-field">
+          <label for="firstName">First name <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('firstName')">
+            <input id="firstName" type="text" formControlName="firstName" maxlength="30"
+              (input)="cleanName($event, 'firstName')" autocomplete="given-name" 
+            />
+          </div>
+          @if (isInvalid('firstName')) { <small class="acc-error">{{ nameError('firstName') }}</small> }        </div>
+        <div class="acc-field">
+          <label for="lastName">Last name <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('lastName')">
+            <input id="lastName" type="text" formControlName="lastName" maxlength="30"
+              (input)="cleanName($event, 'lastName')" autocomplete="family-name" 
+            />          
+          </div>
+          @if (isInvalid('lastName')) { <small class="acc-error">{{ nameError('lastName') }}</small> }        </div>
+      </div>
+
+      <div class="acc-field">
+        <label for="email">Email address <em>*</em></label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('email')">
+          <ion-icon name="mail-outline"></ion-icon>
+          <input id="email" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        @if (isInvalid('email')) { <small class="acc-error">Enter a valid email address.</small> }
+      </div>
+
+      <div class="acc-field">
+        <label for="contactNo">Contact no. <em>*</em></label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('contactNo')">
+          <ion-icon name="call-outline"></ion-icon>
+          <input id="contactNo" type="tel" formControlName="contactNo" placeholder="09XX XXX XXXX" autocomplete="tel" />
+        </div>
+        @if (isInvalid('contactNo')) { <small class="acc-error">Enter a valid mobile number, e.g. 09171234567.</small> }
+      </div>
+
+      <div class="acc-field">
+        <label for="address">Complete address <em>*</em></label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('address')">
+          <ion-icon name="location-outline"></ion-icon>
+          <input
+            id="address"
+            type="text"
+            formControlName="address"
+            placeholder="House no., Street, Barangay, City"
+            autocomplete="street-address"
+          />
+        </div>
+        @if (isInvalid('address')) {
+          <small class="acc-error">Complete address is required.</small>
+        }
+      </div>
+
+      <div class="acc-row">
+        <div class="acc-field">
+          <label for="birthday">Birthday <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('birthday')">
+            <input
+              id="birthday"
+              type="date"
+              formControlName="birthday"
+              [max]="maxBirthday"
+              autocomplete="bday"
+            />
+          </div>
+
+          @if (isInvalid('birthday')) {
+            <small class="acc-error">
+              @if (form.controls.birthday.hasError('required')) {
+                Birthday is required.
+              } @else {
+                You must be at least {{ minAge }} years old to sign up.
+              }
+            </small>
+          }
+        </div>
+
+        <div class="acc-field">
+          <label for="gender">Gender <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('gender')">
+            <select id="gender" formControlName="gender">
+              <option value="" disabled>Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+            <ion-icon class="acc-input__chevron" name="chevron-down-outline"></ion-icon>
+          </div>
+
+          @if (isInvalid('gender')) {
+            <small class="acc-error">Required.</small>
+          }
+        </div>
+      </div>
+
+      <div class="acc-field">
+        <label for="password">Password <em>*</em></label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('password')">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <input id="password" formControlName="password" placeholder="Create a password"
+                 autocomplete="new-password" [type]="showPassword ? 'text' : 'password'" />
+          <button type="button" class="acc-input__toggle" (click)="showPassword = !showPassword"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      @if (isInvalid('password') && form.controls.password.value.length < 8) {
+        <small class="acc-error">Password must be at least 8 characters.</small>
+      }
+
+      <ul class="acc-rules">
+        @for (r of passwordRules; track r.label) {
+          <li [class.is-met]="r.met">
+            <ion-icon [name]="r.met ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>{{ r.label }}
+          </li>
+        }
+      </ul>
+
+      <div class="acc-field">
+        <label for="confirmPassword">Confirm password <em>*</em></label>
+        <div class="acc-input" [class.is-invalid]="passwordsDontMatch">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <input id="confirmPassword" formControlName="confirmPassword" placeholder="Re-enter your password"
+                 autocomplete="new-password" [type]="showPassword ? 'text' : 'password'" />
+        </div>
+        @if (passwordsDontMatch) { <small class="acc-error">Passwords don't match.</small> }
+      </div>
+
+      <p class="acc-note">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        Please double-check your information before signing up.
+      </p>
+
+      <div class="acc-field">
+        <label class="acc-check" [class.is-invalid]="isInvalid('agree')">
+          <input type="checkbox" formControlName="agree" />
+          <span>
+            I have read and agree to the
+            <button type="button" class="acc-link" (click)="openTerms()">Terms and Privacy Notice</button>.
+          </span>
+        </label>
+        @if (isInvalid('agree')) { <small class="acc-error">You must agree to continue.</small> }
+      </div>
+
+      @if (error()) { <p class="acc-error" role="alert">{{ error() }}</p> }
+      <button type="submit" class="acc-btn" [disabled]="busy() || submitted">{{ busy() ? 'Creating account...' : 'Create account' }}</button>
+    </form>
+
+    <p class="acc-footer">
+      Already have an account? <a class="acc-link" routerLink="/accounts-login">Log in</a>
+    </p>
+  </main>
+    <!-- Crop box: the user moves and zooms the picture inside a square -->
+  @if (cropSrc()) {
+    <div slot="fixed" class="acc-dialog-backdrop">
+      <div class="acc-dialog" role="dialog" aria-modal="true">
+        <h2>Adjust photo</h2>
+        <p>Drag the picture to move it. Use the slider to zoom.</p>
+
+        <div class="acc-crop" [style.width.px]="cropBox" [style.height.px]="cropBox"
+             (pointerdown)="onCropPointerDown($event)"
+             (pointermove)="onCropPointerMove($event)"
+             (pointerup)="onCropPointerUp()"
+             (pointercancel)="onCropPointerUp()">
+          <img class="acc-crop__img" [src]="cropSrc()" alt="Photo to crop" draggable="false"
+               [style.width.px]="naturalW() * scale()" [style.height.px]="naturalH() * scale()"
+               [style.left.px]="offsetX()" [style.top.px]="offsetY()" />
+          <!-- The circle shows how the picture will look as an avatar -->
+          <div class="acc-crop__circle"></div>
+        </div>
+
+        <input class="acc-crop__zoom" type="range" min="1" max="3" step="0.01"
+               [value]="zoom()" (input)="onZoomChange($event)" aria-label="Zoom" />
+
+        <div class="acc-dialog__actions">
+          <button type="button" class="acc-btn acc-btn--outline" (click)="closeCropper()">Cancel</button>
+          <button type="button" class="acc-btn" (click)="applyCrop()">Use photo</button>
+        </div>
+      </div>
+    </div>
+  }
+  <!-- Terms and Privacy Notice -->
+  @if (showTerms()) {
+    <div slot="fixed" class="acc-dialog-backdrop">
+      <div class="acc-dialog acc-dialog--terms" role="dialog" aria-modal="true">
+        <h2>Terms and Privacy Notice</h2>
+
+        <div class="acc-terms">
+          <h3>What we collect</h3>
+          <p>Your name, email, contact number, address, birthday, gender and profile photo, plus the details of the repairs and appointments you book.</p>
+
+          <h3>Who can see it</h3>
+          <p>Your information is kept confidential and is not sold or shared with outsiders. KitaFix administrators can view your account details so they can manage accounts, assign roles and support your repairs. Assigned technicians can see only what they need to handle your service.</p>
+
+          <h3>How it is used</h3>
+          <p>We use your information only to run your account, schedule and track repairs, contact you about your service, and keep the app secure. Administrators must use access to your information responsibly and only for these purposes.</p>
+
+          <h3>Your responsibilities</h3>
+          <p>Give accurate information and keep your password private. Tell us if you notice any misuse of your account.</p>
+
+          <h3>Your rights</h3>
+          <p>You can update your details or remove your profile photo anytime in Edit profile, and you can deactivate your account in My Account.</p>
+        </div>
+
+        <div class="acc-dialog__actions">
+          <button type="button" class="acc-btn acc-btn--outline" (click)="showTerms.set(false)">Close</button>
+          <button type="button" class="acc-btn" (click)="acceptTerms()">I agree</button>
+        </div>
+      </div>
+    </div>
+  }
+</ion-content>

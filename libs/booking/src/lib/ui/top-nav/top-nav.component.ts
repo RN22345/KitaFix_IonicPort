@@ -172,6 +172,10 @@ function readLocation(): string {
                 <ion-icon name="add-circle-outline"></ion-icon> Book a repair
                 <ion-icon name="chevron-forward-outline" class="end"></ion-icon>
               </button>
+              <button type="button" (click)="go('/accounts-my-account')">
+                <ion-icon name="person-outline"></ion-icon> My account
+                <ion-icon name="chevron-forward-outline" class="end"></ion-icon>
+              </button>
               <button type="button" class="danger" (click)="signOut()">
                 <ion-icon name="log-out-outline"></ion-icon> Sign out
               </button>
@@ -734,7 +738,7 @@ export class TopNavComponent implements OnInit {
         await db.auth.signOut();
       }
     } finally {
-      await this.router.navigateByUrl('/dev-login', { replaceUrl: true });
+      await this.router.navigateByUrl('/accounts-login', { replaceUrl: true });
       window.location.reload();
     }
   }

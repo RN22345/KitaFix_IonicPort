@@ -1,0 +1,55 @@
+  <div class="wrap">
+    <section class="banner">
+      <span class="eyebrow">Admin</span>
+      <h1>Customer reviews</h1>
+      <p>Read what customers say, reply once, or remove a review.</p>
+    </section>
+
+    @if (error()) { <p class="error">{{ error() }}</p> }
+
+    <div class="kpis">
+      <div class="kpi"><span class="kpi-label">Average rating</span><span class="kpi-value">{{ summary().averageRating ?? '–' }}</span></div>
+      <div class="kpi"><span class="kpi-label">Needs a reply</span><span class="kpi-value warn">{{ needsReply() }}</span></div>
+    </div>
+
+    <ion-searchbar class="search" placeholder="Search name, comment, device" [debounce]="150" (ionInput)="onSearch($event)"></ion-searchbar>
+    <ion-segment class="filters" [scrollable]="true" [value]="filter()" (ionChange)="onFilter($event)">
+      <ion-segment-button value="all"><ion-label>All</ion-label></ion-segment-button>
+      <ion-segment-button value="5"><ion-label>5★</ion-label></ion-segment-button>
+      <ion-segment-button value="4"><ion-label>4★</ion-label></ion-segment-button>
+      <ion-segment-button value="3"><ion-label>3★</ion-label></ion-segment-button>
+      <ion-segment-button value="2"><ion-label>2★</ion-label></ion-segment-button>
+      <ion-segment-button value="1"><ion-label>1★</ion-label></ion-segment-button>
+    </ion-segment>
+
+    @for (r of visible(); track r.id) {
+      <article class="card">
+        <header class="review-top">
+          <div class="avatar">{{ initials(r.customerName) }}</div>
+          <div class="who">
+            <strong>{{ r.customerName }}</strong>
+            <span>{{ r.createdAt.slice(0, 10) }} · {{ r.device }} · {{ r.location }}</span>
+          </div>
+          <span class="rid">{{ r.reviewId }}</span>
+        </header>
+        <p class="stars" [attr.aria-label]="r.rating + ' out of 5 stars'">{{ stars(r.rating) }}</p>
+        <p class="comment">{{ r.comment ?? 'No comment left.' }}</p>
+        <p class="tech">Technician: {{ r.technicianName }}</p>
+
+        @if (r.replyText) {
+          <div class="reply"><strong>Shop reply</strong><p>{{ r.replyText }}</p></div>
+        } @else {
+          <ion-textarea class="reply-box" placeholder="Write a reply (one reply only)" [rows]="2" [autoGrow]="true" [counter]="true" [maxlength]="500" [value]="draft(r.id)" (ionInput)="setDraft(r.id, $event)"></ion-textarea>
+        }
+
+        <div class="actions">
+          @if (!r.replyText) { <ion-button size="small" (click)="sendReply(r)">Send reply</ion-button> }
+          <ion-button size="small" fill="outline" color="danger" (click)="confirmDelete(r)">
+            <ion-icon slot="start" name="trash-outline"></ion-icon>Delete
+          </ion-button>
+        </div>
+      </article>
+    } @empty {
+      <p class="empty">No reviews to show yet.</p>
+    }
+  </div>
