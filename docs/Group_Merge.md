@@ -107,7 +107,7 @@ node tools/supabase/apply-sql.mjs  pkfataaehrjdipdbrthz @files   # 2. only if st
 node tools/supabase/gen-types.mjs  pkfataaehrjdipdbrthz          # 3. refresh libs/shared-types
 ```
 
-These six were applied on 27 Nov. **0092 (privacy) comes after**, and only once main has the matching app code deployed. That code reads `my_profile` and falls back to `profiles` until 0092 exists. The old app code does not know `my_profile`, so applying 0092 under it would break login.
+These six were applied on 27 Nov. **0092 (privacy)** was applied after them, also on 27 Nov, once the app code that reads `my_profile` was deployed (33a7eb2). For a future one-off file:
 
 ```powershell
 $f = 'supabase/migrations/0092_profiles_privacy.sql'
@@ -151,7 +151,7 @@ Open, for the group:
 - Your database work existed only on hosted (made by hand), and the repo's 0091-0096 no longer matched it. It is now exported into `0091_accounts_live_export.sql`, and the old files are removed. Please make future changes as new migration files (rule R2).
 - `admin_read_accounts` now also requires the calling admin to be active, like your other admin functions.
 - The two overlapping avatar policy sets are merged into one set (`avatars_*_own`) with the same rules, plus delete.
-- `accounts-auth.ts`: the three own-profile reads go through `readOwnProfile()`, which reads `my_profile`. The Edit Profile save asks back only `id` (`.select('id')`). Its fallback to `profiles` (marked `shortcut:`) can be deleted once 0092 is on hosted.
+- `accounts-auth.ts`: the three own-profile reads go through `readOwnProfile()`, which reads `my_profile`. The Edit Profile save asks back only `id` (`.select('id')`).
 - Tests: the fakes in `profile.save.test.cjs` and `accounts-auth.login.test.cjs` now expect `my_profile` for reads. Still 51 of 83 pass; the same 32 failed before the merge on `group-a`.
 - If you add a column to `profiles`: decide if it is personal. If others may read it, add it to the grant in a new migration. Either way, re-create `my_profile` so it includes the column.
 

@@ -419,17 +419,10 @@ export class AccountsAuthService {
   /**
    * Own full profile row. 0092 makes personal columns readable only through the
    * my_profile view (one row: the caller's).
-   * shortcut: falls back to profiles while hosted does not have 0092 yet, so
-   * the app works on both sides of applying it. Remove once 0092 is applied.
    */
-  private async readOwnProfile(userId: string, signal?: AbortSignal) {
-    const read = (table: string) => {
-      const query = this.client.from(table).select('*').eq('id', userId);
-      return (signal ? query.abortSignal(signal) : query).single();
-    };
-    const result = await read('my_profile');
-    if (result.error && (result.error.code === 'PGRST205' || result.error.code === '42P01')) return read('profiles');
-    return result;
+  private readOwnProfile(userId: string, signal?: AbortSignal) {
+    const query = this.client.from('my_profile').select('*').eq('id', userId);
+    return (signal ? query.abortSignal(signal) : query).single();
   }
 
   private async readAccountRole(userId: string, version = this.identityVersion): Promise<AccountRole> {

@@ -55,4 +55,5 @@ for (const file of files) {
   }
 }
 
-process.exit(failed ? 1 : 0);
+// exitCode, not process.exit(): exiting while fetch is closing trips a libuv assert on Windows.
+process.exitCode = failed ? 1 : 0;

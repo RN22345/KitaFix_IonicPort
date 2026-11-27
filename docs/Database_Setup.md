@@ -12,7 +12,7 @@ A shared hosted project already exists and the app in this repo points at it
 | --- | --- |
 | Project ref | `pkfataaehrjdipdbrthz` |
 | API URL | `https://pkfataaehrjdipdbrthz.supabase.co` |
-| Migration status | 0001-0025 applied (0090 recorded, file retired); 0030-0032, 0040, 0091, 0097 applied 27 Nov; 0092 pending (see `docs/Group_Merge.md`) |
+| Migration status | 0001-0025 applied (0090 recorded, file retired); 0030-0032, 0040, 0091, 0092, 0097 applied 27 Nov (see `docs/Group_Merge.md`) |
 | App config | `src/environments/environment.ts`, `useMockData: false` |
 
 Migrations were applied with the **Management API** (access token only, no DB
