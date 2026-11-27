@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Added (group merge - all four teams)
+- Team 1 Accounts (`libs/accounts`): login, signup, email verification, password reset, My Account, Edit Profile, admin Accounts list / profile / roles. Migrations 0091-0096.
+- Team 3 Repair Ops (`libs/repair-ops`) at `/ops`: Admin Portal, Repair Queue (confirm, assign, status with remarks, notes, history, service log, reschedule) and Service Catalog. Technicians see only their own jobs. Migrations 0030-0032, ported from `is_staff()` to `is_admin()`. Stub 0090 removed.
+- Team 4 Insights (`libs/insights`): customer reviews at `/tabs/leave-review/:repairId`, admin Overview and Insights at `/admin`. Migration 0040.
+- `0097_merge_accounts_reconcile.sql`: lets users save Team 1's profile fields under 0024's column grants, and keeps `technicians` in step with role changes from either admin function.
+- Team 1's login replaces `dev-login`. Customers land on `/tabs`, admins on `/admin`, technicians on `/ops/repair-queue`. Repair Detail's local-only star rating is replaced by a link to Team 4's review page. See `docs/Group_Merge.md` and `docs/UI_Unification_Plan.md`.
+
 ### Changed (group decision - one admin role)
 - `staff` and `admin` are now one role, `admin`. `user_role` is `customer | technician | admin`; every staff profile became admin. Migration `0024_merge_staff_into_admin.sql`.
 - `is_staff()` is replaced by `is_admin()` (true only for an active admin). Policies are renamed `*_admin_*` and call `(select public.is_admin())`. The local stubs 0001, 0002 and 0090 match. Teams 1, 3 and 4 use the new names in their real migrations.

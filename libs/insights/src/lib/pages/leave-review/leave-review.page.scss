@@ -1,0 +1,33 @@
+:host { display: block; }
+.wrap { max-width: 560px; margin-inline: auto; display: grid; gap: 14px; }
+.center { display: grid; place-items: center; padding: 48px 0; }
+.center-text { text-align: center; }
+
+.repair { padding: 4px 2px; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ion-color-primary); }
+h1 { margin: 4px 0 2px; font-size: 24px; color: var(--ion-text-color); }
+.meta { margin: 0; font-size: 14px; color: var(--ion-color-medium); }
+.status { font-weight: 600; &.done { color: var(--ion-color-success); } }
+
+.card, .notice { background: var(--ion-card-background); border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12); }
+.card h2 { margin: 0 0 8px; font-size: 18px; color: var(--ion-text-color); }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; h2 { margin: 0; } }
+.notice { strong { color: var(--ion-text-color); } p { margin: 6px 0 0; font-size: 14px; color: var(--ion-color-medium); }
+  &.danger { strong { color: var(--ion-color-danger); } } }
+
+.label { margin: 12px 0 6px; font-size: 13px; color: var(--ion-color-medium); }
+.stars-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.star { width: 48px; height: 48px; border: 0; border-radius: 12px; font-size: 26px; cursor: pointer;
+  background: color-mix(in srgb, var(--ion-text-color) 9%, transparent); color: var(--ion-color-medium);
+  &.on { background: color-mix(in srgb, #f5a623 22%, transparent); color: #f5a623; } }
+.field { margin: 4px 0 14px; border-radius: 10px; --background: color-mix(in srgb, var(--ion-text-color) 7%, transparent); }
+
+.stars { margin: 10px 0 4px; color: #f5a623; letter-spacing: 2px; font-size: 20px; }
+.comment { margin: 0 0 6px; color: var(--ion-text-color); }
+.small { margin: 8px 0 0; font-size: 12px; color: var(--ion-color-medium); }
+.pill { font-size: 12px; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.pill.open { background: color-mix(in srgb, var(--ion-color-success) 20%, transparent); color: var(--ion-color-success); }
+.pill.locked { background: color-mix(in srgb, var(--ion-text-color) 9%, transparent); color: var(--ion-color-medium); }
+.reply { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--ion-color-success) 14%, transparent);
+  strong { font-size: 12px; color: var(--ion-color-success); } p { margin: 4px 0 0; font-size: 14px; color: var(--ion-text-color); } }
+.actions { display: flex; gap: 8px; margin-top: 12px; }
