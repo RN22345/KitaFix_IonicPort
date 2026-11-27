@@ -35,10 +35,11 @@ const res = await fetch(`https://api.supabase.com/v1/projects/${ref}/database/qu
 });
 
 const text = await res.text();
+// exitCode, not process.exit(): exiting while fetch is closing trips a libuv assert on Windows.
 if (res.ok) {
   console.log(`DRY RUN OK (rolled back): ${files.map((f) => path.basename(f)).join(', ')}`);
-  process.exit(0);
+} else {
+  console.log(`DRY RUN FAILED [HTTP ${res.status}] - nothing was changed`);
+  console.log(text.slice(0, 1500));
+  process.exitCode = 1;
 }
-console.log(`DRY RUN FAILED [HTTP ${res.status}] - nothing was changed`);
-console.log(text.slice(0, 1500));
-process.exit(1);
