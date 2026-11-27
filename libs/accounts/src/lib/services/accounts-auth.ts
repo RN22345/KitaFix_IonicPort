@@ -416,9 +416,25 @@ export class AccountsAuthService {
     this.profile.clear();
   }
 
+  /**
+   * Own full profile row. 0092 makes personal columns readable only through the
+   * my_profile view (one row: the caller's).
+   * shortcut: falls back to profiles while hosted does not have 0092 yet, so
+   * the app works on both sides of applying it. Remove once 0092 is applied.
+   */
+  private async readOwnProfile(userId: string, signal?: AbortSignal) {
+    const read = (table: string) => {
+      const query = this.client.from(table).select('*').eq('id', userId);
+      return (signal ? query.abortSignal(signal) : query).single();
+    };
+    const result = await read('my_profile');
+    if (result.error && (result.error.code === 'PGRST205' || result.error.code === '42P01')) return read('profiles');
+    return result;
+  }
+
   private async readAccountRole(userId: string, version = this.identityVersion): Promise<AccountRole> {
     const { data: profile, error } = await timeLoginStage('profile active/role check', () =>
-      this.client.from('profiles').select('*').eq('id', userId).single());
+      this.readOwnProfile(userId));
     if (version !== this.identityVersion) throw new Error('Your sign-in session changed. Please try again.');
     if (error || !profile) {
       throw new Error('Your account profile or role could not be loaded. Contact the administrator.');
@@ -484,9 +500,10 @@ export class AccountsAuthService {
           };
           this.profileSaveDiagnostics.update(state => ({ ...state, stage: 'update', fields: Object.keys(payload) }));
           // Explicit personal-field allowlist. UUID ownership is enforced by RLS;
-          // the existing trigger still protects role, active and profile id.
+          // role and active are not in the UPDATE grant. Only id comes back:
+          // personal columns are readable only through my_profile (0092).
           const { data, error, status } = await this.client.from('profiles').update(payload)
-            .eq('id', userId).select('*').abortSignal(controller.signal).single();
+            .eq('id', userId).select('id').abortSignal(controller.signal).single();
           this.profileSaveDiagnostics.update(state => ({ ...state, status, code: error?.code,
             returnedIdentityMatches: data?.id === userId }));
           if (controller.signal.aborted || identityVersion !== this.identityVersion || this.profile.profile.id !== userId) {
@@ -518,8 +535,7 @@ export class AccountsAuthService {
           this.profileSaveDiagnostics.update(state => ({ ...state, stage: 'persistence reload' }));
           // A separate server read verifies persistence before publishing any
           // edited values or letting the editor navigate away.
-          const { data: saved, error: reloadError } = await this.client.from('profiles')
-            .select('*').eq('id', userId).abortSignal(controller.signal).single();
+          const { data: saved, error: reloadError } = await this.readOwnProfile(userId, controller.signal);
           if (controller.signal.aborted || identityVersion !== this.identityVersion || this.profile.profile.id !== userId) {
             throw new Error('The save result could not be confirmed. Reopen your profile.');
           }
@@ -564,7 +580,7 @@ export class AccountsAuthService {
     const version = this.identityVersion;
     await this.getAccountRole();
     if (version !== this.identityVersion || this.profile.profile.id !== expectedUserId) return false;
-    const { data, error } = await this.client.from('profiles').select('*').eq('id', expectedUserId).single();
+    const { data, error } = await this.readOwnProfile(expectedUserId);
     if (error || !data || data.id !== expectedUserId || data.active !== true) return false;
     return this.syncProfileName(expectedUserId, data, version);
   }

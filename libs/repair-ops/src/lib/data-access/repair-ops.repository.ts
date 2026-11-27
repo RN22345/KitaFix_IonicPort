@@ -369,7 +369,7 @@ export class SupabaseRepairOpsRepository extends RepairOpsRepository {
       .select('*, actor:profiles!repair_ops_history_changed_by_fkey(full_name)')
       .single();
     if (error) throw mapPostgrestError(error);
-    return toHistory(data, new Map());
+    return toHistory(data as unknown as RawHistoryRow, new Map());
   }
 
   async listHistory(repairId: string): Promise<RepairOpsHistory[]> {
@@ -383,7 +383,7 @@ export class SupabaseRepairOpsRepository extends RepairOpsRepository {
     const names = await this.technicianNames(
       rows.flatMap((row) => [row.previous_technician_id, row.new_technician_id]),
     );
-    return rows.map((row) => toHistory(row, names));
+    return rows.map((row) => toHistory(row as unknown as RawHistoryRow, names));
   }
 
   async listServiceLogs(repairId: string): Promise<ServiceLog[]> {

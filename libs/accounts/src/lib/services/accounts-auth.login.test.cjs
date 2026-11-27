@@ -30,7 +30,7 @@ function setup({ invalid = false, active = true, missing = false, role = "custom
         data: { user: { id: 'test', email: 'test@example.com' } }, error: invalid ? { code: 'invalid_credentials' } : null }; },
       async signOut(options) { calls.push(`signout:${options.scope}`); return { error: null }; },
     },
-    from(table) { assert.equal(table, 'profiles'); calls.push('profile'); return {
+    from(table) { assert.equal(table, 'my_profile'); calls.push('profile'); return {
       select(column) { assert.equal(column, '*'); return this; },
       eq(column, value) { assert.equal(column, 'id'); assert.equal(value, 'test'); return this; },
       async single() { return { data: missing ? null : { active, role, full_name: 'Actual User', phone: '123' }, error: unreadable ? new Error("denied") : null }; },

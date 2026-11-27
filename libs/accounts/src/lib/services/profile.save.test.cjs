@@ -33,10 +33,11 @@ function setup({ updateError = null, fakeTimers = false, realFrom, metadataError
     },
     from(table) {
       if (realFrom) return realFrom(table);
-      assert.equal(table, 'profiles'); let payload, id;
+      // 0092: own reads come from my_profile; writes go to profiles and return only id.
+      assert.ok(table === 'profiles' || table === 'my_profile'); let payload, id;
       return {
-        update(value) { payload = value; return this; },
-        select(value) { assert.equal(value, '*'); return this; },
+        update(value) { assert.equal(table, 'profiles'); payload = value; return this; },
+        select(value) { assert.equal(value, payload ? 'id' : '*'); if (!payload) assert.equal(table, 'my_profile'); return this; },
         eq(key, value) { assert.equal(key, 'id'); id = value; return this; },
         abortSignal() { return this; },
         async single() {
@@ -207,7 +208,7 @@ test('real Supabase SDK sends personal-only PATCH for authenticated UUID and ind
       const parsed = new URL(url); const method = init.method;
       requests.push(method);
       assert.equal(parsed.origin, 'https://tiqgxpnnzpxpibwwzjzb.supabase.co');
-      assert.equal(parsed.pathname, '/rest/v1/profiles');
+      assert.equal(parsed.pathname, init.method === 'PATCH' ? '/rest/v1/profiles' : '/rest/v1/my_profile');
       assert.equal(parsed.searchParams.get('id'), 'eq.own');
       if (method === 'PATCH') {
         const payload = JSON.parse(init.body);

@@ -38,7 +38,7 @@ Landing after login (`accountLoginDestination`): customer `/tabs`, admin `/admin
 
 ## Database
 
-Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0025, **0030-0032 (Team 3)**, **0040 (Team 4)**, **0091 (Team 1, exported from hosted)**, **0097 (merge fix)**.
+Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0025, **0030-0032 (Team 3)**, **0040 (Team 4)**, **0091 (Team 1, exported from hosted)**, **0092 (profile privacy)**, **0097 (merge fix)**.
 
 - **0030-0032 (Team 3)** were written before 0024 and called `public.is_staff()` 10 times. That function is dropped by 0024, so they would fail. They were ported: `is_staff()` became `(select public.is_admin())`, and the `*_staff_*` policies became `*_admin_*`. The logic is unchanged, and each file has a merge note at the top.
   - Stub 0090 was deleted. Its policies are a subset of 0030.
@@ -107,6 +107,15 @@ node tools/supabase/apply-sql.mjs  pkfataaehrjdipdbrthz @files   # 2. only if st
 node tools/supabase/gen-types.mjs  pkfataaehrjdipdbrthz          # 3. refresh libs/shared-types
 ```
 
+These six were applied on 27 Nov. **0092 (privacy) comes after**, and only once main has the matching app code deployed. That code reads `my_profile` and falls back to `profiles` until 0092 exists. The old app code does not know `my_profile`, so applying 0092 under it would break login.
+
+```powershell
+$f = 'supabase/migrations/0092_profiles_privacy.sql'
+node tools/supabase/dry-run-sql.mjs pkfataaehrjdipdbrthz $f
+node tools/supabase/apply-sql.mjs  pkfataaehrjdipdbrthz $f
+node tools/supabase/gen-types.mjs  pkfataaehrjdipdbrthz
+```
+
 `node tools/supabase/inspect-hosted.mjs pkfataaehrjdipdbrthz [--full --out hosted-full.json]` prints the read-only report again (structure only, no data; the JSON is gitignored).
 
 ### Database audit (27 Nov, repo vs hosted vs code vs types)
@@ -123,9 +132,41 @@ Fixed:
 - `admin_read_accounts` let a switched-off admin list all accounts
 - `libs/shared-types` lacked Team 1's columns/RPCs and Team 4's `reviews` + views: regenerate with step 3 after applying
 
+- **Privacy (0092):** policy `profiles_read_authenticated` (0024) let every signed-in user read every profile row, and after Team 1 that included `address`, `birthday`, `gender`, `contact_no` and `account_no`. Fixed; see "What changed for each group" below.
+
 Open, for the group:
-- **Privacy:** policy `profiles_read_authenticated` (0024) lets every signed-in user read every profile row. Before Team 1 that was name, phone and picture; it now also includes `address`, `birthday`, `gender` and `contact_no`. Fixing it changes how Teams 2-4 read names (e.g. a `profiles_public` view with id, name, picture, role, and own-row/admin-only reads on the table), so it needs agreement first.
 - Two admin function sets (see Database above).
+
+## What changed for each group (27 Nov, after the merge)
+
+**Everyone**
+- Personal data is private now (migration 0092). Through the `profiles` table, a signed-in user can read only `id, full_name, avatar_url, role, active, created_at, updated_at`, and only for: their own row, shop staff (technicians and admins), and, for a technician, the customers on repairs assigned to them. Admins see all rows. Phone, contact number, address, birthday, gender, account number and terms fields are never readable through the table.
+  - Your own full row: `from('my_profile').select('*')` (a view that returns only the caller's row).
+  - Someone else's details (admin only): `rpc('admin_read_accounts')`.
+  - If your screen needs another personal field of someone else, ask for an RPC that checks who is asking. Do not widen the grant.
+- `libs/shared-types` is now generated from hosted. After every migration: `node tools/supabase/gen-types.mjs <ref>` (see `tools/supabase/`). Do not edit `database.generated.ts` by hand.
+- The role is `admin` everywhere (0024 merged staff into admin). The database helper is `is_admin()`; `is_staff()` no longer exists.
+
+**Team 1 - Accounts**
+- Your database work existed only on hosted (made by hand), and the repo's 0091-0096 no longer matched it. It is now exported into `0091_accounts_live_export.sql`, and the old files are removed. Please make future changes as new migration files (rule R2).
+- `admin_read_accounts` now also requires the calling admin to be active, like your other admin functions.
+- The two overlapping avatar policy sets are merged into one set (`avatars_*_own`) with the same rules, plus delete.
+- `accounts-auth.ts`: the three own-profile reads go through `readOwnProfile()`, which reads `my_profile`. The Edit Profile save asks back only `id` (`.select('id')`). Its fallback to `profiles` (marked `shortcut:`) can be deleted once 0092 is on hosted.
+- Tests: the fakes in `profile.save.test.cjs` and `accounts-auth.login.test.cjs` now expect `my_profile` for reads. Still 51 of 83 pass; the same 32 failed before the merge on `group-a`.
+- If you add a column to `profiles`: decide if it is personal. If others may read it, add it to the grant in a new migration. Either way, re-create `my_profile` so it includes the column.
+
+**Team 2 - Booking (us)**
+- `0025_team2_perf.sql` (on hosted since 18 Nov) is now in the repo.
+- No code change. The technician picker and current-user read only use name and role.
+
+**Team 3 - Repair Ops**
+- Renamed to match the single admin role: `staffOnlyGuard` -> `adminOnlyGuard` (`guards/admin-only.guard.ts`), `requireStaff` -> `requireAdmin`, `isStaff` -> `isAdmin`, `RepairOpsRole` `'staff'` -> `'admin'`, `mockRole` `'admin'`, mock ids `mock-admin`. The messages now say "admin".
+- `repair-ops.repository.ts`: the history rows are cast to `RawHistoryRow`, the same way queue rows already are. The generated type has `event_type: string`, and the table's check constraint still limits it to your values.
+- Technicians now see customer names only on repairs assigned to them, and never a customer's phone or address.
+
+**Team 4 - Insights**
+- Renamed: `INSIGHTS_STAFF_ROUTES` -> `INSIGHTS_ADMIN_ROUTES` (`admin.routes.ts`), `StaffShellPage` -> `AdminShellPage` (`pages/admin/admin-shell.page.ts`, selector `app-insights-admin-shell`).
+- The report views and admin screens are unaffected: admins can still read every name.
 
 ## Checks run
 
