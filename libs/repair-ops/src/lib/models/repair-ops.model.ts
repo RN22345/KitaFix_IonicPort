@@ -22,14 +22,14 @@ export type QueueFilter = 'all' | 'waiting' | 'processed';
 export type QueueSortKey = 'id' | 'customer_name' | 'status' | 'booking_date' | 'technician_name';
 export type RepairOpsHistoryType = 'status' | 'technician' | 'schedule' | 'note';
 
-/** Who is using the module (FSD roles: SA = staff/admin, TECH = technician). */
-export type RepairOpsRole = 'staff' | 'technician';
+/** Who is using the module (FSD roles: SA = admin, TECH = technician). */
+export type RepairOpsRole = 'admin' | 'technician';
 
 export interface RepairOpsActor {
   id: string;
   full_name: string;
   role: RepairOpsRole;
-  /** technicians.id of the signed-in technician (null for staff). */
+  /** technicians.id of the signed-in technician (null for admins). */
   technician_id: string | null;
 }
 

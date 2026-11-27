@@ -13,7 +13,7 @@ service catalog maintenance.
 Roles (FSD): **SA** (staff/admin) uses every screen. **TECH** (technician) sees
 only the Repair Queue, only repairs assigned to them, and can add notes, view the
 history and write service history entries. Everything else is staff-only, enforced
-by RLS/triggers and mirrored in the UI (`RepairOpsSession`, `staffOnlyGuard`).
+by RLS/triggers and mirrored in the UI (`RepairOpsSession`, `adminOnlyGuard`).
 
 Service history log (`repair_service_logs`): what a technician did on a repair,
 **where** (location/bench), **when** (`performed_at`) and the **details**. Entries

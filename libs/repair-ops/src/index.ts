@@ -20,7 +20,7 @@ export * from './lib/services/repair-ops.service';
 export * from './lib/services/service-catalog.service';
 
 /* Route guards */
-export * from './lib/guards/staff-only.guard';
+export * from './lib/guards/admin-only.guard';
 
 /* Routes + providers (host app wiring) */
 export * from './lib/repair-ops.routes';

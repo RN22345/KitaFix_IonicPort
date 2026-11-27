@@ -18,7 +18,7 @@ import { ServiceLogModalComponent } from '../../ui/service-log-modal/service-log
 
 const PAGE_SIZE = 10;
 
-/** Screen 2 - Repair Queue: searchable, filterable, sortable, paginated staff queue. */
+/** Screen 2 - Repair Queue: searchable, filterable, sortable, paginated admin queue. */
 @Component({
   selector: 'app-repair-queue',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,8 +44,8 @@ export class RepairQueuePage implements OnInit {
   readonly historyLoading = this.ops.historyLoading;
   readonly serviceLogs = this.ops.serviceLogs;
   readonly serviceLogsLoading = this.ops.serviceLogsLoading;
-  /** SA = shop staff (full queue tools). TECH = technician (own jobs: notes, history, service log). */
-  readonly isStaff = this.ops.isStaff;
+  /** SA = admin (full queue tools). TECH = technician (own jobs: notes, history, service log). */
+  readonly isAdmin = this.ops.isAdmin;
   readonly isTechnician = this.ops.isTechnician;
   readonly actionLabel = serviceLogActionLabel;
   readonly expandedRepairIds = signal<Set<string>>(new Set());

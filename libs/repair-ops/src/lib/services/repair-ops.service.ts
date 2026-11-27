@@ -32,9 +32,9 @@ export class RepairOpsService {
   private readonly bookingConfig = inject(BOOKING_CONFIG);
   private readonly session = inject(RepairOpsSession);
 
-  /** Signed-in staff member or technician (null until loadActor() finishes). */
+  /** Signed-in admin or technician (null until loadActor() finishes). */
   readonly actor = this.session.actor;
-  readonly isStaff = computed(() => this.actor()?.role === 'staff');
+  readonly isAdmin = computed(() => this.actor()?.role === 'admin');
   readonly isTechnician = computed(() => this.actor()?.role === 'technician');
 
   readonly repairs = signal<QueueRepair[]>([]);
@@ -77,7 +77,7 @@ export class RepairOpsService {
     }
   }
 
-  /** Who is signed in (staff or technician). Cached after the first successful call. */
+  /** Who is signed in (admin or technician). Cached after the first successful call. */
   async loadActor(): Promise<RepairOpsActor | null> {
     const current = this.actor();
     if (current) return current;
@@ -89,10 +89,10 @@ export class RepairOpsService {
     }
   }
 
-  /** Staff-only actions (FSD 3.7-3.10, 3.12): technicians are blocked here and by the database. */
-  private requireStaff(): void {
-    if (!this.isStaff()) {
-      throw new RepairOpsError('NOT_ALLOWED', 'Only shop staff can do this.');
+  /** Admin-only actions (FSD 3.7-3.10, 3.12): technicians are blocked here and by the database. */
+  private requireAdmin(): void {
+    if (!this.isAdmin()) {
+      throw new RepairOpsError('NOT_ALLOWED', 'Only an admin can do this.');
     }
   }
 
@@ -101,7 +101,7 @@ export class RepairOpsService {
   }
 
   async confirm(repair: QueueRepair): Promise<void> {
-    this.requireStaff();
+    this.requireAdmin();
     if (isConfirmed(repair)) {
       throw new RepairOpsError('INVALID_STATUS', 'This booking is already confirmed.');
     }
@@ -109,7 +109,7 @@ export class RepairOpsService {
   }
 
   async changeStatus(repair: QueueRepair, to: RepairStatus, remarks?: string): Promise<void> {
-    this.requireStaff();
+    this.requireAdmin();
     const problem = statusChangeProblem(repair, to);
     if (problem) throw new RepairOpsError('INVALID_STATUS', problem);
     const cleanRemarks = remarks?.trim() ?? '';
@@ -120,7 +120,7 @@ export class RepairOpsService {
   }
 
   async assignTechnician(repair: QueueRepair, technician: TechnicianOption): Promise<void> {
-    this.requireStaff();
+    this.requireAdmin();
     this.replace(await this.repo.assignTechnician(repair.id, technician.id, technician.full_name));
   }
 
@@ -153,7 +153,7 @@ export class RepairOpsService {
   }
 
   async reschedule(repair: QueueRepair, bookingDate: string, bookingTime: string): Promise<void> {
-    this.requireStaff();
+    this.requireAdmin();
     if (repair.status !== 'pending') {
       throw new RepairOpsError('INVALID_STATUS', 'Only a pending repair can be rescheduled.');
     }
@@ -188,7 +188,7 @@ export class RepairOpsService {
 
   /**
    * Records what a technician did, where and when. The log is always written for
-   * the technician assigned to the repair (staff may log on their behalf).
+   * the technician assigned to the repair (an admin may log on their behalf).
    */
   async addServiceLog(
     repair: QueueRepair,

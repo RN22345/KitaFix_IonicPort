@@ -10,3 +10,6 @@ Thumbs.db
 
 # local Supabase inspection output (tools/supabase/inspect-hosted.mjs)
 hosted-report.json
+
+# full inspection output
+hosted-full.json

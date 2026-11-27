@@ -7,4 +7,4 @@
  */
 export * from './lib/insights.routes';
 export * from './lib/models/review.model';
-export * from './lib/staff.routes';
+export * from './lib/admin.routes';

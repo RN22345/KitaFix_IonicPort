@@ -20,4 +20,4 @@ useMockData: true  -> sample data, nothing saved.   false -> Supabase.
 
 Shared files touched, one entry each:
   tsconfig.json          path alias @kitafix/insights
-  src/app/app.routes.ts  one entry inside /tabs children (customer page) + one top-level 'staff' entry
+  src/app/app.routes.ts  one entry inside /tabs children (customer page) + one top-level 'admin' entry (INSIGHTS_ADMIN_ROUTES)

@@ -36,10 +36,10 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [adminOnly],
-    loadChildren: () => import('@kitafix/insights').then((m) => m.INSIGHTS_STAFF_ROUTES),
+    loadChildren: () => import('@kitafix/insights').then((m) => m.INSIGHTS_ADMIN_ROUTES),
   },
   {
-    // Team 3 shop screens. staffOnlyGuard inside sends technicians to the queue.
+    // Team 3 shop screens. adminOnlyGuard inside sends technicians to the queue.
     path: 'ops',
     canActivate: [accountsRoleGuard(['admin', 'technician'])],
     canActivateChild: [accountsRoleGuard(['admin', 'technician'])],

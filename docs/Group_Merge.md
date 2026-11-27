@@ -31,7 +31,7 @@ Landing after login (`accountLoginDestination`): customer `/tabs`, admin `/admin
   - Team 4's admin bar has "Repairs" (`/ops`) and "Accounts".
   - Team 3's bar has "Overview" for admins and "Account" for technicians.
 - **Reviews:** Team 2's Repair Detail had a star rating saved only in localStorage. It now shows "Leave a review", which opens Team 4's page (`public.reviews`). Follow-up: the star on Team 2's repair card still reads the old local rating.
-- **Team 3 role check:** their session code looked for a `'staff'` profile role, which no longer exists after 0024. It now checks `'admin'`. Inside the module, the actor is still called `'staff'`; renaming that is cosmetic.
+- **Team 3 role check:** their session code looked for a `'staff'` profile role, which no longer exists after 0024. It now checks `'admin'`. The module's own names were renamed to match (`adminOnlyGuard`, `INSIGHTS_ADMIN_ROUTES`, actor role `'admin'`).
 - **Shared types:** Team 3's additions (the `repairs` snapshot columns, `repair_ops_history`, `repair_service_logs`, `repair_status_events`, `t3_*` functions) were patched onto main's newer generated file. The 3-role `user_role` enum was kept. Team 2's mock repairs got the 3 new columns.
 - **tsconfig** gained `@kitafix/accounts`, `@kitafix/insights` and `@kitafix/repair-ops`.
 - **Supabase key:** Team 1 had switched to an `sb_publishable_...` key. The merge keeps `main`'s anon key, which is known to work. Switch only once someone confirms the publishable key belongs to project `pkfataaehrjdipdbrthz`.

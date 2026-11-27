@@ -60,7 +60,7 @@ Note: Team 1 looks light, but it owns the role model and the RLS helper function
 | Owns (database) | profiles, technicians, audit_log |
 | Owns (code) | libs/identity, and the shared RLS helper functions |
 | Screens | Login, Signup, Forgot Password, Reset Password, Profile, Staff Accounts, Technicians |
-| Required features | 1) Email + password login and signup (Supabase Auth). 2) Session handling + Angular route guards (block not-logged-in users). 3) Profile: view and edit own details. 4) Roles: customer / technician / staff / admin. Store role in the profiles table. 5) RLS helper functions: is_staff(), my_role(), current_user_no(). Other teams call these. 6) Staff account list: change role, deactivate account. |
+| Required features | 1) Email + password login and signup (Supabase Auth). 2) Session handling + Angular route guards (block not-logged-in users). 3) Profile: view and edit own details. 4) Roles: customer / technician / admin (staff merged into admin by 0024). Store role in the profiles table. 5) RLS helper functions: is_admin(), my_role(), current_user_no(). Other teams call these. 6) Admin account list: change role, deactivate account. |
 | Recommended features | 1) Forgot password email flow. 2) Audit log: a trigger writes who changed what. 3) Force logout on deactivate. 4) Profile picture upload (Supabase Storage). |
 | Manual tests | Login with good and bad password. Signup with duplicate email. Guard blocks /staff for a customer. Role change takes effect after re-login. Deactivated user cannot log in. |
 | Exposes to others | Technician list (for Team 2 picker and Team 3 assign). Profile name for displays. RLS helper functions. |
@@ -139,7 +139,7 @@ RLS allows many policy sets on one table. Team 2 writes customer policies, Team 
 | R2 | Change the database only in your own migration file. Name it NNNN_teamN_description.sql, for example 0020_team2_booking.sql. |
 | R3 | RLS: write policies only for your own tables. Never edit another team's policy. |
 | R4 | The contract is frozen: table columns, enum values, and generated TypeScript types. Change them only with a group agreement. |
-| R5 | Shared helper functions (Team 1 owns): is_staff(), my_role(), current_user_no(). Call them, do not edit them. |
+| R5 | Shared helper functions (Team 1 owns): is_admin(), my_role(), current_user_no() (0024 replaced is_staff()). Call them, do not edit them. |
 | R6 | In Angular, import another library only through its index.ts barrel file. No deep imports like libs/booking/src/internal/x. |
 | R7 | Each team owns its own routes. The app shell only declares lazy routes that point to each library. |
 | R8 | Status values: use the repair_status type only. Never invent new strings. This was the number-one bug in the C# build. |

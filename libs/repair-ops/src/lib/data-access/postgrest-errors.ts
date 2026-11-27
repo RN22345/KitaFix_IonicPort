@@ -4,7 +4,7 @@ import { RepairOpsError } from '../models/repair-ops-error';
 /**
  * Codes we expect:
  *   P0001  raise exception from our status trigger -> show its message as is
- *   42501  RLS blocked the change (not a staff user)
+ *   42501  RLS blocked the change (not an admin)
  *   23505  unique_violation (service name already exists)
  *   23514  check_violation (price below 0, blank name)
  *   PGRST116 no rows
@@ -14,7 +14,7 @@ export function mapPostgrestError(error: PostgrestError): RepairOpsError {
     case 'P0001':
       return new RepairOpsError('INVALID_STATUS', error.message, { cause: error });
     case '42501':
-      return new RepairOpsError('NOT_ALLOWED', 'Only shop staff can do this.', { cause: error });
+      return new RepairOpsError('NOT_ALLOWED', 'Only an admin can do this.', { cause: error });
     case '23505':
       return new RepairOpsError('INVALID_INPUT', 'A service with that name already exists.', {
         cause: error,

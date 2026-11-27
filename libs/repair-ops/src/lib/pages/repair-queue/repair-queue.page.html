@@ -184,7 +184,7 @@
             <section class="message-details" aria-label="Repair history and notes">
               <div class="history-heading">
                 <strong>Operational history and repair notes</strong>
-                @if (isStaff() || isTechnician()) {
+                @if (isAdmin() || isTechnician()) {
                   <ion-button size="small" fill="outline" (click)="addNote(repair)">Add note</ion-button>
                 }
               </div>
@@ -203,7 +203,7 @@
                     @if (item.remarks) {
                       <p class="message-content">Remarks: {{ item.remarks }}</p>
                     }
-                    <ion-note>Changed by {{ item.actor_name ?? 'Unknown staff member' }}</ion-note>
+                    <ion-note>Changed by {{ item.actor_name ?? 'Unknown user' }}</ion-note>
                   </article>
                 } @empty {
                   <ion-note>No operational history or notes recorded.</ion-note>
@@ -213,13 +213,13 @@
             <section class="message-details service-history" aria-label="Service history">
               <div class="history-heading">
                 <strong>Service history</strong>
-                @if (isStaff() || isTechnician()) {
+                @if (isAdmin() || isTechnician()) {
                   <ion-button size="small" fill="outline" [disabled]="!canLog(repair)" (click)="openServiceLog(repair)">
                     Log service action
                   </ion-button>
                 }
               </div>
-              @if ((isStaff() || isTechnician()) && logBlockedReason(repair); as reason) {
+              @if ((isAdmin() || isTechnician()) && logBlockedReason(repair); as reason) {
                 <ion-note>{{ reason }}</ion-note>
               }
               @if (serviceLogsLoading().has(repair.id)) {
@@ -249,7 +249,7 @@
               }
             </section>
           }
-          @if (isStaff()) {
+          @if (isAdmin()) {
           <div class="actions">
             <ion-button size="small" color="success" [disabled]="!canConfirm(repair)" (click)="confirm(repair)">
               {{ confirmed(repair) ? 'Confirmed' : 'Confirm' }}

@@ -9,10 +9,10 @@ export interface RepairOpsConfig {
   currency: string;
   /**
    * Offline demo only (useMockData: true): which role the placeholder session
-   * has. 'staff' (default) sees everything; 'technician' sees only their own
+   * has. 'admin' (default) sees everything; 'technician' sees only their own
    * jobs, can add notes and service logs, and cannot change anything else.
    */
-  mockRole?: 'staff' | 'technician';
+  mockRole?: 'admin' | 'technician';
 }
 
 export const REPAIR_OPS_CONFIG = new InjectionToken<RepairOpsConfig>('REPAIR_OPS_CONFIG');

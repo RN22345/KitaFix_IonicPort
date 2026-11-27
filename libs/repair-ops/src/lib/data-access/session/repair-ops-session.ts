@@ -32,7 +32,7 @@ export class MockRepairOpsSession extends RepairOpsSession {
             role: 'technician',
             technician_id: MOCK_TECHNICIAN_ID,
           }
-        : { id: 'mock-staff', full_name: 'Mock Staff', role: 'staff', technician_id: null };
+        : { id: 'mock-admin', full_name: 'Mock Admin', role: 'admin', technician_id: null };
     this.actor.set(actor);
     return actor;
   }
@@ -58,9 +58,9 @@ export class SupabaseRepairOpsSession extends RepairOpsSession {
     if (error) throw mapPostgrestError(error);
 
     let actor: RepairOpsActor;
-    // 0024: the database has one 'admin' role; this module still calls it 'staff' internally.
+    // 0024: one 'admin' role (staff was merged into admin).
     if (profile.role === 'admin') {
-      actor = { id: profile.id, full_name: profile.full_name, role: 'staff', technician_id: null };
+      actor = { id: profile.id, full_name: profile.full_name, role: 'admin', technician_id: null };
     } else if (profile.role === 'technician') {
       const { data: technician, error: techError } = await db
         .from('technicians')
@@ -78,7 +78,7 @@ export class SupabaseRepairOpsSession extends RepairOpsSession {
         technician_id: technician.id,
       };
     } else {
-      throw new RepairOpsError('NOT_ALLOWED', 'Repair operations are for shop staff and technicians only.');
+      throw new RepairOpsError('NOT_ALLOWED', 'Repair operations are for admins and technicians only.');
     }
 
     this.actor.set(actor);

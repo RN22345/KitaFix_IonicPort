@@ -57,7 +57,7 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
   private serviceLogs: ServiceLog[] = MOCK_SERVICE_LOGS.map((log) => ({ ...log }));
 
   private get actorName(): string {
-    return this.isTechnician ? MOCK_TECHNICIAN_NAMES[MOCK_TECHNICIAN_ID] : 'Mock Staff';
+    return this.isTechnician ? MOCK_TECHNICIAN_NAMES[MOCK_TECHNICIAN_ID] : 'Mock Admin';
   }
 
   private technicianName(id: string | null): string | null {
@@ -69,10 +69,10 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
     );
   }
 
-  /** Offline stand-in for the database rules: staff only, except technician notes/logs. */
-  private requireStaff(): void {
+  /** Offline stand-in for the database rules: admin only, except technician notes/logs. */
+  private requireAdmin(): void {
     if (this.isTechnician) {
-      throw new RepairOpsError('NOT_ALLOWED', 'Only shop staff can do this.');
+      throw new RepairOpsError('NOT_ALLOWED', 'Only an admin can do this.');
     }
   }
 
@@ -118,7 +118,7 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
       new_booking_time: event.new_booking_time ?? null,
       note: event.note ?? null,
       remarks: event.remarks ?? null,
-      changed_by: this.isTechnician ? 'mock-tech' : 'mock-staff',
+      changed_by: this.isTechnician ? 'mock-tech' : 'mock-admin',
       changed_at: new Date().toISOString(),
       actor_name: this.actorName,
     };
@@ -135,18 +135,18 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
 
   async confirm(repairId: string): Promise<QueueRepair> {
     await this.delay();
-    this.requireStaff();
+    this.requireAdmin();
     const row = this.find(repairId);
     if (isConfirmed(row)) throw new RepairOpsError('INVALID_STATUS', 'This booking is already confirmed.');
     if (row.status !== 'pending') {
       throw new RepairOpsError('INVALID_STATUS', 'Only a pending booking can be confirmed.');
     }
-    return this.save({ ...row, confirmed_by: 'mock-staff', confirmed_at: new Date().toISOString() });
+    return this.save({ ...row, confirmed_by: 'mock-admin', confirmed_at: new Date().toISOString() });
   }
 
   async updateStatus(repairId: string, to: RepairStatus, remarks?: string | null): Promise<QueueRepair> {
     await this.delay();
-    this.requireStaff();
+    this.requireAdmin();
     const row = this.find(repairId);
     const problem = statusChangeProblem(row, to);
     if (problem) throw new RepairOpsError('INVALID_STATUS', problem);
@@ -170,7 +170,7 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
 
   async assignTechnician(repairId: string, technicianId: string, technicianName: string): Promise<QueueRepair> {
     await this.delay();
-    this.requireStaff();
+    this.requireAdmin();
     const row = this.find(repairId);
     if (row.status === 'completed' || row.status === 'cancelled') {
       throw new RepairOpsError('INVALID_STATUS', 'A finished repair cannot be reassigned.');
@@ -235,7 +235,7 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
       location: input.location.trim(),
       performed_at: new Date(input.performed_at).toISOString(),
       details: input.details.trim(),
-      logged_by: this.isTechnician ? 'mock-tech' : 'mock-staff',
+      logged_by: this.isTechnician ? 'mock-tech' : 'mock-admin',
       logged_by_name: this.actorName,
       created_at: new Date().toISOString(),
     };
@@ -253,7 +253,7 @@ export class MockRepairOpsRepository extends RepairOpsRepository {
 
   async reschedule(repair: QueueRepair, bookingDate: string, bookingTime: string): Promise<QueueRepair> {
     await this.delay();
-    this.requireStaff();
+    this.requireAdmin();
     const row = this.find(repair.id);
     if (row.status !== 'pending') {
       throw new RepairOpsError('INVALID_STATUS', 'Only a pending repair can be rescheduled.');

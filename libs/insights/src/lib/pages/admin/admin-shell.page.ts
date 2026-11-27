@@ -23,7 +23,7 @@ import {
  * Angular router instead.
  */
 @Component({
-  selector: 'app-insights-staff-shell',
+  selector: 'app-insights-admin-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs],
   template: `
@@ -53,7 +53,7 @@ import {
     </ion-tabs>
   `,
 })
-export class StaffShellPage {
+export class AdminShellPage {
   private readonly router = inject(Router);
 
   constructor() {

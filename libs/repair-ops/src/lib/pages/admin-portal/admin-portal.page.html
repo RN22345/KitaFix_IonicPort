@@ -95,7 +95,7 @@
                 } @else {
                   @for (item of notes(repair.id); track item.id) {
                     <p class="message-content">{{ item.note }}</p>
-                    <ion-note>{{ item.actor_name ?? 'Unknown staff member' }} · {{ dateTime(item.changed_at) }}</ion-note>
+                    <ion-note>{{ item.actor_name ?? 'Unknown user' }} · {{ dateTime(item.changed_at) }}</ion-note>
                   } @empty {
                     <p class="message-content">No staff notes.</p>
                   }

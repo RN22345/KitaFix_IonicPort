@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { staffOnlyGuard } from './guards/staff-only.guard';
+import { adminOnlyGuard } from './guards/admin-only.guard';
 
 /** Team 3-owned routes; open the Admin Portal when entering the module root. */
 export const REPAIR_OPS_ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'admin-portal' },
   {
     path: 'admin-portal',
-    canActivate: [staffOnlyGuard],
+    canActivate: [adminOnlyGuard],
     loadComponent: () =>
       import('./pages/admin-portal/admin-portal.page').then((m) => m.AdminPortalPage),
   },
@@ -17,7 +17,7 @@ export const REPAIR_OPS_ROUTES: Routes = [
   },
   {
     path: 'service-catalog',
-    canActivate: [staffOnlyGuard],
+    canActivate: [adminOnlyGuard],
     loadComponent: () =>
       import('./pages/service-catalog/service-catalog.page').then((m) => m.ServiceCatalogPage),
   },
