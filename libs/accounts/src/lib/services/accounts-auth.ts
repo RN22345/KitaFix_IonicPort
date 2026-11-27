@@ -12,10 +12,10 @@ export type AccountRole = Role;
 
 export function accountLoginDestination(role: AccountRole): string {
   // Merged app: customers land on Team 2's booking tabs, admins on Team 4's
-  // Overview. Technicians keep My account until Team 3's screens arrive.
+  // Overview, technicians on Team 3's repair queue.
   if (role === 'customer') return '/tabs';
   if (role === 'admin') return '/admin';
-  if (role === 'technician') return '/accounts-my-account';
+  if (role === 'technician') return '/ops/repair-queue';
   throw new Error('Your account role is invalid. Contact the administrator.');
 }
 

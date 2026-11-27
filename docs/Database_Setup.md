@@ -58,8 +58,8 @@ This deletes the local database and re-runs **everything** in
 | 0002 | `*_local_stub_team3_services.sql` | services table (Team 3 stand-in) |
 | 0020 | `0020_team2_booking.sql` | **OURS**: repairs, availability constraint, RLS, guard trigger, `get_taken_slots` |
 | 0024 | `0024_merge_staff_into_admin.sql` | one `admin` role, `is_admin()`, admin-only role changes |
+| 0030-0032 | `003x_team3_*.sql` | Team 3: services, admin/technician repair policies, status machine, ops history, service logs (ported to `is_admin()`; not yet on hosted) |
 | 0040 | `0040_team4_insights.sql` | Team 4: `reviews` table + rules, 3 report views (not yet on hosted) |
-| 0090 | `*_local_stub_team3_repairs_staff.sql` | admin RLS policies (Team 3 stand-in) |
 | 0091-0096 | `009x_accounts_*.sql`, `009x_admin_*.sql` | Team 1: registration trigger, profile fields, admin account RPCs (manual, not yet on hosted) |
 | 0097 | `0097_merge_accounts_reconcile.sql` | merge fix: profile column grants for Team 1 fields, technicians kept in step with role |
 

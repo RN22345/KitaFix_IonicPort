@@ -67,7 +67,10 @@ export type Database = {
           issue_screen: boolean
           issue_software: boolean
           location: string
+          repair_started_at: string | null
           service_id: string
+          service_name_snapshot: string | null
+          service_price_snapshot: number | null
           staff_notes: string | null
           status: Database["public"]["Enums"]["repair_status"]
           technician_id: string | null
@@ -92,7 +95,10 @@ export type Database = {
           issue_screen?: boolean
           issue_software?: boolean
           location: string
+          repair_started_at?: string | null
           service_id: string
+          service_name_snapshot?: string | null
+          service_price_snapshot?: number | null
           staff_notes?: string | null
           status?: Database["public"]["Enums"]["repair_status"]
           technician_id?: string | null
@@ -117,7 +123,10 @@ export type Database = {
           issue_screen?: boolean
           issue_software?: boolean
           location?: string
+          repair_started_at?: string | null
           service_id?: string
+          service_name_snapshot?: string | null
+          service_price_snapshot?: number | null
           staff_notes?: string | null
           status?: Database["public"]["Enums"]["repair_status"]
           technician_id?: string | null
@@ -147,6 +156,133 @@ export type Database = {
           },
           {
             foreignKeyName: "repairs_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repair_ops_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          event_type: "note" | "schedule" | "status" | "technician"
+          id: string
+          new_booking_date: string | null
+          new_booking_time: string | null
+          new_status: Database["public"]["Enums"]["repair_status"] | null
+          new_technician_id: string | null
+          note: string | null
+          previous_booking_date: string | null
+          previous_booking_time: string | null
+          previous_status: Database["public"]["Enums"]["repair_status"] | null
+          previous_technician_id: string | null
+          remarks: string | null
+          repair_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          event_type: "note" | "schedule" | "status" | "technician"
+          id?: string
+          new_booking_date?: string | null
+          new_booking_time?: string | null
+          new_status?: Database["public"]["Enums"]["repair_status"] | null
+          new_technician_id?: string | null
+          note?: string | null
+          previous_booking_date?: string | null
+          previous_booking_time?: string | null
+          previous_status?: Database["public"]["Enums"]["repair_status"] | null
+          previous_technician_id?: string | null
+          remarks?: string | null
+          repair_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          event_type?: "note" | "schedule" | "status" | "technician"
+          id?: string
+          new_booking_date?: string | null
+          new_booking_time?: string | null
+          new_status?: Database["public"]["Enums"]["repair_status"] | null
+          new_technician_id?: string | null
+          note?: string | null
+          previous_booking_date?: string | null
+          previous_booking_time?: string | null
+          previous_status?: Database["public"]["Enums"]["repair_status"] | null
+          previous_technician_id?: string | null
+          remarks?: string | null
+          repair_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_ops_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repair_ops_history_repair_id_fkey"
+            columns: ["repair_id"]
+            isOneToOne: false
+            referencedRelation: "repairs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repair_service_logs: {
+        Row: {
+          action_type: "diagnosis" | "inspection" | "other" | "repair" | "testing"
+          created_at: string
+          details: string
+          id: string
+          location: string
+          logged_by: string | null
+          performed_at: string
+          repair_id: string
+          technician_id: string
+        }
+        Insert: {
+          action_type: "diagnosis" | "inspection" | "other" | "repair" | "testing"
+          created_at?: string
+          details: string
+          id?: string
+          location: string
+          logged_by?: string | null
+          performed_at?: string
+          repair_id: string
+          technician_id: string
+        }
+        Update: {
+          action_type?: "diagnosis" | "inspection" | "other" | "repair" | "testing"
+          created_at?: string
+          details?: string
+          id?: string
+          location?: string
+          logged_by?: string | null
+          performed_at?: string
+          repair_id?: string
+          technician_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_service_logs_logged_by_fkey"
+            columns: ["logged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repair_service_logs_repair_id_fkey"
+            columns: ["repair_id"]
+            isOneToOne: false
+            referencedRelation: "repairs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repair_service_logs_technician_id_fkey"
             columns: ["technician_id"]
             isOneToOne: false
             referencedRelation: "technicians"
@@ -221,7 +357,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      repair_status_events: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          id: string | null
+          new_status: Database["public"]["Enums"]["repair_status"] | null
+          previous_status: Database["public"]["Enums"]["repair_status"] | null
+          remarks: string | null
+          repair_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       current_user_no: { Args: never; Returns: string }
@@ -244,6 +391,19 @@ export type Database = {
         Args: {
           new_role: Database["public"]["Enums"]["user_role"]
           target: string
+        }
+        Returns: undefined
+      }
+      t3_can_log_service: {
+        Args: { p_repair_id: string; p_technician_id: string }
+        Returns: boolean
+      }
+      t3_is_assigned_technician: { Args: { p_repair_id: string }; Returns: boolean }
+      t3_update_repair_status: {
+        Args: {
+          p_remarks?: string
+          p_repair_id: string
+          p_status: Database["public"]["Enums"]["repair_status"]
         }
         Returns: undefined
       }

@@ -4,6 +4,10 @@
       <button type="button" class="acc-back" routerLink="/tabs" aria-label="Back to home">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </button>
+    } @else if (auth.account?.role === 'technician') {
+      <button type="button" class="acc-back" routerLink="/ops/repair-queue" aria-label="Back to repair queue">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
     }
     <!-- Picture, name, email and role -->
     <section class="acc-profile">
