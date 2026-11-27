@@ -174,8 +174,50 @@
       </div>
     </section>
 
-    <!-- 5. How it works -->
-    <section class="block" style="--i: 4">
+    <!-- 5. Reviews: anonymous, from all customers (migration 0094) -->
+    @if (reviews().length) {
+      <section class="block" style="--i: 4">
+        <div class="block-head">
+          <div>
+            <p class="eyebrow">Reviews</p>
+            <h2>What customers say</h2>
+          </div>
+          @if (averageRating(); as avg) {
+            <span class="avg" aria-label="Average rating">
+              <ion-icon name="star"></ion-icon> {{ avg }}
+            </span>
+          }
+        </div>
+        <ul class="reviews">
+          @for (review of reviews(); track review.id; let i = $index) {
+            <li [style.--i]="i">
+              <div class="review-top">
+                <span class="stars" [attr.aria-label]="review.rating + ' out of 5 stars'">
+                  @for (n of [1, 2, 3, 4, 5]; track n) {
+                    <ion-icon [name]="n <= review.rating ? 'star' : 'star-outline'"></ion-icon>
+                  }
+                </span>
+                <time>{{ shortDate(review.created_at) }}</time>
+              </div>
+              @if (review.comment) {
+                <p class="review-text">{{ review.comment }}</p>
+              }
+              <p class="review-meta">
+                Verified customer
+                @if (review.service_name) { · {{ review.service_name }} }
+                @if (review.technician_name) { · by {{ review.technician_name }} }
+              </p>
+              @if (review.reply_text) {
+                <p class="review-reply"><strong>KitaFix replied:</strong> {{ review.reply_text }}</p>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- 6. How it works -->
+    <section class="block" style="--i: 5">
       <div class="block-head">
         <div>
           <p class="eyebrow">Simple as 1-2-3-4</p>

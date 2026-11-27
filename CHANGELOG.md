@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Added (second pass after the merge)
+- Anonymous public reviews: `0094_public_reviews.sql` adds `get_public_reviews` and `get_technician_ratings`. Home shows "What customers say"; the technician picker shows ratings. No customer names or ids are returned.
+- Customers' My Account, Edit Profile and Change Password open inside the customer tabs (`/tabs/account...`); the old paths redirect customers there.
+
+### Changed (second pass after the merge)
+- The customer tab bar has four equal tabs (Home, Book, Repairs, Account); the large raised Book button is removed.
+- Team 1's account styles use CSS variables, so the pages follow the dark theme inside the tabs.
+
 ### Fixed (after the group merge)
 - Tabs that leave the `/admin` or `/ops` area (Repairs, Accounts, Overview, Me) went to a GitHub 404 page on the live demo. They were plain links that ignored the `/KitaFix_IonicPort/` base path. They now navigate through the app's router.
 - No way to log out or see who is signed in from the admin and technician areas. Both bottom bars now have a "Me" tab, which opens My Account with Log out.

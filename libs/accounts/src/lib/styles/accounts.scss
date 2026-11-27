@@ -8,28 +8,44 @@ $blue:        #0B5ED7;
 $blue-light:  #2E7DFF;
 $green:       #00C896;
 $green-light: #7EE787;
-$tint:        #E6F1FF;
-$ink:         #0F172A;
-$muted:       #64748B;
-$border:      #DCE6F5;
+// Raw values, for rgba() tints and shadows (SCSS needs real colours there).
+$ink-raw:     #0F172A;
+
+// Themeable tokens. Fallbacks = the original values, so these pages look the
+// same everywhere; the customer tab shell (src/app/tabs) sets --acc-* to the
+// app's --kf-* theme so My Account / Edit profile / Change password match it.
+// (Short local names, set once on :host below, keep the compiled CSS small:
+// every page includes this whole sheet.)
+$tint:        var(--_t);
+$ink:         var(--_i);
+$muted:       var(--_m);
+$border:      var(--_b);
+$surface:     var(--_s);
+$surface-2:   var(--_s2);
 $danger:      #E5484D;
 
 $gradient: linear-gradient(135deg, $blue 0%, $green 100%);
 $radius:   14px;
 
 :host {
+  --_t: var(--acc-tint, #E6F1FF);
+  --_i: var(--acc-ink, #0F172A);
+  --_m: var(--acc-muted, #64748B);
+  --_b: var(--acc-border, #DCE6F5);
+  --_s: var(--acc-surface, #fff);
+  --_s2: var(--acc-surface-2, #F8FAFF);
   display: block;
   font-family: 'Poppins', sans-serif;
   color: $ink;
 }
 
 .acc-content {
-  --background: #fff;
+  --background: var(--acc-bg, #fff);
   --color: #{$ink}; // text colour for everything inside the page
 }
 
 .acc-content--soft {
-  --background: #F5F8FF;
+  --background: var(--acc-bg, #F5F8FF);
   --color: #{$ink};
 }
 
@@ -186,14 +202,14 @@ $radius:   14px;
   padding: 0 14px;
   border: 1.5px solid $border;
   border-radius: $radius;
-  background: #F8FAFF;
+  background: $surface-2;
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 
   > ion-icon { flex: none; font-size: 19px; color: $muted; }
 
   &:focus-within {
     border-color: $blue-light;
-    background: #fff;
+    background: $surface;
     box-shadow: 0 0 0 4px rgba($blue-light, 0.14);
 
     > ion-icon:first-child { color: $blue; }
@@ -385,7 +401,7 @@ $radius:   14px;
     place-items: center;
     width: 32px;
     height: 32px;
-    border: 3px solid #fff;
+    border: 3px solid $surface;
     border-radius: 50%;
     background: $gradient;
     color: #fff;
@@ -405,7 +421,7 @@ $radius:   14px;
     height: 56px;
     border: 1.5px solid $border;
     border-radius: 12px;
-    background: #F8FAFF;
+    background: $surface-2;
     text-align: center;
     font: inherit;
     font-size: 20px;
@@ -416,10 +432,10 @@ $radius:   14px;
 
     &:focus {
       border-color: $blue-light;
-      background: #fff;
+      background: $surface;
       box-shadow: 0 0 0 4px rgba($blue-light, 0.14);
     }
-    &.is-filled { border-color: $blue-light; background: #fff; }
+    &.is-filled { border-color: $blue-light; background: $surface; }
   }
 
   &.is-invalid input { border-color: $danger; box-shadow: none; }
@@ -452,7 +468,7 @@ $radius:   14px;
     border-radius: 50%;
     background: $gradient;
 
-    &__img { border: 3px solid #fff; }
+    &__img { border: 3px solid $surface; }
   }
 }
 
@@ -492,7 +508,7 @@ $radius:   14px;
   margin-bottom: 16px;
   border: 1.5px solid $border;
   border-radius: 16px;
-  background: #fff;
+  background: $surface;
   overflow: hidden;
 
   &--padded { padding: 14px 16px 8px; }
@@ -554,13 +570,13 @@ $radius:   14px;
 
 .acc-btn--outline {
   border: 1.5px solid $border;
-  background: #fff;
+  background: $surface;
   color: $ink;
   box-shadow: none;
 }
 
 .acc-input--disabled {
-  background: #EEF2F8;
+  background: $surface-2;
 
   input { color: $muted; }
 }
@@ -579,7 +595,7 @@ $radius:   14px;
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba($ink, 0.45);
+  background: rgba($ink-raw, 0.45);
 }
 
 .acc-dialog {
@@ -587,7 +603,7 @@ $radius:   14px;
   max-width: 340px;
   padding: 24px;
   border-radius: 20px;
-  background: #fff;
+  background: $surface;
   text-align: center;
 
   h2 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
@@ -605,10 +621,6 @@ $radius:   14px;
 }
 
 // ── Admin pages (Accounts list, Account profile, Roles) ──
-.acc-content--soft {
-  --background: #F5F8FF;
-}
-
 // Blue header at the top of the page
 .acc-header {
   padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 24px;
@@ -659,7 +671,7 @@ $radius:   14px;
 
   .acc-card {
     border-color: transparent;
-    box-shadow: 0 2px 10px rgba($ink, 0.05);
+    box-shadow: 0 2px 10px rgba($ink-raw, 0.05);
   }
 }
 
@@ -671,7 +683,7 @@ $radius:   14px;
   margin-top: 16px;
   padding: 0 14px;
   border-radius: 12px;
-  background: #fff;
+  background: $surface;
   color: $muted;
 
   ion-icon { font-size: 18px; }
@@ -699,7 +711,7 @@ $radius:   14px;
   padding: 7px 14px;
   border: 1.5px solid $border;
   border-radius: 999px;
-  background: #fff;
+  background: $surface;
   font: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -730,8 +742,8 @@ $radius:   14px;
   gap: 12px;
   padding: 12px;
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba($ink, 0.05);
+  background: $surface;
+  box-shadow: 0 2px 10px rgba($ink-raw, 0.05);
   color: inherit;
   text-decoration: none;
 
@@ -849,7 +861,7 @@ $radius:   14px;
   justify-content: center;
   padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid $border;
-  background: #fff;
+  background: $surface;
 }
 
 .acc-tab {
@@ -928,8 +940,8 @@ $radius:   14px;
 .acc-tag {
   padding: 4px 10px;
   border-radius: 999px;
-  background: #EEF3FB;
-  color: #475569;
+  background: $surface-2;
+  color: $muted;
   font-size: 11px;
 }
 
@@ -955,7 +967,7 @@ $radius:   14px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba($ink, 0.45);
+  background: rgba($ink-raw, 0.45);
   overscroll-behavior: contain;
 }
 
@@ -966,7 +978,7 @@ $radius:   14px;
   overflow-y: auto;
   padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
   border-radius: 24px 24px 0 0;
-  background: #fff;
+  background: $surface;
 
   &__handle {
     width: 40px;
@@ -996,7 +1008,7 @@ $radius:   14px;
   padding: 12px 14px;
   border: 1.5px solid $border;
   border-radius: 14px;
-  background: #fff;
+  background: $surface;
   color: $ink;
   font: inherit;
   text-align: left;
@@ -1101,7 +1113,7 @@ $role-customer:   #0B5ED7; // blue
   padding: 7px 14px;
   border: 1.5px solid $blue;
   border-radius: 10px;
-  background: #fff;
+  background: $surface;
   color: $blue;
   font: inherit;
   font-size: 12px;
@@ -1166,7 +1178,7 @@ $role-customer:   #0B5ED7; // blue
   padding: 12px 14px;
   border: 1.5px solid $border;
   border-radius: $radius;
-  background: #F8FAFF;
+  background: $surface-2;
   font-size: 13px;
   font-weight: 400;
   line-height: 20px; // same height as the checkbox, so they line up
@@ -1185,7 +1197,7 @@ $role-customer:   #0B5ED7; // blue
     margin: 0;
     border: 1.5px solid #94A3B8;
     border-radius: 6px;
-    background: #fff;
+    background: $surface;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
 
@@ -1332,7 +1344,7 @@ $role-customer:   #0B5ED7; // blue
   padding: 0 10px;
   border: 1.5px solid $border;
   border-radius: 10px;
-  background: #fff;
+  background: $surface;
   color: $ink;
   font: inherit;
   font-size: 13px;
@@ -1343,7 +1355,7 @@ $role-customer:   #0B5ED7; // blue
 
   &:disabled {
     color: #94A3B8;
-    background: #F1F5F9;
+    background: $surface-2;
     cursor: not-allowed;
   }
 }

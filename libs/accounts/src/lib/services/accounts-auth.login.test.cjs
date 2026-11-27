@@ -129,6 +129,8 @@ test('saved destinations enforce one role and preserve the password recovery gua
   }).outputText, {
     exports: routeExports,
     require: name => {
+      // Customers open the account pages inside the customer tabs (src/app/customer-account.guard.ts).
+      if (name === './customer-account.guard') return { customerGoesToTab: path => ({ tab: path }) };
       assert.equal(name, '@kitafix/accounts');
       return { accountsRecoveryGuard: recoveryGuard, accountsRoleGuard: allowed => [...allowed] };
     },
@@ -144,6 +146,10 @@ test('saved destinations enforce one role and preserve the password recovery gua
   for (const path of ['accounts-my-account', 'accounts-edit-profile', 'accounts-change-password']) {
     const route = routeExports.routes.find(route => route.path === path);
     assert.deepEqual(route.canActivate[0], ['customer', 'technician', 'admin']);
+  }
+  for (const [path, tab] of [['accounts-my-account', '/tabs/account'], ['accounts-edit-profile', '/tabs/account/edit'],
+    ['accounts-change-password', '/tabs/account/password']]) {
+    assert.deepEqual(routeExports.routes.find(route => route.path === path).canActivate[1], { tab });
   }
   assert.equal(routeExports.routes.some(route => /dashboard|accounts-technician/.test(route.path)), false);
   assert.equal(routeExports.routes.find(route => route.path === 'accounts-reset-password').canActivate[0], recoveryGuard);

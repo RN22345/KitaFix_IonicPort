@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { accountsLoggedInRedirect, accountsRecoveryGuard, accountsRoleGuard } from '@kitafix/accounts';
+import { customerGoesToTab } from './customer-account.guard';
 
 /**
  * The app shell only declares lazy routes that point into each team's library
  * (rule R7).
  *   Team 1 (accounts)  - login, signup, profile, admin account screens
- *   Team 2 (booking)   - customer tabs: /tabs/...
+ *   Team 2 (booking)   - customer tabs: /tabs/... (also hosts Team 1's account
+ *                        pages for customers: /tabs/account, /account/edit, /account/password)
  *   Team 3 (repair ops) - /ops: admin portal, repair queue, service catalog
  *   Team 4 (insights)  - /tabs/leave-review/:repairId and the /admin shell
  * Who may open what is Team 1's accountsRoleGuard.
@@ -30,6 +32,22 @@ export const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('@kitafix/insights').then((m) => m.INSIGHTS_ROUTES),
+      },
+      // Team 1's account pages, shown inside the customer tabs.
+      {
+        path: 'account',
+        loadComponent: () =>
+          import('../../libs/accounts/src/lib/pages/my-account/my-account').then((m) => m.MyAccountPage),
+      },
+      {
+        path: 'account/edit',
+        loadComponent: () =>
+          import('../../libs/accounts/src/lib/pages/edit-profile/edit-profile').then((m) => m.EditProfilePage),
+      },
+      {
+        path: 'account/password',
+        loadComponent: () =>
+          import('../../libs/accounts/src/lib/pages/change-password/change-password').then((m) => m.ChangePasswordPage),
       },
     ],
   },
@@ -82,19 +100,19 @@ export const routes: Routes = [
   },
   {
     path: 'accounts-my-account',
-    canActivate: [anyRole],
+    canActivate: [anyRole, customerGoesToTab('/tabs/account')],
     loadComponent: () =>
       import('../../libs/accounts/src/lib/pages/my-account/my-account').then((m) => m.MyAccountPage),
   },
   {
     path: 'accounts-edit-profile',
-    canActivate: [anyRole],
+    canActivate: [anyRole, customerGoesToTab('/tabs/account/edit')],
     loadComponent: () =>
       import('../../libs/accounts/src/lib/pages/edit-profile/edit-profile').then((m) => m.EditProfilePage),
   },
   {
     path: 'accounts-change-password',
-    canActivate: [anyRole],
+    canActivate: [anyRole, customerGoesToTab('/tabs/account/password')],
     loadComponent: () =>
       import('../../libs/accounts/src/lib/pages/change-password/change-password').then((m) => m.ChangePasswordPage),
   },

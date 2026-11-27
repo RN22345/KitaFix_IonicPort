@@ -172,7 +172,7 @@ function readLocation(): string {
                 <ion-icon name="add-circle-outline"></ion-icon> Book a repair
                 <ion-icon name="chevron-forward-outline" class="end"></ion-icon>
               </button>
-              <button type="button" (click)="go('/accounts-my-account')">
+              <button type="button" (click)="go('/tabs/account')">
                 <ion-icon name="person-outline"></ion-icon> My account
                 <ion-icon name="chevron-forward-outline" class="end"></ion-icon>
               </button>

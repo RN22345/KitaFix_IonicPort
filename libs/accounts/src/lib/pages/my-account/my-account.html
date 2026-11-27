@@ -1,10 +1,7 @@
 <ion-content [fullscreen]="true" class="acc-content">
   <main class="acc-page">
-    @if (auth.account?.role === 'customer') {
-      <button type="button" class="acc-back" routerLink="/tabs" aria-label="Back to home">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </button>
-    } @else if (auth.account?.role === 'technician') {
+    <!-- Customers open this page as the Account tab (/tabs/account): no back button. -->
+    @if (auth.account?.role === 'technician') {
       <button type="button" class="acc-back" routerLink="/ops/repair-queue" aria-label="Back to repair queue">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </button>

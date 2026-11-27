@@ -168,6 +168,27 @@ Fixed:
 - Renamed: `INSIGHTS_STAFF_ROUTES` -> `INSIGHTS_ADMIN_ROUTES` (`admin.routes.ts`), `StaffShellPage` -> `AdminShellPage` (`pages/admin/admin-shell.page.ts`, selector `app-insights-admin-shell`).
 - The report views and admin screens are unaffected: admins can still read every name.
 
+## Second pass (27 Nov): one customer view, anonymous reviews, calmer tab bar
+
+**Everyone**
+- Reviews are now shown to all signed-in users, anonymously (migration 0094). The `reviews` table rules from Team 4 are unchanged (own row and admins only). Two new functions return safe copies: `get_public_reviews(p_limit)` gives rating, comment, reply, date, service and technician name, with nothing about the customer (max 20 rows), and `get_technician_ratings()` gives the average and count per technician. Signed-out users get nothing.
+- Note: reviews were never the cause of the profile leak. That was 0024's open `profiles` read rule together with Team 1's personal columns (fixed in 0092).
+
+**Team 1 - Accounts**
+- For customers, My Account, Edit Profile and Change Password now open inside the customer tabs at `/tabs/account`, `/tabs/account/edit` and `/tabs/account/password`, so the tab bar stays visible. The old paths (`/accounts/my-account` and so on) still work: customers are sent to the tab version (`src/app/customer-account.guard.ts`); technicians and admins keep the old pages.
+- The customer back button on My Account is removed (the Account tab replaces it). The technician one stays.
+- `accounts.scss` colours are now CSS variables with your old colours as fallbacks (`--acc-bg`, `--acc-surface`, `--acc-surface-2`, `--acc-ink`, `--acc-muted`, `--acc-border`, `--acc-tint`). Outside the tabs nothing changes; inside the tabs they follow the app's dark theme. The duplicate `.acc-content--soft` block is removed.
+- Because every page includes the whole shared sheet, the per-file style budget limit is raised from 20 kB to 24 kB (`angular.json`).
+- `accounts-auth.login.test.cjs`: the route test's `require` fake also accepts `./customer-account.guard` and checks the redirect targets. Still 51 pass / 32 fail, the same set as before.
+
+**Team 2 - Booking (us)**
+- Tab bar: four equal tabs (Home, Book, Repairs, Account). The large raised Book button is gone; Book keeps its green icon.
+- Home has a "What customers say" section with the newest anonymous reviews and their average. The technician picker shows each technician's rating and review count. Both quietly hide if the functions are missing or fail.
+- "My account" in the top menu goes to the Account tab.
+
+**Team 4 - Insights**
+- Your table and admin screens are unchanged. Customers now also see reviews (anonymous) through 0094; if you add review fields, decide whether they are safe to show and add them to `get_public_reviews` in a new migration.
+
 ## Checks run
 
 - `ng build`: OK. The only warnings are budgets: initial bundle and per-file SCSS.

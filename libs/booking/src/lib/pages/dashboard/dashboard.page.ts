@@ -16,6 +16,7 @@ import { RANK_TIERS, customerRank } from '../../models/rank.model';
 import { ISSUE_DEFINITIONS, IssueFlagKey, Tone, isActiveRepair } from '../../models/repair.model';
 import { formatCurrency } from '../../pricing/price-estimate';
 import { issueCoveredBy } from '../../pricing/service-match';
+import { PublicReview } from '../../models/catalog.model';
 import { RepairsService } from '../../services/repairs.service';
 
 interface ServiceCategory {
@@ -209,8 +210,20 @@ export class DashboardPage implements OnInit {
     { icon: 'star-outline', title: 'Pick up and rate', text: 'Collect your device, then rate your repair and save favourites.' },
   ];
 
+  /** Anonymous reviews from all customers (Home section "What customers say"). */
+  readonly reviews = signal<PublicReview[]>([]);
+  readonly averageRating = computed(() => {
+    const list = this.reviews();
+    return list.length ? (list.reduce((sum, r) => sum + r.rating, 0) / list.length).toFixed(1) : null;
+  });
+
   ngOnInit(): void {
     void this.booking.ensureLoaded();
+    void this.booking.recentReviews(4).then((list) => this.reviews.set(list));
+  }
+
+  shortDate(iso: string): string {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
   retry(): void {

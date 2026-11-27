@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { RepairStatus } from '@kitafix/shared-types';
 import { BookingDraft } from '../models/booking-draft.model';
 import { BookingError, bookingErrorMessage } from '../models/booking-error';
-import { ServiceOption, TechnicianOption } from '../models/catalog.model';
+import { PublicReview, ServiceOption, TechnicianOption } from '../models/catalog.model';
 import {
   MAX_ACTIVE_BOOKINGS,
   Repair,
@@ -14,6 +14,7 @@ import {
 import { RepairsRepository } from '../data-access/repositories/repairs.repository';
 import { ServicesGateway } from '../data-access/gateways/services.gateway';
 import { TechniciansGateway } from '../data-access/gateways/technicians.gateway';
+import { ReviewsGateway } from '../data-access/gateways/reviews.gateway';
 import { CurrentUserService } from '../data-access/session/current-user.service';
 import { RepairsRealtimeService } from './repairs-realtime.service';
 
@@ -35,6 +36,7 @@ export interface RepairNotification {
 export class RepairsService {
   private readonly repository = inject(RepairsRepository);
   private readonly techniciansGateway = inject(TechniciansGateway);
+  private readonly reviewsGateway = inject(ReviewsGateway);
   private readonly servicesGateway = inject(ServicesGateway);
   private readonly currentUserService = inject(CurrentUserService);
   private readonly realtime = inject(RepairsRealtimeService);
@@ -120,12 +122,23 @@ export class RepairsService {
   }
 
   private async loadPickers(): Promise<void> {
-    const [services, technicians] = await Promise.all([
+    const [services, technicians, ratings] = await Promise.all([
       this.servicesGateway.listActive(),
       this.techniciansGateway.listActive(),
+      // Ratings are a nice-to-have: if they fail, the picker still works.
+      this.reviewsGateway.technicianRatings().catch(() => new Map<string, { rating: number; review_count: number }>()),
     ]);
     this.serviceOptions.set(services);
-    this.technicianOptions.set(technicians);
+    this.technicianOptions.set(technicians.map((technician) => ({ ...technician, ...ratings.get(technician.id) })));
+  }
+
+  /** Newest reviews from all customers, anonymous (Home). Empty on any error. */
+  async recentReviews(limit = 6): Promise<PublicReview[]> {
+    try {
+      return await this.reviewsGateway.recent(limit);
+    } catch {
+      return [];
+    }
   }
 
   async createBooking(draft: BookingDraft): Promise<Repair> {

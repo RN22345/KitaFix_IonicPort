@@ -3,8 +3,10 @@ import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angu
 import { TopNavComponent } from '@kitafix/booking';
 
 /**
- * Shell for the booking screens: a floating top nav above the tabs, and a
- * floating bottom nav that sits over the page content.
+ * Customer shell: a floating top nav above the tabs, and a floating bottom nav
+ * that sits over the page content. Four equal tabs: Home, Book, Repairs, Account.
+ * Account hosts Team 1's My Account / Edit profile / Change password pages
+ * (routes in app.routes.ts); the --acc-* variables below give them this theme.
  * NOTE: Ionic's IonTabs renders its own <ion-router-outlet>. Do NOT add another one here.
  */
 @Component({
@@ -28,6 +30,10 @@ import { TopNavComponent } from '@kitafix/booking';
             <ion-icon name="list-outline"></ion-icon>
             <ion-label>Repairs</ion-label>
           </ion-tab-button>
+          <ion-tab-button tab="account" href="/tabs/account">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <ion-label>Account</ion-label>
+          </ion-tab-button>
         </ion-tab-bar>
       </ion-tabs>
     </div>
@@ -40,6 +46,15 @@ import { TopNavComponent } from '@kitafix/booking';
         display: flex;
         flex-direction: column;
         background: var(--kf-bg);
+
+        /* Team 1's account pages (libs/accounts styles) read these. */
+        --acc-bg: var(--kf-bg);
+        --acc-surface: var(--kf-surface);
+        --acc-surface-2: var(--kf-surface-2);
+        --acc-ink: var(--kf-text);
+        --acc-muted: var(--kf-muted);
+        --acc-border: var(--kf-line);
+        --acc-tint: var(--kf-accent-soft);
       }
       .shell {
         position: relative;
@@ -47,10 +62,21 @@ import { TopNavComponent } from '@kitafix/booking';
         min-height: 0;
       }
 
-            /* Pages scroll behind the floating bar: leave room at the end of the page. */
+      /* Pages scroll behind the floating bar: leave room at the end of the page. */
       .shell ::ng-deep ion-content::part(scroll) {
         padding-bottom: 130px;
       }
+
+      /* Team 1's pages inside the tabs: the top nav already brands the screen,
+         so drop their corner triangles and the extra top padding. */
+      .shell ::ng-deep .acc-page {
+        padding-top: 12px;
+      }
+      .shell ::ng-deep .acc-page::before,
+      .shell ::ng-deep .acc-page::after {
+        display: none;
+      }
+
       /* ---------- Floating bar ---------- */
       ion-tab-bar {
         --background: transparent;
@@ -62,15 +88,14 @@ import { TopNavComponent } from '@kitafix/booking';
         z-index: 20;
         box-sizing: border-box;
         contain: none;
-        overflow: visible;
         width: calc(100% - 1.6rem);
         max-width: 420px;
-        height: 66px;
+        height: 64px;
         margin: 0;
         padding: 0.35rem;
         gap: 0.25rem;
         border: 1px solid var(--kf-line);
-        border-radius: 30px;
+        border-radius: 26px;
         background: color-mix(in srgb, var(--kf-surface) 82%, transparent);
         backdrop-filter: blur(20px) saturate(1.7);
         -webkit-backdrop-filter: blur(20px) saturate(1.7);
@@ -85,11 +110,12 @@ import { TopNavComponent } from '@kitafix/booking';
         --background: transparent;
         --background-focused: transparent;
         --ripple-color: var(--kf-accent-soft);
-        --padding-top: 0.5rem;
-        --padding-bottom: 0.45rem;
+        --padding-top: 0.45rem;
+        --padding-bottom: 0.4rem;
+        flex: 1 1 0;
         height: 100%;
-        border-radius: 24px;
-        font-size: 0.7rem;
+        border-radius: 20px;
+        font-size: 0.68rem;
         font-weight: 600;
         transition:
           background var(--kf-slow) var(--kf-ease),
@@ -97,10 +123,10 @@ import { TopNavComponent } from '@kitafix/booking';
           transform var(--kf-fast) var(--kf-ease);
       }
       ion-tab-button:active {
-        transform: scale(0.94);
+        transform: scale(0.95);
       }
       ion-tab-button ion-icon {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         transition: transform var(--kf-slow) var(--kf-ease);
       }
       ion-tab-button.tab-selected {
@@ -108,69 +134,21 @@ import { TopNavComponent } from '@kitafix/booking';
         box-shadow: 0 10px 20px -10px var(--kf-accent);
       }
       ion-tab-button.tab-selected ion-icon {
-        transform: translateY(-2px) scale(1.12);
+        transform: translateY(-1px) scale(1.08);
         animation: kf-pop var(--kf-slow) var(--kf-ease);
       }
       ion-tab-button.tab-selected ion-label {
         font-weight: 700;
       }
 
-      /* ---------- Book button: compact, raised, green, glowing ---------- */
-      ion-tab-button.book,
+      /* Book: same size and shape as the other tabs; only the icon is green
+         so the main action is easy to find without shouting. */
+      ion-tab-button.book:not(.tab-selected) ion-icon {
+        color: var(--kf-green);
+      }
       ion-tab-button.book.tab-selected {
-        --color: #ffffff;
-        --color-selected: #ffffff;
-        --padding-top: 0.35rem;
-        --padding-bottom: 0.3rem;
-        flex: 0 0 76px;
-        max-width: 76px;
-        align-self: flex-start;
-        height: calc(100% + 10px);
-        margin-top: -10px;
-        border-radius: 22px;
-        background: linear-gradient(145deg, #19e0a4, #00a67c 60%, #00876a);
-        box-shadow:
-          0 0 0 4px var(--kf-bg),
-          0 10px 20px -8px rgba(0, 220, 150, 0.75);
-        animation: book-glow 2.4s ease-in-out infinite;
-      }
-      ion-tab-button.book:active {
-        transform: scale(0.94) translateY(-2px);
-      }
-      ion-tab-button.book ion-icon {
-        font-size: 1.55rem;
-        filter: drop-shadow(0 2px 4px rgba(0, 60, 40, 0.45));
-      }
-      ion-tab-button.book.tab-selected ion-icon {
-        transform: translateY(-1px) scale(1.08) rotate(90deg);
-      }
-      ion-tab-button.book ion-label {
-        font-size: 0.66rem;
-        font-weight: 800;
-        letter-spacing: 0.02em;
-        text-shadow: 0 1px 3px rgba(0, 60, 40, 0.4);
-      }
-
-      @keyframes book-glow {
-        0%,
-        100% {
-          box-shadow:
-            0 0 0 4px var(--kf-bg),
-            0 10px 20px -8px rgba(0, 220, 150, 0.6);
-        }
-        50% {
-          box-shadow:
-            0 0 0 4px var(--kf-bg),
-            0 12px 26px -6px rgba(0, 240, 165, 0.95),
-            0 0 16px 4px rgba(0, 230, 160, 0.45);
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        ion-tab-button.book,
-        ion-tab-button.book.tab-selected {
-          animation: none;
-        }
+        background: linear-gradient(135deg, var(--kf-green), color-mix(in srgb, var(--kf-green) 70%, var(--kf-hero-from)));
+        box-shadow: 0 10px 20px -10px var(--kf-green);
       }
     `,
   ],

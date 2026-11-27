@@ -692,10 +692,31 @@ export type Database = {
       current_user_no: { Args: never; Returns: string }
       deactivate_own_account: { Args: never; Returns: boolean }
       generate_account_no: { Args: { for_date?: string }; Returns: string }
+      get_public_reviews: {
+        Args: { p_limit?: number }
+        Returns: {
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          replied_at: string
+          reply_text: string
+          service_name: string
+          technician_name: string
+        }[]
+      }
       get_taken_slots: {
         Args: { p_date: string; p_exclude_repair?: string; p_location: string }
         Returns: {
           booking_time: string
+        }[]
+      }
+      get_technician_ratings: {
+        Args: never
+        Returns: {
+          average_rating: number
+          review_count: number
+          technician_id: string
         }[]
       }
       is_admin: { Args: never; Returns: boolean }

@@ -521,7 +521,7 @@
               >
                 <ion-select-option value="">Any available technician</ion-select-option>
                 @for (technician of technicians(); track technician.id) {
-                  <ion-select-option [value]="technician.id">{{ technician.full_name }}</ion-select-option>
+                  <ion-select-option [value]="technician.id">{{ technician.full_name }}{{ technician.rating ? ' · ★ ' + technician.rating + ' (' + technician.review_count + ')' : '' }}</ion-select-option>
                 }
               </ion-select>
 

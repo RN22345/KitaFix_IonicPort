@@ -6,6 +6,7 @@ import {
   MockTechniciansGateway,
   SupabaseTechniciansGateway,
 } from './data-access/gateways/technicians.gateway';
+import { ReviewsGateway, MockReviewsGateway, SupabaseReviewsGateway } from './data-access/gateways/reviews.gateway';
 import { MockRepairsRepository } from './data-access/repositories/mock-repairs.repository';
 import { RepairsRepository } from './data-access/repositories/repairs.repository';
 import { SupabaseRepairsRepository } from './data-access/repositories/supabase-repairs.repository';
@@ -31,12 +32,14 @@ export function provideBooking(config: BookingConfig): Provider[] {
     ? [
         { provide: RepairsRepository, useClass: MockRepairsRepository },
         { provide: TechniciansGateway, useClass: MockTechniciansGateway },
+        { provide: ReviewsGateway, useClass: MockReviewsGateway },
         { provide: ServicesGateway, useClass: MockServicesGateway },
         { provide: CurrentUserService, useClass: MockCurrentUserService },
       ]
     : [
         { provide: RepairsRepository, useClass: SupabaseRepairsRepository },
         { provide: TechniciansGateway, useClass: SupabaseTechniciansGateway },
+        { provide: ReviewsGateway, useClass: SupabaseReviewsGateway },
         { provide: ServicesGateway, useClass: SupabaseServicesGateway },
         { provide: CurrentUserService, useClass: SupabaseCurrentUserService },
       ];
