@@ -1,0 +1,43 @@
+<ion-content [fullscreen]="true" class="acc-content acc-content--soft">
+  <!-- Blue header -->
+  <header class="acc-header">
+    <div class="acc-header__inner">
+      <h1>Roles</h1>
+      <p>{{ roles.length }} roles control what each account can do</p>
+    </div>
+  </header>
+
+  <!-- One card per role -->
+  <main class="acc-body">
+    @for (role of roles; track role.key) {
+      <div class="acc-card acc-card--padded acc-role-card">
+        <div class="acc-role-card__head">
+          <strong>{{ role.name }}</strong>
+          <span class="acc-badge">{{ accountCountText(role) }}</span>
+        </div>
+        <p class="acc-role-text">{{ role.description }}</p>
+        <div class="acc-tags">
+          @for (permission of role.permissions; track permission) {
+            <span class="acc-tag">{{ permission }}</span>
+          }
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- Bottom tabs -->
+  <nav slot="fixed" class="acc-tabbar">
+    <a class="acc-tab" routerLink="/accounts-list">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Accounts</span>
+    </a>
+    <a class="acc-tab is-active" routerLink="/accounts-roles">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span>Roles</span>
+    </a>
+    <a class="acc-tab" routerLink="/accounts-my-account">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>My Account</span>
+    </a>
+  </nav>
+</ion-content>

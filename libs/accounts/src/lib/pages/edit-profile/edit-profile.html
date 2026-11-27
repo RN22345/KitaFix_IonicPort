@@ -1,0 +1,170 @@
+<ion-content [fullscreen]="true" class="acc-content">
+  <main class="acc-page">
+    <button type="button" class="acc-back" routerLink="/accounts-my-account" aria-label="Back to profile">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+
+    <h1 class="acc-title">Edit profile</h1>
+    <p class="acc-subtitle">Update your personal information.</p>
+
+    <form class="acc-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <small ce class="acc-hint">
+        Maximum image file size: 12 MB.
+      </small>
+      <!-- Profile picture -->
+      <div class="acc-avatar">
+        <div class="acc-avatar__img">
+          @if (photoPreview()) {
+            <img [src]="photoPreview()" alt="Profile picture preview" />
+          } @else {
+            <ion-icon name="person-outline"></ion-icon>
+          }
+        </div>
+        <button type="button" class="acc-avatar__btn" (click)="fileInput.click()" aria-label="Change profile picture">
+          <ion-icon name="camera-outline"></ion-icon>
+        </button>
+        <input #fileInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)" />
+      </div>
+      @if (photoPreview()) {
+        <button type="button" class="acc-link-btn" (click)="onRemovePhoto()">Remove photo</button>
+      }
+
+      <div class="acc-row">
+        <div class="acc-field">
+          <label for="firstName">First name <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('firstName')">
+            <input id="firstName" type="text" formControlName="firstName" maxlength="30"
+             (input)="cleanName($event, 'firstName')" autocomplete="given-name" 
+            />          
+          </div>
+          @if (isInvalid('firstName')) { <small class="acc-error">{{ nameError('firstName') }}</small> }        </div>
+        <div class="acc-field">
+          <label for="lastName">Last name <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('lastName')">
+            <input id="lastName" type="text" formControlName="lastName" maxlength="30"
+              (input)="cleanName($event, 'lastName')" autocomplete="family-name" 
+            />          
+          </div>
+          @if (isInvalid('lastName')) { <small class="acc-error">{{ nameError('lastName') }}</small> }        </div>
+      </div>
+
+      <div class="acc-field">
+        <label for="accountId">Account ID</label>
+        <div class="acc-input acc-input--disabled">
+          <input id="accountId" type="text" [value]="(profile.accountNo | accountId: profile.role) || 'Not available'" disabled />
+          <ion-icon name="lock-closed-outline"></ion-icon>
+        </div>
+      </div>
+
+      <!-- The email is shown but can't be edited -->
+      <div class="acc-field">
+        <label for="email">Email address</label>
+        <div class="acc-input acc-input--disabled">
+          <ion-icon name="mail-outline"></ion-icon>
+          <input id="email" type="email" [value]="profile.email" disabled />
+          <ion-icon name="lock-closed-outline"></ion-icon>
+        </div>
+        <small class="acc-hint">Your email can't be changed.</small>
+      </div>
+
+      <div class="acc-field">
+        <label for="contactNo">Contact no. <em>*</em></label>
+        <div class="acc-input" [class.is-invalid]="isInvalid('contactNo')">
+          <ion-icon name="call-outline"></ion-icon>
+          <input id="contactNo" type="tel" formControlName="contactNo" placeholder="09XX XXX XXXX" autocomplete="tel" />
+        </div>
+        @if (isInvalid('contactNo')) { <small class="acc-error">Enter a valid mobile number, e.g. 09171234567.</small> }
+      </div>
+
+      <div class="acc-field">
+        <label for="address">Address</label>
+        <div class="acc-input">
+          <ion-icon name="location-outline"></ion-icon>
+          <input id="address" type="text" formControlName="address" placeholder="House no., street, city" autocomplete="street-address" />
+        </div>
+      </div>
+
+      <div class="acc-row">
+        <div class="acc-field">
+          <label for="birthday">Birthday <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('birthday')">
+            <input id="birthday" type="date" formControlName="birthday" [max]="maxBirthday" />
+          </div>
+        </div>
+        <div class="acc-field">
+          <label for="gender">Gender <em>*</em></label>
+          <div class="acc-input" [class.is-invalid]="isInvalid('gender')">
+            <select id="gender" formControlName="gender" required>
+              <option value="" disabled>Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+            <ion-icon class="acc-input__chevron" name="chevron-down-outline"></ion-icon>
+          </div>
+          @if (isInvalid('gender')) { <small class="acc-error">Required.</small> }
+        </div>
+      </div>
+
+      @if (isInvalid('birthday')) {
+        @if (form.controls.birthday.hasError('required')) {
+          <small class="acc-error">Birthday is required.</small>
+        } @else {
+          <small class="acc-error">You must be at least {{ minAge }} years old.</small>
+        }
+      }
+
+      @if (saveError() && !showConfirm) { <p class="acc-error" role="alert">{{ saveError() }}</p> }
+      @if (nameSyncFailed()) {
+        <button type="button" class="acc-btn" [disabled]="saving()" (click)="retryNameSync()">Retry name sync</button>
+      }
+      <button type="submit" class="acc-btn" [disabled]="saving()">Save changes</button>
+    </form>
+  </main>
+
+  <!-- Crop box: the user moves and zooms the picture inside a square -->
+  @if (cropSrc()) {
+    <div slot="fixed" class="acc-dialog-backdrop">
+      <div class="acc-dialog" role="dialog" aria-modal="true">
+        <h2>Adjust photo</h2>
+        <p>Drag the picture to move it. Use the slider to zoom.</p>
+
+        <div class="acc-crop" [style.width.px]="cropBox" [style.height.px]="cropBox"
+             (pointerdown)="onCropPointerDown($event)"
+             (pointermove)="onCropPointerMove($event)"
+             (pointerup)="onCropPointerUp()"
+             (pointercancel)="onCropPointerUp()">
+          <img class="acc-crop__img" [src]="cropSrc()" alt="Photo to crop" draggable="false"
+               [style.width.px]="naturalW() * scale()" [style.height.px]="naturalH() * scale()"
+               [style.left.px]="offsetX()" [style.top.px]="offsetY()" />
+          <!-- The circle shows how the picture will look as an avatar -->
+          <div class="acc-crop__circle"></div>
+        </div>
+
+        <input class="acc-crop__zoom" type="range" min="1" max="3" step="0.01"
+               [value]="zoom()" (input)="onZoomChange($event)" aria-label="Zoom" />
+
+        <div class="acc-dialog__actions">
+          <button type="button" class="acc-btn acc-btn--outline" (click)="closeCropper()">Cancel</button>
+          <button type="button" class="acc-btn" (click)="applyCrop()">Use photo</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- "Save changes?" confirm box -->
+  @if (showConfirm) {
+    <div slot="fixed" class="acc-dialog-backdrop">
+      <div class="acc-dialog" role="dialog" aria-modal="true">
+        <h2>Save changes?</h2>
+        <p>Your profile will be updated with the new information.</p>
+        @if (saveError()) { <p class="acc-error" role="alert">{{ saveError() }}</p> }
+        <div class="acc-dialog__actions">
+          <button type="button" class="acc-btn acc-btn--outline" [disabled]="saving()" (click)="showConfirm = false">Cancel</button>
+          <button type="button" class="acc-btn" [disabled]="saving()" (click)="confirmSave()">{{ saving() ? 'Saving...' : 'Save' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</ion-content>

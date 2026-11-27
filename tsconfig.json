@@ -18,10 +18,11 @@
     "module": "ES2022",
     "lib": ["ES2022", "dom"],
     "paths": {
-      "@kitafix/booking": ["libs/booking/src/index.ts"],
-      "@kitafix/shared-types": ["libs/shared-types/src/index.ts"],
-      "@kitafix/theme": ["libs/theme/src/index.ts"]
-    }
+    "@kitafix/booking": ["libs/booking/src/index.ts"],
+    "@kitafix/shared-types": ["libs/shared-types/src/index.ts"],
+    "@kitafix/theme": ["libs/theme/src/index.ts"],
+    "@kitafix/accounts": ["libs/accounts/src/index.ts"]
+}
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

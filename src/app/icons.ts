@@ -4,6 +4,7 @@ import { addIcons } from 'ionicons';
 import {
   mailOutline, 
   lockClosedOutline, 
+  keyOutline,
   eyeOutline, 
   eyeOffOutline,
   addCircleOutline,
@@ -20,6 +21,7 @@ import {
   locationOutline,
   logInOutline,
   personOutline,
+  peopleOutline,
   refreshOutline,
   saveOutline,
   timeOutline,
@@ -50,6 +52,11 @@ import {
   personCircleOutline,
   arrowForwardOutline,
   storefrontOutline,
+  checkmarkCircle,
+  ellipseOutline,
+  powerOutline,
+  callOutline,
+  copyOutline,
 } from 'ionicons/icons';
 
 /**
@@ -72,11 +79,13 @@ export function registerIcons(): void {
     'location-outline': locationOutline,
     'log-in-outline': logInOutline,
     'person-outline': personOutline,
+    'people-outline': peopleOutline,
     'refresh-outline': refreshOutline,
     'save-outline': saveOutline,
     'time-outline': timeOutline,
     'mail-outline': mailOutline,
     'lock-closed-outline': lockClosedOutline,
+    'key-outline': keyOutline,
     'eye-outline': eyeOutline,
     'eye-off-outline': eyeOffOutline,
     'arrow-back-outline': arrowBackOutline,
@@ -106,5 +115,10 @@ export function registerIcons(): void {
     'person-circle-outline': personCircleOutline,
     'arrow-forward-outline': arrowForwardOutline,
     'storefront-outline': storefrontOutline,
+    'checkmark-circle': checkmarkCircle,
+    'ellipse-outline': ellipseOutline,
+    'power-outline': powerOutline,
+    'call-outline': callOutline,
+    'copy-outline': copyOutline,
   });
 }

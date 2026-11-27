@@ -19,7 +19,7 @@ export const environment = {
   supabaseUrl: 'https://pkfataaehrjdipdbrthz.supabase.co',
   /** anon key: safe to ship in a client app, protected by RLS. Never the service_role key. */
   supabaseAnonKey:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrZmF0YWFlaHJqZGlwZGJydGh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMzcyMTUsImV4cCI6MjEwNTYxMzIxNX0.dY9AOv1ZA3TQz-MY_M_Wj1COEQ7aDkjLWTWAdznOAKY',
+    'sb_publishable_jBZ-JvWo8Ofb5i7CETPQaQ_8fTexlzP',
 
   /** Branches shown in the booking form (availability is per location). */
   locations: ['Main Branch - Downtown', 'North Mall Branch'] as string[],

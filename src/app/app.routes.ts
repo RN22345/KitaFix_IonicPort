@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './shared/session/auth.guard';
+import { accountsRecoveryGuard, accountsRoleGuard, accountsLoggedInRedirect } from '@kitafix/accounts';
 
 /**
  * The app shell only declares lazy routes that point into each team's library
@@ -11,7 +11,8 @@ import { authGuard } from './shared/session/auth.guard';
 export const routes: Routes = [
   {
     path: 'tabs',
-    canActivate: [authGuard],
+    canActivate: [accountsRoleGuard(['customer'])],
+    canActivateChild: [accountsRoleGuard(['customer'])],
     loadComponent: () => import('./tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {
@@ -21,9 +22,78 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'dev-login',
-    loadComponent: () => import('./shared/session/dev-login.page').then((m) => m.DevLoginPage),
+  path: 'accounts-login',
+  canActivate: [accountsLoggedInRedirect],
+    loadComponent: () =>
+      import('../../libs/accounts/src/lib/pages/login/login')
+        .then((m) => m.LoginPage),
   },
-  { path: '', redirectTo: 'tabs', pathMatch: 'full' },
-  { path: '**', redirectTo: 'tabs' },
+  {
+    path: 'accounts-signup',
+    loadComponent: () =>
+      import('../../libs/accounts/src/lib/pages/signup/signup')
+        .then((m) => m.SignupPage),
+  },
+  {
+    path: 'accounts-forgot-password',
+    loadComponent: () =>
+      import('../../libs/accounts/src/lib/pages/forgot-password/forgot-password')
+        .then((m) => m.ForgotPasswordPage),
+  },
+  {
+  path: 'accounts-reset-password',
+  canActivate: [accountsRecoveryGuard],
+  loadComponent: () =>
+    import(
+      '../../libs/accounts/src/lib/pages/reset-password/reset-password'
+    ).then((m) => m.ResetPasswordPage),
+},
+  {
+    path: 'accounts-verify-email',
+    loadComponent: () =>
+      import('../../libs/accounts/src/lib/pages/verify-email/verify-email')
+        .then((m) => m.VerifyEmailPage),
+  },
+  { path: 'accounts-my-account',
+    canActivate: [accountsRoleGuard(['customer', 'technician', 'admin'])], 
+    loadComponent: () => 
+      import('../../libs/accounts/src/lib/pages/my-account/my-account')
+        .then((m) => m.MyAccountPage) },
+  {
+    path: 'accounts-edit-profile',
+    canActivate: [accountsRoleGuard(['customer', 'technician', 'admin'])], 
+    loadComponent: () => 
+      import('../../libs/accounts/src/lib/pages/edit-profile/edit-profile')
+        .then((m) => m.EditProfilePage) 
+  },
+  { 
+    path: 'accounts-change-password',
+    canActivate: [accountsRoleGuard(['customer', 'technician', 'admin'])], 
+    loadComponent: () => 
+      import('../../libs/accounts/src/lib/pages/change-password/change-password')
+        .then((m) => m.ChangePasswordPage) 
+  },
+  { 
+    path: 'accounts-list',
+    canActivate: [accountsRoleGuard(['admin'])], 
+    loadComponent: () => 
+      import('../../libs/accounts/src/lib/pages/accounts-list/accounts-list')
+        .then((m) => m.AccountsListPage) 
+  },
+  { 
+    path: 'accounts-profile/:id',
+    canActivate: [accountsRoleGuard(['admin'])], 
+    loadComponent: () => 
+      import('../../libs/accounts/src/lib/pages/account-profile/account-profile')
+        .then((m) => m.AccountProfilePage) 
+  },
+  { 
+    path: 'accounts-roles',
+    canActivate: [accountsRoleGuard(['admin'])], 
+    loadComponent: () => 
+      import('../../libs/accounts/src/lib/pages/roles-management/roles-management')
+        .then((m) => m.RolesManagementPage) 
+  },
+  { path: '', redirectTo: 'accounts-login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'accounts-login' },
 ];
