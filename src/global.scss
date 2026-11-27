@@ -356,3 +356,44 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+// ── Network toast (offline / back online) ──
+ion-toast.kf-toast {
+  --border-radius: 14px;
+  --max-width: 380px;
+  --min-height: 52px;
+  --color: #ffffff;
+  --button-color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  &::part(container) {
+    color: #ffffff;
+    border-radius: 14px;
+  }
+  &::part(icon) { font-size: 22px; }
+  &::part(button) { font-weight: 600; }
+}
+
+// Offline: dark navy, red icon and edge
+ion-toast.kf-toast--offline {
+  --background: #0F172A;
+  --box-shadow: 0 10px 24px rgba(15, 23, 42, 0.35);
+
+  &::part(container) {
+    background: #0F172A;
+    border-left: 4px solid #E5484D;
+  }
+  &::part(icon) { color: #E5484D; }
+}
+
+// Back online: brand gradient (blue to green)
+ion-toast.kf-toast--online {
+  --background: #0B5ED7;
+  --box-shadow: 0 10px 22px rgba(11, 94, 215, 0.3);
+
+  &::part(container) {
+    background: linear-gradient(135deg, #0B5ED7 0%, #00C896 100%);
+  }
+}

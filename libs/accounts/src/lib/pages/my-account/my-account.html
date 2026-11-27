@@ -1,0 +1,137 @@
+<ion-content [fullscreen]="true" class="acc-content">
+  <main class="acc-page">
+    <!-- Picture, name, email and role -->
+    <section class="acc-profile">
+      <div class="acc-avatar">
+        <div class="acc-avatar__img">
+          @if (profile.profilePictureUrl) {
+            <img class="acc-tappable" [src]="profile.profilePictureUrl" alt="Profile picture. Tap to view." (click)="openAvatar()" />
+          } @else {
+            <ion-icon name="person-outline"></ion-icon>
+          }
+        </div>
+      </div>
+      <h1 class="acc-name">{{ fullName }}</h1>
+      <p class="acc-email">{{ auth.account?.email || profile.email || 'Email unavailable' }}</p>
+      <span class="acc-chip" [attr.data-role]="auth.account?.role">{{ (auth.account?.role || 'Role unavailable') | titlecase }}</span>
+    </section>
+
+    <!-- Details -->
+    <h2 class="acc-section-title">My details</h2>
+    <div class="acc-card">
+      <div class="acc-detail">
+        <span>Account ID</span>
+        <strong class="acc-id-value">
+          {{ accountIdText || 'Not available' }}
+          @if (accountIdText) {
+            <button type="button" class="acc-copy" aria-label="Copy account ID" (click)="copyAccountId()">
+              <ion-icon [icon]="copyIcon"></ion-icon>
+            </button>
+          }
+        </strong>
+      </div>
+      <div class="acc-detail"><span>Contact no.</span><strong>{{ profile.contactNo || 'Not provided' }}</strong></div>
+      <div class="acc-detail"><span>Address</span><strong>{{ profile.address || '-' }}</strong></div>
+      <div class="acc-detail"><span>Birthday</span><strong>{{ profile.birthday ? (profile.birthday | date: 'MMMM d, y') : 'Not provided' }}</strong></div>
+      <div class="acc-detail"><span>Gender</span><strong>{{ genderNames[profile.gender] || 'Not provided' }}</strong></div>
+    </div>
+
+    <!-- Links to the other profile pages -->
+    <h2 class="acc-section-title">Account</h2>
+    <div class="acc-card">
+      <button type="button" class="acc-menu-item" routerLink="/accounts-edit-profile">
+        <span class="acc-menu-item__icon"><ion-icon name="create-outline"></ion-icon></span>
+        <span>Edit profile</span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+      <button type="button" class="acc-menu-item" routerLink="/accounts-change-password">
+        <span class="acc-menu-item__icon"><ion-icon name="key-outline"></ion-icon></span>
+        <span>Change password</span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+      <button type="button" class="acc-menu-item" (click)="openDeactivate()">
+        <span class="acc-menu-item__icon"><ion-icon name="power-outline"></ion-icon></span>
+        <span>Deactivate account</span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </div>
+
+    @if (logoutError) {
+      <div class="acc-alert acc-alert--spaced" role="alert">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>{{ logoutError }}</span>
+      </div>
+    }
+    <button type="button" class="acc-btn acc-btn--logout" [disabled]="loggingOut" (click)="openLogout()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      Log out
+    </button>
+  </main>
+  @if (auth.account?.role === 'admin') {
+    <nav slot="fixed" class="acc-tabbar">
+      <a class="acc-tab" routerLink="/accounts-list">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>Accounts</span>
+      </a>
+      <a class="acc-tab" routerLink="/accounts-roles">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Roles</span>
+      </a>
+      <a class="acc-tab is-active" routerLink="/accounts-my-account" aria-current="page">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>My Account</span>
+      </a>
+    </nav>
+  }
+  <!-- "Deactivate account?" box -->
+  @if (showDeactivate()) {
+    <div slot="fixed" class="acc-dialog-backdrop">
+      <div class="acc-dialog acc-dialog--danger" role="alertdialog" aria-modal="true">
+        <div class="acc-hero-icon acc-hero-icon--danger"><ion-icon name="alert-circle-outline"></ion-icon></div>
+        <h2>Deactivate your account?</h2>
+        <p><strong>Please be sure.</strong> This is a serious action.</p>
+
+        <ul class="acc-warn-list">
+          <li>You will be logged out of all your devices right away.</li>
+          <li>You will not be able to log in again.</li>
+          <li>Only an administrator can reactivate your account.</li>
+        </ul>
+
+        <div class="acc-field acc-field--confirm">
+          <label for="deactivateWord">Type <strong>DEACTIVATE</strong> to confirm</label>
+          <div class="acc-input">
+            <input id="deactivateWord" type="text" autocomplete="off" autocapitalize="characters"
+                   placeholder="DEACTIVATE" [value]="deactivateWord()" (input)="onDeactivateWord($event)" />
+          </div>
+        </div>
+
+        @if (deactivateError()) { <p class="acc-error" role="alert">{{ deactivateError() }}</p> }
+
+        <div class="acc-dialog__actions">
+          <button type="button" class="acc-btn acc-btn--outline" [disabled]="deactivating()" (click)="showDeactivate.set(false)">Keep my account</button>
+          <button type="button" class="acc-btn acc-btn--danger" [disabled]="deactivating() || !canDeactivate" (click)="confirmDeactivate()">{{ deactivating() ? 'Saving...' : 'Deactivate' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+  <!-- Big picture viewer -->
+  @if (showAvatar()) {
+    <div slot="fixed" class="acc-viewer-backdrop" (click)="closeAvatar()">
+      <img class="acc-viewer__img" [src]="profile.profilePictureUrl" alt="Profile picture" />
+      <button type="button" class="acc-viewer__close" aria-label="Close" (click)="closeAvatar()">&times;</button>
+    </div>
+  }
+  <!-- "Log out?" box -->
+  @if (showLogout()) {
+    <div slot="fixed" class="acc-dialog-backdrop">
+      <div class="acc-dialog" role="dialog" aria-modal="true">
+        <h2>Log out?</h2>
+        <p>Are you sure you want to log out of your account?</p>
+        <div class="acc-dialog__actions">
+          <button type="button" class="acc-btn acc-btn--outline" (click)="showLogout.set(false)">Cancel</button>
+          <button type="button" class="acc-btn" (click)="confirmLogout()">Log out</button>
+        </div>
+      </div>
+    </div>
+  }
+</ion-content>

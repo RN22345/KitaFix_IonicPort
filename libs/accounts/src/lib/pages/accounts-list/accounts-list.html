@@ -1,0 +1,129 @@
+<ion-content [fullscreen]="true" class="acc-content acc-content--soft">
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-outline"
+      pullingText="Pull down to refresh"
+      refreshingSpinner="crescent"
+      refreshingText="Refreshing accounts..."
+    ></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Blue header with the search box -->
+  <header class="acc-header">
+    <div class="acc-header__inner">
+      <h1>Accounts</h1>
+      <p>{{ activeCount }} active · {{ inactiveCount }} inactive</p>
+      <div class="acc-search">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="search" placeholder="Search name, ID, or email" (input)="onSearch($event)" />
+      </div>
+    </div>
+  </header>
+
+  <main class="acc-body">
+    <!-- Filters -->
+    <div class="acc-filters">
+      <button type="button" class="acc-filter" [class.is-active]="statusFilter === 'all'" (click)="setStatus('all')">All</button>
+      <button type="button" class="acc-filter" [class.is-active]="statusFilter === 'active'" (click)="setStatus('active')">Active</button>
+      <button type="button" class="acc-filter" [class.is-active]="statusFilter === 'inactive'" (click)="setStatus('inactive')">Inactive</button>
+
+      <select class="acc-filter acc-filter--select" aria-label="Filter by role" (change)="onRoleChange($event)">
+        <option value="all">Role: All</option>
+        @for (role of roles; track role.key) {
+          <option [value]="role.key">{{ role.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="acc-sort">
+      <label for="sortBy">Sort by</label>
+      <select id="sortBy" class="acc-filter" (change)="onSortChange($event)">
+        <option value="newest" [selected]="sortBy === 'newest'">Newest first</option>
+        <option value="oldest" [selected]="sortBy === 'oldest'">Oldest first</option>
+        <option value="first-name" [selected]="sortBy === 'first-name'">First name (A to Z)</option>
+        <option value="last-name" [selected]="sortBy === 'last-name'">Last name (A to Z)</option>
+      </select>
+    </div>
+
+    @if (accountsService.loading) {
+      <p class="acc-empty" role="status">Loading accounts&hellip;</p>
+    } @else if (accountsService.error) {
+      <p class="acc-empty" role="alert">{{ accountsService.error }}</p>
+      <button type="button" class="acc-btn-small" (click)="refreshAccounts()">Retry</button>
+    }
+    <!-- The accounts -->
+    <div class="acc-list">
+      @for (account of visibleAccounts; track account.id) {
+        <a class="acc-list-item" [routerLink]="['/accounts-profile', account.id]">
+          <span class="acc-avatar-sm" [style.background]="accountsService.getAvatarColor(account)">
+            <!-- The profile picture (if the account has one). It stays hidden until it loads. -->
+            @if (pictureState[account.id] !== 'failed') {
+              <img class="acc-avatar-sm__img" alt="" loading="lazy"
+                   [class.is-loaded]="pictureState[account.id] === 'loaded'"
+                   [src]="accountsService.getAvatarUrl(account)"
+                   (load)="pictureState[account.id] = 'loaded'"
+                   (error)="pictureState[account.id] = 'failed'" />
+            }
+            <!-- The initials show until the picture has loaded (or when there is no picture) -->
+            @if (pictureState[account.id] !== 'loaded') {
+              {{ accountsService.getInitials(account) }}
+            }
+          </span>
+          <span class="acc-list-item__info">
+            <strong>{{ (account.firstName + ' ' + account.lastName).trim() || 'Name unavailable' }}</strong>
+            @if (account.profileMissing) { <small>Profile missing</small> }
+            @if (account.accountNo) { <small class="acc-id">{{ account.accountNo | accountId: account.role }}</small> }
+            <small>{{ account.email || 'Email unavailable' }}</small>
+          </span>
+          <span class="acc-list-item__side">
+            <span class="acc-badge" [attr.data-role]="account.role">{{ accountsService.getRole(account.role).name }}</span>
+            <span class="acc-status" [class.is-active]="account.isActive">
+              {{ account.isActive === null ? 'Status unavailable' : account.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </span>
+        </a>
+      } @empty {
+        @if (!accountsService.loading && !accountsService.error) { <p class="acc-empty">No accounts found.</p> }
+      }
+    </div>
+
+    <!-- Pagination: Prev, page numbers, Next -->
+    @if (filteredAccounts.length > 0) {
+      <p class="acc-pager__info">{{ rangeText }}</p>
+    }
+
+    @if (totalPages > 1) {
+      <nav class="acc-pager" aria-label="Pagination">
+        <button type="button" class="acc-pager__btn" [disabled]="page === 1" (click)="goToPage(page - 1)">&lsaquo; Prev</button>
+
+        @for (item of pageItems; track $index) {
+          @if (item === '…') {
+            <span class="acc-pager__gap">&hellip;</span>
+          } @else {
+            <button type="button" class="acc-pager__num" [class.is-active]="item === page"
+                    [attr.aria-current]="item === page ? 'page' : null" (click)="goToPage(item)">{{ item }}</button>
+          }
+        }
+
+        <button type="button" class="acc-pager__btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)">Next &rsaquo;</button>
+      </nav>
+    }
+  </main>
+
+  <!-- Bottom tabs -->
+  <nav slot="fixed" class="acc-tabbar">
+    <a class="acc-tab is-active" routerLink="/accounts-list">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Accounts</span>
+    </a>
+    <a class="acc-tab" routerLink="/accounts-roles">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span>Roles</span>
+    </a>
+    <a class="acc-tab" routerLink="/accounts-my-account">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>My Account</span>
+    </a>
+  </nav>
+</ion-content>

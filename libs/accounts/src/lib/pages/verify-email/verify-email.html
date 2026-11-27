@@ -1,0 +1,110 @@
+<ion-content [fullscreen]="true" class="acc-content">
+  <main class="acc-page">
+    <button
+      type="button"
+      class="acc-back"
+      (click)="goBack()"
+      [disabled]="busy"
+      aria-label="Back">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+
+    <div class="acc-hero-icon">
+      <ion-icon name="mail-outline"></ion-icon>
+    </div>
+
+    <h1 class="acc-title">
+      Enter verification code
+    </h1>
+
+    <p class="acc-subtitle">
+      If this email is eligible,
+      a 6-digit code was sent to
+      <strong>{{ maskedEmail }}</strong>.
+      {{ purpose === 'signup' ? 'Enter it to confirm your account. If you already have an account, return to Log in.' : 'Enter it to reset your password.' }}
+    </p>
+
+    <form
+      class="acc-form"
+      (submit)="verify(); $event.preventDefault()"
+      novalidate>
+
+      <div class="acc-field">
+        <div
+          class="acc-otp"
+          [class.is-invalid]="!!error"
+          (paste)="onPaste($event)">
+
+          @for (
+            digit of digits;
+            track $index;
+            let i = $index
+          ) {
+            <input
+              #box
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              [disabled]="busy"
+              [value]="digit"
+              [class.is-filled]="digit !== ''"
+              [attr.aria-label]="'Digit ' + (i + 1)"
+              (focus)="box.select()"
+              (input)="onDigitInput($event, i)"
+              (keydown)="onDigitKeydown($event, i)" />
+          }
+        </div>
+
+        @if (error) {
+          <small class="acc-error" role="alert">
+            {{ error }}
+          </small>
+        }
+
+        @if (notice) {
+          <p class="acc-subtitle" role="status">
+            {{ notice }}
+          </p>
+        }
+
+        <div class="acc-resend">
+          <span>
+            Code expires in
+            <strong>{{ timeLeft }}</strong>
+          </span>
+
+          <span>
+            Didn't get it?
+
+            <button
+              type="button"
+              class="acc-link"
+              (click)="resend()"
+              [disabled]="busy || resendWait > 0">
+              {{
+                resendWait > 0
+                  ? 'Resend in ' + resendWait + 's'
+                  : 'Resend code'
+              }}
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="acc-btn"
+        [disabled]="busy">
+        {{ busy ? 'Please wait...' : 'Verify code' }}
+      </button>
+    </form>
+
+    <p class="acc-footer">
+      <a
+        class="acc-link"
+        routerLink="/accounts-login">
+        Back to log in
+      </a>
+    </p>
+  </main>
+</ion-content>
