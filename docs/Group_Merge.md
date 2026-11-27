@@ -88,17 +88,30 @@ Audit checks that found nothing else:
 
 ### Applying the database changes to hosted
 
-Needs a Supabase personal access token (Account > Access Tokens). Project ref `pkfataaehrjdipdbrthz`.
+**What hosted already has (read-only inspection, 27 Nov).** Migrations 0001-0025 and 0090 are recorded. Team 1 had also applied their own, newer version of their Accounts work by hand, so none of it is recorded as a migration:
+- profile columns, including `account_no`, `terms_*`, `address` and `birthday`
+- `admin_read_accounts` (which returns `account_no`, matching the app code), `admin_assign_account_role(uuid, user_role)`, `admin_set_account_active`, `deactivate_own_account`, `record_terms_acceptance`, `generate_account_no` and the `profiles_account_no` trigger
+- the `avatars` bucket and its policies
+
+**Not on hosted:** Team 3 (0030-0032), Team 4 (0040), and Team 1's sign-up trigger `accounts_on_signup`, the `protect_profile_account_access` trigger and the restrictive "active account" policies. Only the old stub sign-up trigger `t1_stub_on_auth_user_created` is there.
+
+**So, on hosted: skip 0091-0096.** They are an older copy of what Team 1 already applied by hand. The first dry run failed on 0093 ("cannot change return type of existing function admin_read_accounts"), and running the rest would downgrade Team 1's live functions. 0098 creates each piece only if it is missing, so on hosted it changes nothing.
+
+Needs a Supabase personal access token with Database and Migrations set to read-write. Project ref `pkfataaehrjdipdbrthz`. Run from the repo root in PowerShell:
 
 ```powershell
 $env:SUPABASE_ACCESS_TOKEN='sbp_...'
 $m = 'supabase/migrations'
-$files = "$m/0030_team3_repair_ops.sql","$m/0031_team3_repair_ops_features.sql","$m/0032_team3_service_history.sql","$m/0040_team4_insights.sql","$m/0091_accounts_role_access.sql","$m/0092_accounts_registration.sql","$m/0093_admin_accounts_read.sql","$m/0094_admin_assign_account_role.sql","$m/0095_accounts_profile_address.sql","$m/0096_admin_account_activation.sql","$m/0097_merge_accounts_reconcile.sql","$m/0098_accounts_missing_objects.sql"
+$files = "$m/0030_team3_repair_ops.sql","$m/0031_team3_repair_ops_features.sql","$m/0032_team3_service_history.sql","$m/0040_team4_insights.sql","$m/0097_merge_accounts_reconcile.sql","$m/0098_accounts_missing_objects.sql"
 node tools/supabase/dry-run-sql.mjs pkfataaehrjdipdbrthz @files   # 1. nothing is kept
 node tools/supabase/apply-sql.mjs  pkfataaehrjdipdbrthz @files   # 2. only if step 1 says OK
 ```
 
-If the dry run fails on 0092, the hosted project has an `auth.users` trigger that Team 1 did not expect. Send Team 1 the error before changing anything. After applying, regenerate `libs/shared-types` (`tools/supabase/gen-types.mjs`) and run the security advisors.
+`node tools/supabase/inspect-hosted.mjs pkfataaehrjdipdbrthz` prints the read-only report again (structure only, no data). After applying, regenerate `libs/shared-types` (`tools/supabase/gen-types.mjs`) and run the security advisors.
+
+**For Team 1:**
+- Export your live definitions (`pg_get_functiondef`) into new migrations and retire 0091-0096 from the repo. Until then, a fresh local database gets the old 0093, whose `admin_read_accounts` lacks the `account_no` your code reads.
+- Decide whether hosted should get your sign-up trigger (0092). Today, new sign-ups go through the stub trigger, which may not copy `first_name`, `contact_no` and the other sign-up details.
 
 ## Checks run
 

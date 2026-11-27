@@ -7,3 +7,6 @@
 *.local
 .DS_Store
 Thumbs.db
+
+# local Supabase inspection output (tools/supabase/inspect-hosted.mjs)
+hosted-report.json

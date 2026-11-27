@@ -62,7 +62,7 @@ This deletes the local database and re-runs **everything** in
 | 0040 | `0040_team4_insights.sql` | Team 4: `reviews` table + rules, 3 report views (not yet on hosted) |
 | 0091-0096 | `009x_accounts_*.sql`, `009x_admin_*.sql` | Team 1: registration trigger, profile fields, admin account RPCs (manual, not yet on hosted) |
 | 0097 | `0097_merge_accounts_reconcile.sql` | merge fix: profile column grants for Team 1 fields, technicians kept in step with role |
-| 0098 | `0098_accounts_missing_objects.sql` | fix: `avatars` bucket + policies, `record_terms_acceptance`, `deactivate_own_account` (used by Team 1, never created) |
+| 0098 | `0098_accounts_missing_objects.sql` | fix: `avatars` bucket + policies, `record_terms_acceptance`, `deactivate_own_account`, each created only if missing (hosted already has Team 1's versions) |
 
 The stub files say right at the top: **delete before merging** - in the group
 repo the real files from Teams 1 and 3 replace them.
