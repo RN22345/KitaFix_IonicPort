@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 
 ## [Unreleased]
 
+### Fixed (after the group merge)
+- Tabs that leave the `/admin` or `/ops` area (Repairs, Accounts, Overview, Me) went to a GitHub 404 page on the live demo. They were plain links that ignored the `/KitaFix_IonicPort/` base path. They now navigate through the app's router.
+- No way to log out or see who is signed in from the admin and technician areas. Both bottom bars now have a "Me" tab, which opens My Account with Log out.
+- After a Team 1 logout, other teams' screens could still show the previous user's data or role. Logging out now restarts the app, as Team 2's sign-out already did, and the app also restarts if a different user signs in.
+- `0098_accounts_missing_objects.sql` adds the `avatars` bucket, `record_terms_acceptance` and `deactivate_own_account`, which Team 1's screens call but no migration created.
+- `tools/supabase/dry-run-sql.mjs` runs a set of migrations on the hosted project inside a transaction that is always rolled back.
+
 ### Added (group merge - all four teams)
 - Team 1 Accounts (`libs/accounts`): login, signup, email verification, password reset, My Account, Edit Profile, admin Accounts list / profile / roles. Migrations 0091-0096.
 - Team 3 Repair Ops (`libs/repair-ops`) at `/ops`: Admin Portal, Repair Queue (confirm, assign, status with remarks, notes, history, service log, reschedule) and Service Catalog. Technicians see only their own jobs. Migrations 0030-0032, ported from `is_staff()` to `is_admin()`. Stub 0090 removed.

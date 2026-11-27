@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular';
 import { RepairOpsService } from '@kitafix/repair-ops';
 
@@ -20,7 +21,7 @@ import { RepairOpsService } from '@kitafix/repair-ops';
     <ion-tabs>
       <ion-tab-bar slot="bottom">
         @if (!isTechnician()) {
-          <ion-tab-button href="/admin">
+          <ion-tab-button (click)="go('/admin')">
             <ion-icon name="home-outline"></ion-icon>
             <ion-label>Overview</ion-label>
           </ion-tab-button>
@@ -38,12 +39,12 @@ import { RepairOpsService } from '@kitafix/repair-ops';
             <ion-icon name="pricetag-outline"></ion-icon>
             <ion-label>Services</ion-label>
           </ion-tab-button>
-        } @else {
-          <ion-tab-button href="/accounts-my-account">
-            <ion-icon name="person-outline"></ion-icon>
-            <ion-label>Account</ion-label>
-          </ion-tab-button>
         }
+        <!-- No tab/href: leaves /ops through the router (a bare href ignores <base href>). -->
+        <ion-tab-button (click)="go('/accounts-my-account')">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <ion-label>Me</ion-label>
+        </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
   `,
@@ -84,9 +85,14 @@ import { RepairOpsService } from '@kitafix/repair-ops';
 })
 export class OpsTabsPage implements OnInit {
   private readonly ops = inject(RepairOpsService);
+  private readonly router = inject(Router);
   readonly isTechnician = this.ops.isTechnician;
 
   ngOnInit(): void {
     void this.ops.loadActor();
+  }
+
+  go(url: string): void {
+    void this.router.navigateByUrl(url);
   }
 }

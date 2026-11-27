@@ -74,6 +74,9 @@ export class MyAccountPage {
       }
       await this.auth.logout();
       await this.router.navigate(['/accounts-login'], { replaceUrl: true });
+      // Merged app: other teams keep the old user's data in memory. Start fresh,
+      // as Team 2's sign-out does.
+      window.location.reload();
     } catch (error) {
       this.logoutError = authMessage(error);
     } finally {

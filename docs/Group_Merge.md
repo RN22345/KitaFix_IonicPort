@@ -66,6 +66,40 @@ Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0024, **0030-0032 (
 - **Team 3:** your `environment.ts` points at our hosted project. Did you apply 0030-0032 there? After 23 Oct they would have failed on `is_staff()`. If you applied them before that, 0024's drop of `is_staff()` would have failed instead, so they are most likely not on hosted. Please confirm. Also, no tests were included.
 - **Team 4:** none.
 
+## Fixes after the merge (branch `fix/integration-audit`)
+
+Reported on the live demo after #26:
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Repairs / Accounts tabs open a GitHub 404 | The merge's cross-area tab buttons used a bare `href="/ops"`. A tab button without `tab` is a plain link, so it ignores `<base href="/KitaFix_IonicPort/">`. | No `href`; `(click)` goes through the Angular router (Team 4 `staff-shell`, `src/app/ops`) |
+| Opened straight into the admin area, no logout | The browser still had a saved session from an earlier admin login. The login page sends a signed-in user to their home on purpose. The admin/ops bars had no account or logout entry. | "Me" tab in both bars opens My Account (shows the account, has Log out) |
+| Previous user's data or role after switching accounts | Team 2 repairs, Team 3's actor (cached forever) and Team 4's admin data live in app-wide services. Team 1's logout did not reload. | My Account logout reloads, and `AppComponent` reloads if a different user signs in |
+| `Could not find the table 'public.reviews'` | Migrations 0030-0032, 0040 and 0091-0098 were never applied to hosted. The same goes for Team 3's queue tables and Team 1's admin RPCs. | Apply them (steps below) |
+| (found in audit) Picture upload, deactivate, terms | `avatars` bucket, `deactivate_own_account`, `record_terms_acceptance` were created by no migration | `0098_accounts_missing_objects.sql` |
+
+Audit checks that found nothing else:
+- every `href`, `location` and `reload` in `src/` and `libs/`
+- every table, view and RPC the code calls, against the migrations
+- every explicit column list
+- the route guards
+- logout reachable from every area
+- auth redirect URLs (Team 1 uses OTP codes, so there are none)
+
+### Applying the database changes to hosted
+
+Needs a Supabase personal access token (Account > Access Tokens). Project ref `pkfataaehrjdipdbrthz`.
+
+```powershell
+$env:SUPABASE_ACCESS_TOKEN='sbp_...'
+$m = 'supabase/migrations'
+$files = "$m/0030_team3_repair_ops.sql","$m/0031_team3_repair_ops_features.sql","$m/0032_team3_service_history.sql","$m/0040_team4_insights.sql","$m/0091_accounts_role_access.sql","$m/0092_accounts_registration.sql","$m/0093_admin_accounts_read.sql","$m/0094_admin_assign_account_role.sql","$m/0095_accounts_profile_address.sql","$m/0096_admin_account_activation.sql","$m/0097_merge_accounts_reconcile.sql","$m/0098_accounts_missing_objects.sql"
+node tools/supabase/dry-run-sql.mjs pkfataaehrjdipdbrthz @files   # 1. nothing is kept
+node tools/supabase/apply-sql.mjs  pkfataaehrjdipdbrthz @files   # 2. only if step 1 says OK
+```
+
+If the dry run fails on 0092, the hosted project has an `auth.users` trigger that Team 1 did not expect. Send Team 1 the error before changing anything. After applying, regenerate `libs/shared-types` (`tools/supabase/gen-types.mjs`) and run the security advisors.
+
 ## Checks run
 
 - `ng build`: OK. The only warnings are budgets: initial bundle and per-file SCSS.
