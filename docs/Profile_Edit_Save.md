@@ -1,5 +1,7 @@
 # Edit profile returning to blank My Account
 
+> **Note (27 Nov merge):** the migration files named below (0091-0096) were retired. What is live on hosted is now in `supabase/migrations/0091_accounts_live_export.sql`; see `docs/Group_Merge.md`.
+
 ## Persistence follow-up (2026-10-23)
 
 The user subsequently confirmed a live PATCH 200 with the saved row and matching Table Editor values. This confirms profile persistence for that live save; earlier live-save uncertainty below is historical. Auth metadata is a separate store and was never updated by the profile PATCH.

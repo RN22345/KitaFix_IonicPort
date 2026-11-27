@@ -5,16 +5,16 @@
 --
 -- 1. 0024 lets a signed-in user UPDATE only (full_name, phone, avatar_url) on
 --    their profile. Team 1's Edit Profile also writes first_name, last_name,
---    contact_no, address, birthday and gender (columns added in 0092 / 0095),
---    so every save failed with 42501. Grant those columns too. role and active
---    stay out of the grant (and protect_profile_account_access still guards them).
+--    contact_no, address, birthday and gender (columns added in 0091), so
+--    every save failed with 42501. Grant those columns too. role and active
+--    stay out of the grant, so users cannot change them.
 --
 -- 2. 0024's set_user_role() keeps public.technicians in step with the role;
---    Team 1's admin_assign_account_role() (0094) does not, so a user promoted
+--    Team 1's admin_assign_account_role() (0091) does not, so a user promoted
 --    from the Accounts screen never became a bookable technician. A trigger on
 --    the role column covers both functions without editing either.
 --
--- Run after 0091-0096. Safe to re-run.
+-- Run after 0091. Safe to re-run.
 -- =============================================================================
 begin;
 

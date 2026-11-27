@@ -11,7 +11,10 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 - Tabs that leave the `/admin` or `/ops` area (Repairs, Accounts, Overview, Me) went to a GitHub 404 page on the live demo. They were plain links that ignored the `/KitaFix_IonicPort/` base path. They now navigate through the app's router.
 - No way to log out or see who is signed in from the admin and technician areas. Both bottom bars now have a "Me" tab, which opens My Account with Log out.
 - After a Team 1 logout, other teams' screens could still show the previous user's data or role. Logging out now restarts the app, as Team 2's sign-out already did, and the app also restarts if a different user signs in.
-- `0098_accounts_missing_objects.sql` adds the `avatars` bucket, `record_terms_acceptance` and `deactivate_own_account`, which Team 1's screens call but no migration created.
+- Team 1's database part existed only on hosted (built by hand). `0091_accounts_live_export.sql` is that live state copied into the repo, and replaces the stale 0091-0096 and the stopgap 0098. It also makes `admin_read_accounts` refuse a switched-off admin and merges two duplicate avatar policy sets.
+- `0025_team2_perf.sql` (on hosted since 18 Nov) was missing from main.
+- Leftover `staff` names in Team 3/4 code renamed to `admin` (`adminOnlyGuard`, `INSIGHTS_ADMIN_ROUTES`, actor role).
+- `tools/supabase/gen-types.mjs` regenerates `libs/shared-types` from hosted; `inspect-hosted.mjs --full` exports the live structure.
 - `tools/supabase/dry-run-sql.mjs` runs a set of migrations on the hosted project inside a transaction that is always rolled back.
 
 ### Added (group merge - all four teams)

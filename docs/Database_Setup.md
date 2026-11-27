@@ -12,7 +12,7 @@ A shared hosted project already exists and the app in this repo points at it
 | --- | --- |
 | Project ref | `pkfataaehrjdipdbrthz` |
 | API URL | `https://pkfataaehrjdipdbrthz.supabase.co` |
-| Migration status | 0001, 0002, 0020, 0090 applied + `seed_demo_data.sql` |
+| Migration status | 0001-0025 applied (0090 recorded, file retired); 0030-0032, 0040, 0091, 0097 pending (see `docs/Group_Merge.md`) |
 | App config | `src/environments/environment.ts`, `useMockData: false` |
 
 Migrations were applied with the **Management API** (access token only, no DB
@@ -58,11 +58,11 @@ This deletes the local database and re-runs **everything** in
 | 0002 | `*_local_stub_team3_services.sql` | services table (Team 3 stand-in) |
 | 0020 | `0020_team2_booking.sql` | **OURS**: repairs, availability constraint, RLS, guard trigger, `get_taken_slots` |
 | 0024 | `0024_merge_staff_into_admin.sql` | one `admin` role, `is_admin()`, admin-only role changes |
+| 0025 | `0025_team2_perf.sql` | faster own-row policies, foreign-key indexes |
 | 0030-0032 | `003x_team3_*.sql` | Team 3: services, admin/technician repair policies, status machine, ops history, service logs (ported to `is_admin()`; not yet on hosted) |
 | 0040 | `0040_team4_insights.sql` | Team 4: `reviews` table + rules, 3 report views (not yet on hosted) |
-| 0091-0096 | `009x_accounts_*.sql`, `009x_admin_*.sql` | Team 1: registration trigger, profile fields, admin account RPCs (manual, not yet on hosted) |
+| 0091 | `0091_accounts_live_export.sql` | Team 1 (exported from hosted): profile fields, account number, sign-up fill, terms, deactivate, admin account RPCs, `avatars` bucket |
 | 0097 | `0097_merge_accounts_reconcile.sql` | merge fix: profile column grants for Team 1 fields, technicians kept in step with role |
-| 0098 | `0098_accounts_missing_objects.sql` | fix: `avatars` bucket + policies, `record_terms_acceptance`, `deactivate_own_account`, each created only if missing (hosted already has Team 1's versions) |
 
 The stub files say right at the top: **delete before merging** - in the group
 repo the real files from Teams 1 and 3 replace them.

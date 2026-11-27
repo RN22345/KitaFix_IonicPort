@@ -1,5 +1,7 @@
 # Account Module scope correction
 
+> **Note (27 Nov merge):** the migration files named below (0091-0096) were retired. What is live on hosted is now in `supabase/migrations/0091_accounts_live_export.sql`; see `docs/Group_Merge.md`.
+
 ## Final routing
 
 - Admin: /accounts-list. Existing Roles and account-management routes remain Admin-only. My Account is linked from Accounts List.

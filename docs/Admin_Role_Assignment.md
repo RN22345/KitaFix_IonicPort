@@ -1,5 +1,7 @@
 # Existing Assign role sheet
 
+> **Note (27 Nov merge):** the migration files named below (0091-0096) were retired. What is live on hosted is now in `supabase/migrations/0091_accounts_live_export.sql`; see `docs/Group_Merge.md`.
+
 The existing account-profile sheet now saves Admin, Technician or Customer to the selected real profile UUID through `admin_assign_account_role(account_id, new_role)`. It reloads the actual detail after the RPC confirms the returned role. Returning to Accounts List reloads its real records as before. No local role mutation is presented as persistence.
 
 The screen preserves the existing sheet, role descriptions, permissions preview and styling. It shows saving/errors, blocks duplicate submissions, and requires an explicit selection if the stored role is missing or unrecognized. Missing profiles and the signed-in user's own role cannot be edited. Activate/deactivate remains unavailable; this change only connects role assignment. Assigning Technician changes the application role; it does not provision records or scheduling assignments in the separate technicians module.

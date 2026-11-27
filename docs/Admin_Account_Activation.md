@@ -1,5 +1,7 @@
 # Account activation and deactivation
 
+> **Note (27 Nov merge):** the migration files named below (0091-0096) were retired. What is live on hosted is now in `supabase/migrations/0091_accounts_live_export.sql`; see `docs/Group_Merge.md`.
+
 Recovery review: 2026-10-23. The activation implementation and migration below were already saved when work resumed after the IDE crash. Existing unrelated changes were preserved; no duplicate migration was created.
 
 The existing Account Profile confirmation calls `AccountsService.setActive` with the target UUID and a boolean. It blocks self changes, missing profiles, unknown status and concurrent role/status submissions. Errors remain visible in the confirmation. A confirmed backend result triggers a fresh account list/detail read, including counts; the UI does not simulate persistence. Timeouts and identity changes abort or discard stale results.

@@ -1,5 +1,7 @@
 # Registration implementation and manual setup
 
+> **Note (27 Nov merge):** the migration files named below (0091-0096) were retired. What is live on hosted is now in `supabase/migrations/0091_accounts_live_export.sql`; see `docs/Group_Merge.md`.
+
 ## Apply SQL separately
 
 Run the exact SQL in `supabase/migrations/0092_accounts_registration.sql` as postgres in Supabase SQL Editor after reviewing it. It is NOT deployed by this change and does not require the fuller identity stub or 0091 to have been applied. It expects the actual existing profiles(id, active, role) table with a unique id.

@@ -38,20 +38,19 @@ Landing after login (`accountLoginDestination`): customer `/tabs`, admin `/admin
 
 ## Database
 
-Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0024, **0030-0032 (Team 3)**, **0040 (Team 4)**, **0091-0096 (Team 1)**, **0097 (merge fix)**. None of 0030-0032, 0040 or 0091-0097 has been applied to hosted.
+Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0025, **0030-0032 (Team 3)**, **0040 (Team 4)**, **0091 (Team 1, exported from hosted)**, **0097 (merge fix)**.
 
 - **0030-0032 (Team 3)** were written before 0024 and called `public.is_staff()` 10 times. That function is dropped by 0024, so they would fail. They were ported: `is_staff()` became `(select public.is_admin())`, and the `*_staff_*` policies became `*_admin_*`. The logic is unchanged, and each file has a merge note at the top.
   - Stub 0090 was deleted. Its policies are a subset of 0030.
   - Stub 0002 stays, because 0020's `repairs.service_id` foreign key needs `services` to exist first, and 0030 uses `create if not exists`.
 - **0040 (Team 4)** already used the 0024 names. No conflicts.
-- **0091-0096 (Team 1)** check `role = 'admin'` directly, so they work. Two cautions:
-  - 0092 aborts on any unknown `auth.users` INSERT trigger and checks a hard-coded MD5. Do a rolled-back dry run on hosted first.
-  - `admin_assign_account_role` / `admin_set_account_active` overlap 0024's `set_user_role` / `set_user_active`. The group should pick one set.
+- **0091 (Team 1)** replaces Team 1's old 0091-0096 and the stopgap 0098. Team 1 built their part by hand on hosted, so the repo files no longer matched; 0091 is the live definitions copied from hosted (see "Database audit" below).
+  - `admin_assign_account_role` / `admin_set_account_active` overlap 0024's `set_user_role` / `set_user_active`. The app uses Team 1's; the group should pick one set.
 - **0097 (merge fix):**
   1. Grants UPDATE on Team 1's profile columns. 0024 allowed only `full_name, phone, avatar_url`, so Edit Profile would fail with 42501.
   2. A trigger on `profiles.role` keeps `technicians` in step whichever admin function changed the role. This matters for Team 3: an account promoted from Team 1's screen must exist in `technicians` before it can be assigned in the queue.
 - **Triggers on `repairs` now stack up across teams:** Team 2's guard, date rule and active-limit; Team 3's status machine, snapshot, started-at, reschedule guard and history. I read through them and found no rule conflicts: only pending repairs can be rescheduled (same as Team 2's UI), the service never changes after booking (Team 2 never does that), and customers can cancel a pending repair. This should still be tested on a real database.
-- `0025_team2_perf.sql` is on hosted but only on the local `chore/orchestra` branch, not on `main`. Bring it over separately.
+- `0025_team2_perf.sql` was on hosted but only on the local `chore/orchestra` branch. It is now in the repo too.
 
 ## Overlaps for the group to decide
 
@@ -62,7 +61,7 @@ Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0024, **0030-0032 (
 
 ## Questions for the teams
 
-- **Team 1:** RPCs `record_terms_acceptance` and `deactivate_own_account` have no migration. The `avatars` Storage bucket has no setup notes. Pages are deep-imported; please export `ACCOUNTS_ROUTES`. 32 of 83 `node --test` cases already fail on `group-a` itself.
+- **Team 1:** please make database changes through migration files, not by hand on hosted (rule R2); 0091 is now your file to own. Pages are deep-imported; please export `ACCOUNTS_ROUTES`. 32 of 83 `node --test` cases already fail on `group-a` itself.
 - **Team 3:** your `environment.ts` points at our hosted project. Did you apply 0030-0032 there? After 23 Oct they would have failed on `is_staff()`. If you applied them before that, 0024's drop of `is_staff()` would have failed instead, so they are most likely not on hosted. Please confirm. Also, no tests were included.
 - **Team 4:** none.
 
@@ -75,8 +74,8 @@ Reported on the live demo after #26:
 | Repairs / Accounts tabs open a GitHub 404 | The merge's cross-area tab buttons used a bare `href="/ops"`. A tab button without `tab` is a plain link, so it ignores `<base href="/KitaFix_IonicPort/">`. | No `href`; `(click)` goes through the Angular router (Team 4 `staff-shell`, `src/app/ops`) |
 | Opened straight into the admin area, no logout | The browser still had a saved session from an earlier admin login. The login page sends a signed-in user to their home on purpose. The admin/ops bars had no account or logout entry. | "Me" tab in both bars opens My Account (shows the account, has Log out) |
 | Previous user's data or role after switching accounts | Team 2 repairs, Team 3's actor (cached forever) and Team 4's admin data live in app-wide services. Team 1's logout did not reload. | My Account logout reloads, and `AppComponent` reloads if a different user signs in |
-| `Could not find the table 'public.reviews'` | Migrations 0030-0032, 0040 and 0091-0098 were never applied to hosted. The same goes for Team 3's queue tables and Team 1's admin RPCs. | Apply them (steps below) |
-| (found in audit) Picture upload, deactivate, terms | `avatars` bucket, `deactivate_own_account`, `record_terms_acceptance` were created by no migration | `0098_accounts_missing_objects.sql` |
+| `Could not find the table 'public.reviews'` | Migrations 0030-0032 and 0040 were never applied to hosted. The same goes for Team 3's queue tables and Team 1's admin RPCs. | Apply them (steps below) |
+| (found in audit) Picture upload, deactivate, terms | `avatars` bucket, `deactivate_own_account`, `record_terms_acceptance` were created by no migration | now part of `0091_accounts_live_export.sql` |
 
 Audit checks that found nothing else:
 - every `href`, `location` and `reload` in `src/` and `libs/`
@@ -93,25 +92,40 @@ Audit checks that found nothing else:
 - `admin_read_accounts` (which returns `account_no`, matching the app code), `admin_assign_account_role(uuid, user_role)`, `admin_set_account_active`, `deactivate_own_account`, `record_terms_acceptance`, `generate_account_no` and the `profiles_account_no` trigger
 - the `avatars` bucket and its policies
 
-**Not on hosted:** Team 3 (0030-0032), Team 4 (0040), and Team 1's sign-up trigger `accounts_on_signup`, the `protect_profile_account_access` trigger and the restrictive "active account" policies. Only the old stub sign-up trigger `t1_stub_on_auth_user_created` is there.
+**Not on hosted:** Team 3 (0030-0032), Team 4 (0040), 0097. Team 1's old repo files (sign-up trigger `accounts_on_signup`, `protect_profile_account_access`, restrictive "active" policies) were never on hosted and are retired; Team 1 instead rewrote the body of the stub sign-up function `t1_stub_handle_new_user`, which 0091 keeps.
 
-**So, on hosted: skip 0091-0096.** They are an older copy of what Team 1 already applied by hand. The first dry run failed on 0093 ("cannot change return type of existing function admin_read_accounts"), and running the rest would downgrade Team 1's live functions. 0098 creates each piece only if it is missing, so on hosted it changes nothing.
+**0091 on hosted** re-creates the same objects with the same bodies, so it changes nothing except: `admin_read_accounts` now also requires the calling admin to be active, and the two overlapping avatar policy sets become one set with the same rules.
 
 Needs a Supabase personal access token with Database and Migrations set to read-write. Project ref `pkfataaehrjdipdbrthz`. Run from the repo root in PowerShell:
 
 ```powershell
 $env:SUPABASE_ACCESS_TOKEN='sbp_...'
 $m = 'supabase/migrations'
-$files = "$m/0030_team3_repair_ops.sql","$m/0031_team3_repair_ops_features.sql","$m/0032_team3_service_history.sql","$m/0040_team4_insights.sql","$m/0097_merge_accounts_reconcile.sql","$m/0098_accounts_missing_objects.sql"
+$files = "$m/0030_team3_repair_ops.sql","$m/0031_team3_repair_ops_features.sql","$m/0032_team3_service_history.sql","$m/0040_team4_insights.sql","$m/0091_accounts_live_export.sql","$m/0097_merge_accounts_reconcile.sql"
 node tools/supabase/dry-run-sql.mjs pkfataaehrjdipdbrthz @files   # 1. nothing is kept
 node tools/supabase/apply-sql.mjs  pkfataaehrjdipdbrthz @files   # 2. only if step 1 says OK
+node tools/supabase/gen-types.mjs  pkfataaehrjdipdbrthz          # 3. refresh libs/shared-types
 ```
 
-`node tools/supabase/inspect-hosted.mjs pkfataaehrjdipdbrthz` prints the read-only report again (structure only, no data). After applying, regenerate `libs/shared-types` (`tools/supabase/gen-types.mjs`) and run the security advisors.
+`node tools/supabase/inspect-hosted.mjs pkfataaehrjdipdbrthz [--full --out hosted-full.json]` prints the read-only report again (structure only, no data; the JSON is gitignored).
 
-**For Team 1:**
-- Export your live definitions (`pg_get_functiondef`) into new migrations and retire 0091-0096 from the repo. Until then, a fresh local database gets the old 0093, whose `admin_read_accounts` lacks the `account_no` your code reads.
-- Decide whether hosted should get your sign-up trigger (0092). Today, new sign-ups go through the stub trigger, which may not copy `first_name`, `contact_no` and the other sign-up details.
+### Database audit (27 Nov, repo vs hosted vs code vs types)
+
+Matches:
+- every table, view and RPC the code calls exists in the migrations; every RPC parameter name matches hosted
+- every repair status in code is one of the 5 `repair_status` values
+- profile column grants: users can edit their own name, contact, address, birthday, gender and picture, never `role` or `active`
+
+Fixed:
+- leftover `staff` naming in Team 3/4 code (`staffOnlyGuard`, `INSIGHTS_STAFF_ROUTES`, actor role `'staff'`) renamed to `admin`; Module Plan v4 R5 said `is_staff()`
+- Team 1's live objects (9 profile columns incl. `account_no`, 7 functions, the account-number trigger, `avatars` bucket) existed on hosted only; now in 0091
+- 0025 existed on hosted only; now in the repo
+- `admin_read_accounts` let a switched-off admin list all accounts
+- `libs/shared-types` lacked Team 1's columns/RPCs and Team 4's `reviews` + views: regenerate with step 3 after applying
+
+Open, for the group:
+- **Privacy:** policy `profiles_read_authenticated` (0024) lets every signed-in user read every profile row. Before Team 1 that was name, phone and picture; it now also includes `address`, `birthday`, `gender` and `contact_no`. Fixing it changes how Teams 2-4 read names (e.g. a `profiles_public` view with id, name, picture, role, and own-row/admin-only reads on the table), so it needs agreement first.
+- Two admin function sets (see Database above).
 
 ## Checks run
 
