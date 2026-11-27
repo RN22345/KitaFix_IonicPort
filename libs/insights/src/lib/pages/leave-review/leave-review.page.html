@@ -1,0 +1,100 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/my-repairs" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Leave a review</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="wrap">
+    @switch (phase()) {
+      @case ('loading') {
+        <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+      }
+      @case ('error') {
+        <section class="notice danger" role="alert">
+          <strong>We could not load this page.</strong>
+          <p>{{ error() }}</p>
+        </section>
+      }
+      @default {
+        @if (!repair()) {
+          <section class="notice">
+            <strong>Repair not found</strong>
+            <p>We could not find this repair in your account.</p>
+          </section>
+        } @else {
+          <section class="repair">
+            <span class="eyebrow">Your repair</span>
+            <h1>{{ repair()!.device }}</h1>
+            <p class="meta">{{ repair()!.location }} · <span class="status" [class.done]="canReview()">{{ canReview() ? 'Completed' : repair()!.status }}</span></p>
+          </section>
+
+          @if (!canReview()) {
+            <section class="notice">
+              <strong>Not ready for a review yet</strong>
+              <p>You can review a repair after it is completed.</p>
+            </section>
+          } @else if (review(); as r) {
+            <!-- Existing review: show it, allow edit / delete for 1 hour -->
+            <section class="card">
+              <header class="card-top">
+                <h2>Your review</h2>
+                @if (minutes() > 0) {
+                  <span class="pill open">{{ minutes() }} min left to change</span>
+                } @else {
+                  <span class="pill locked">Locked</span>
+                }
+              </header>
+
+              @if (editing()) {
+                <p class="label">Your rating</p>
+                <div class="stars-row" role="radiogroup" aria-label="Rating">
+                  @for (n of choices; track n) {
+                    <button type="button" class="star" [class.on]="n <= rating()" [attr.aria-label]="n + ' stars'" (click)="rating.set(n)">★</button>
+                  }
+                </div>
+                <ion-textarea class="field" label="Comment (optional)" label-placement="stacked" [rows]="4" [autoGrow]="true" [counter]="true" [maxlength]="maxComment" [value]="comment()" (ionInput)="onComment($event)"></ion-textarea>
+                <div class="actions">
+                  <ion-button [disabled]="!canSend()" (click)="saveEdit()">Save</ion-button>
+                  <ion-button fill="outline" (click)="cancelEdit()">Cancel</ion-button>
+                </div>
+              } @else {
+                <p class="stars" [attr.aria-label]="r.rating + ' out of 5 stars'">{{ stars(r.rating) }}</p>
+                <p class="comment">{{ r.comment ?? 'No comment left.' }}</p>
+                <p class="small">{{ r.reviewId }} · {{ r.createdAt.slice(0, 10) }}</p>
+                @if (r.replyText) {
+                  <div class="reply"><strong>Reply from the shop</strong><p>{{ r.replyText }}</p></div>
+                }
+                @if (minutes() > 0) {
+                  <div class="actions">
+                    <ion-button fill="outline" (click)="startEdit()">Edit</ion-button>
+                    <ion-button fill="outline" color="danger" (click)="confirmDelete()">Delete</ion-button>
+                  </div>
+                } @else {
+                  <p class="small">You can change or delete a review for 1 hour. After that, only an administrator can delete it.</p>
+                }
+              }
+            </section>
+          } @else {
+            <!-- New review -->
+            <section class="card">
+              <h2>How was the repair?</h2>
+              <p class="label">Your rating</p>
+              <div class="stars-row" role="radiogroup" aria-label="Rating">
+                @for (n of choices; track n) {
+                  <button type="button" class="star" [class.on]="n <= rating()" [attr.aria-label]="n + ' stars'" (click)="rating.set(n)">★</button>
+                }
+              </div>
+              <ion-textarea class="field" label="Comment (optional)" label-placement="stacked" placeholder="What stood out?" [rows]="4" [autoGrow]="true" [counter]="true" [maxlength]="maxComment" [value]="comment()" (ionInput)="onComment($event)"></ion-textarea>
+              <ion-button expand="block" [disabled]="!canSend()" (click)="send()">Send review</ion-button>
+              <p class="small center-text">One review for each repair. You can change or delete it for 1 hour.</p>
+            </section>
+          }
+        }
+      }
+    }
+  </div>
+</ion-content>

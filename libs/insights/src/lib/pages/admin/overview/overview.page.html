@@ -1,0 +1,46 @@
+<ion-content [fullscreen]="true">
+  <div class="wrap">
+    <section class="banner">
+      <span class="eyebrow">Admin</span>
+      <h1>Overview</h1>
+      <p>The shop at a glance: repairs and customer ratings.</p>
+    </section>
+
+    @if (error()) { <p class="error">{{ error() }}</p> }
+
+    <div class="kpis">
+      <div class="kpi"><span class="kpi-label">All repairs</span><span class="kpi-value">{{ totalRepairs() }}</span></div>
+      <div class="kpi"><span class="kpi-label">Pending</span><span class="kpi-value">{{ count('Pending') }}</span></div>
+      <div class="kpi"><span class="kpi-label">In progress</span><span class="kpi-value">{{ count('In progress') }}</span></div>
+      <div class="kpi"><span class="kpi-label">Completed</span><span class="kpi-value">{{ count('Completed') }}</span></div>
+    </div>
+
+    <section class="card">
+      <h2>Customer rating</h2>
+      <p class="sub">From all submitted reviews.</p>
+      @if (summary().totalReviews > 0) {
+        <div class="rating-line"><span class="star">★</span> {{ summary().averageRating }} <small>· {{ summary().totalReviews }} reviews · {{ needsReply() }} waiting for a reply</small></div>
+      } @else {
+        <p class="empty">No reviews yet. Ratings appear here after customers review a completed repair.</p>
+      }
+    </section>
+
+    <section class="card">
+      <h2>Latest repairs</h2>
+      <p class="sub">The 5 newest repair requests.</p>
+      @for (r of latest(); track r.id) {
+        <div class="row">
+          <div><strong>#{{ r.id }} · {{ r.device }}</strong><br /><span>{{ r.createdAt.slice(0, 10) }}</span></div>
+          <span class="badge">{{ r.status }}</span>
+        </div>
+      } @empty {
+        <p class="empty">No repairs yet.</p>
+      }
+    </section>
+
+    <div class="links">
+      <a class="link" routerLink="/admin/insights">Read reviews</a>
+      <a class="link" routerLink="/admin/insights" [queryParams]="{ view: 'reports' }">See reports</a>
+    </div>
+  </div>
+</ion-content>

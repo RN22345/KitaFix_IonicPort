@@ -1,0 +1,1391 @@
+// ─────────────────────────────────────────────
+// KitaFix · Accounts shared styles
+// Usage in a page scss:  @use '../../styles/accounts' as *;
+// ─────────────────────────────────────────────
+
+// Brand tokens (from moodboard)
+$blue:        #0B5ED7;
+$blue-light:  #2E7DFF;
+$green:       #00C896;
+$green-light: #7EE787;
+$tint:        #E6F1FF;
+$ink:         #0F172A;
+$muted:       #64748B;
+$border:      #DCE6F5;
+$danger:      #E5484D;
+
+$gradient: linear-gradient(135deg, $blue 0%, $green 100%);
+$radius:   14px;
+
+:host {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  color: $ink;
+}
+
+.acc-content {
+  --background: #fff;
+  --color: #{$ink}; // text colour for everything inside the page
+}
+
+.acc-content--soft {
+  --background: #F5F8FF;
+  --color: #{$ink};
+}
+
+// ── Page shell + corner decoration ──────────
+.acc-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px 140px;
+  box-sizing: border-box;
+
+  > * { position: relative; z-index: 1; }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 140px;
+    pointer-events: none;
+    background-repeat: no-repeat;
+  }
+
+  &::before {
+    top: 0;
+    background-image:
+      linear-gradient(135deg, rgba($blue-light, 0.35) 50%, transparent 50%),
+      linear-gradient(225deg, $green-light 50%, transparent 50%);
+    background-position: top left, top right;
+    background-size: 90px 90px, 130px 80px;
+  }
+
+  &::after {
+    bottom: 0;
+    background-image:
+      linear-gradient(45deg, $green 50%, transparent 50%),
+      linear-gradient(315deg, $blue 50%, transparent 50%);
+    background-position: bottom left, bottom right;
+    background-size: 120px 110px, 70px 130px;
+  }
+}
+
+// ── Brand ───────────────────────────────────
+.acc-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+
+  // Full logo (K icon + KitaFix text)
+  &__logo {
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+  }
+
+  // K icon only
+  &__icon {
+    display: block;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+  }
+}
+
+// ── Back button ─────────────────────────────
+.acc-back {
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+  width: 44px;
+  height: 44px;
+  margin: 0 0 24px -8px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: $ink;
+  font-size: 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: $tint; }
+}
+
+// ── Headings ────────────────────────────────
+.acc-title {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: $ink;
+}
+
+.acc-subtitle {
+  margin: 0 0 28px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $muted;
+
+  strong { color: $ink; font-weight: 600; }
+}
+
+.acc-hero-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: $tint;
+  color: $blue;
+  font-size: 32px;
+}
+
+// ── Form ────────────────────────────────────
+.acc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.acc-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.acc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink;
+
+    em { color: $danger; font-style: normal; }
+  }
+}
+
+.acc-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 14px;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  background: #F8FAFF;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+
+  > ion-icon { flex: none; font-size: 19px; color: $muted; }
+
+  &:focus-within {
+    border-color: $blue-light;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba($blue-light, 0.14);
+
+    > ion-icon:first-child { color: $blue; }
+  }
+
+  &.is-invalid {
+    border-color: $danger;
+    box-shadow: none;
+  }
+
+  input,
+  select {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 14px;
+    color: $ink;
+
+    &::placeholder { color: #94A3B8; }
+  }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 20px;
+    cursor: pointer;
+
+    &:invalid { color: #94A3B8; }
+  }
+
+  &__chevron {
+    position: absolute;
+    right: 14px;
+    pointer-events: none;
+  }
+
+  &__toggle {
+    flex: none;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: $muted;
+    font-size: 19px;
+    cursor: pointer;
+  }
+}
+
+.acc-error {
+  font-size: 12px;
+  color: $danger;
+}
+
+.acc-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0 -4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: $tint;
+  color: $blue;
+  font-size: 12px;
+  line-height: 1.5;
+
+  ion-icon { flex: none; margin-top: 1px; font-size: 16px; }
+}
+
+.acc-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba($danger, 0.08);
+  color: $danger;
+  font-size: 13px;
+  line-height: 1.5;
+
+  ion-icon { flex: none; margin-top: 2px; font-size: 16px; }
+}
+
+// ── Password rules ──────────────────────────
+.acc-rules {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 0;
+  margin: -4px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: $muted;
+    transition: color 0.15s;
+
+    ion-icon { font-size: 14px; }
+    &.is-met { color: $green; }
+  }
+}
+
+// ── Buttons + links ─────────────────────────
+.acc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 52px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: $radius;
+  background: $gradient;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 10px 22px rgba($blue, 0.25);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s;
+
+  &:active:not(:disabled) { transform: scale(0.985); }
+  &:disabled { opacity: 0.55; box-shadow: none; cursor: not-allowed; }
+
+  ion-spinner { width: 20px; height: 20px; color: #fff; }
+}
+
+.acc-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: $blue;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:disabled { color: $muted; cursor: default; }
+}
+
+.acc-link-right { align-self: flex-end; margin-top: -6px; }
+
+.acc-footer {
+  margin: 28px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: $muted;
+
+  .acc-link { color: $green; }
+}
+
+// ── Avatar picker (sign up) ─────────────────
+.acc-avatar {
+  position: relative;
+  align-self: center;
+  width: 92px;
+  height: 92px;
+  margin-bottom: 4px;
+
+  &__img {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: $tint;
+    color: $blue-light;
+    font-size: 44px;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  &__btn {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: $gradient;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+  }
+}
+
+// ── OTP boxes (reset password) ──────────────
+.acc-otp {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+
+  input {
+    width: 100%;
+    height: 56px;
+    border: 1.5px solid $border;
+    border-radius: 12px;
+    background: #F8FAFF;
+    text-align: center;
+    font: inherit;
+    font-size: 20px;
+    font-weight: 600;
+    color: $ink;
+    outline: 0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus {
+      border-color: $blue-light;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba($blue-light, 0.14);
+    }
+    &.is-filled { border-color: $blue-light; background: #fff; }
+  }
+
+  &.is-invalid input { border-color: $danger; box-shadow: none; }
+}
+
+.acc-resend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: $muted;
+
+  strong { color: $ink; font-weight: 600; }
+  .is-expired { color: $danger; font-weight: 500; }
+}
+
+// ── Profile pages (Me, Edit Profile, Change Password) ──
+.acc-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28px;
+  text-align: center;
+
+  .acc-avatar {
+    width: 104px;
+    height: 104px;
+    margin-bottom: 14px;
+    padding: 4px;
+    border-radius: 50%;
+    background: $gradient;
+
+    &__img { border: 3px solid #fff; }
+  }
+}
+
+.acc-name {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.acc-email {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: $muted;
+}
+
+.acc-chip {
+  display: inline-block;
+  margin: 0 6px 6px 0;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: $tint;
+  color: $blue;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.acc-section-title {
+  margin: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.acc-card {
+  margin-bottom: 16px;
+  border: 1.5px solid $border;
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+
+  &--padded { padding: 14px 16px 8px; }
+}
+
+.acc-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  font-size: 13px;
+
+  &:not(:last-child) { border-bottom: 1px solid $border; }
+
+  span { color: $muted; }
+  strong { font-weight: 500; text-align: right; }
+}
+
+.acc-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: $ink;
+  text-align: left;
+  cursor: pointer;
+
+  &:not(:last-child) { border-bottom: 1px solid $border; }
+  &:active { background: $tint; }
+
+  > span:nth-child(2) { flex: 1; }
+  > ion-icon { font-size: 16px; color: $muted; }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: $tint;
+    color: $blue;
+    font-size: 18px;
+  }
+}
+
+.acc-btn--logout {
+  background: rgba($danger, 0.08);
+  color: $danger;
+  box-shadow: none;
+
+  ion-icon { font-size: 18px; }
+}
+
+.acc-btn--outline {
+  border: 1.5px solid $border;
+  background: #fff;
+  color: $ink;
+  box-shadow: none;
+}
+
+.acc-input--disabled {
+  background: #EEF2F8;
+
+  input { color: $muted; }
+}
+
+.acc-hint {
+  font-size: 12px;
+  text-align: center;
+  color: $muted;
+}
+
+// ── Confirm / success box ───────────────────
+.acc-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba($ink, 0.45);
+}
+
+.acc-dialog {
+  width: 100%;
+  max-width: 340px;
+  padding: 24px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+
+  h2 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  p { margin: 0; font-size: 13px; line-height: 1.6; color: $muted; }
+
+  .acc-hero-icon { margin-bottom: 14px; }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+
+    .acc-btn { margin-top: 0; }
+  }
+}
+
+// ── Admin pages (Accounts list, Account profile, Roles) ──
+.acc-content--soft {
+  --background: #F5F8FF;
+}
+
+// Blue header at the top of the page
+.acc-header {
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 24px;
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(135deg, $blue 35%, $green 160%);
+  color: #fff;
+
+  &__inner { max-width: 420px; margin: 0 auto; }
+
+  h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; }
+  p { margin: 0; font-size: 13px; opacity: 0.85; }
+
+  // Back button + "Account profile" title
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 600;
+
+    button {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 10px;
+      background: rgba(#fff, 0.18);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  }
+
+  // Picture + name + email
+  &__person {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+}
+
+.acc-body {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 16px 110px; // extra space at the bottom for the tabs
+
+  .acc-card {
+    border-color: transparent;
+    box-shadow: 0 2px 10px rgba($ink, 0.05);
+  }
+}
+
+.acc-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  margin-top: 16px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: #fff;
+  color: $muted;
+
+  ion-icon { font-size: 18px; }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 14px;
+    color: $ink;
+  }
+}
+
+.acc-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.acc-filter {
+  padding: 7px 14px;
+  border: 1.5px solid $border;
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: $muted;
+  cursor: pointer;
+
+  &.is-active {
+    border-color: $blue;
+    background: $blue;
+    color: #fff;
+  }
+
+  &--select {
+    margin-left: auto;
+    color: $ink;
+  }
+}
+
+.acc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.acc-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba($ink, 0.05);
+  color: inherit;
+  text-decoration: none;
+
+  &:active { background: $tint; }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong { font-size: 14px; font-weight: 600; }
+    small {
+      font-size: 12px;
+      color: $muted;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+}
+
+// Square box with the person's initials
+.acc-avatar-sm {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden; // keeps the picture inside the rounded box
+
+  // The profile picture, placed over the initials (invisible until it has loaded)
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+
+    &.is-loaded { opacity: 1; }
+  }
+
+  &--glass {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: rgba(#fff, 0.2);
+    font-size: 20px;
+  }
+}
+
+.acc-badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: $tint;
+  color: $blue;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+// "Active" / "Inactive" with a small dot
+.acc-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: $muted;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #94A3B8;
+  }
+
+  &.is-active { color: #0A9D6B; &::before { background: $green; } }
+}
+
+.acc-status-text {
+  color: $muted;
+
+  &.is-active { color: #0A9D6B; }
+}
+
+.acc-empty {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 13px;
+  color: $muted;
+}
+
+// Tabs at the bottom (Accounts | Roles)
+.acc-tabbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid $border;
+  background: #fff;
+}
+
+.acc-tab {
+  flex: 1;
+  max-width: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #94A3B8;
+  text-decoration: none;
+
+  ion-icon { font-size: 22px; }
+  &.is-active { color: $blue; }
+}
+
+// "Role & permissions" title with the small button
+.acc-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 8px;
+
+  h2 { margin: 0; font-size: 15px; font-weight: 700; }
+}
+
+.acc-btn-small {
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: $tint;
+  color: $blue;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acc-btn--soft {
+  background: $tint;
+  color: $blue;
+  box-shadow: none;
+}
+
+.acc-role-text {
+  margin: 6px 0 10px;
+  font-size: 13px;
+  color: $muted;
+}
+
+// One permission row: green check = allowed, grey cross = not allowed
+.acc-perm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+
+  ion-icon { font-size: 18px; color: $green; }
+
+  &.is-denied {
+    color: #94A3B8;
+
+    ion-icon { color: #CBD5E1; }
+  }
+}
+
+.acc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.acc-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #EEF3FB;
+  color: #475569;
+  font-size: 11px;
+}
+
+.acc-role-card {
+  margin-bottom: 10px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    strong { font-size: 15px; }
+  }
+
+  .acc-role-text { margin-top: 2px; }
+}
+
+// "Assign role" box that slides up from the bottom
+.acc-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba($ink, 0.45);
+  overscroll-behavior: contain;
+}
+
+.acc-sheet {
+  width: 100%;
+  max-width: 420px;
+  max-height: 92%;
+  overflow-y: auto;
+  padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+
+  &__handle {
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 14px;
+    border-radius: 2px;
+    background: $border;
+  }
+
+  h2 { margin: 0 0 4px; font-size: 17px; font-weight: 700; }
+  > p { margin: 0 0 14px; font-size: 13px; color: $muted; }
+
+  &__label {
+    margin: 4px 0 8px !important;
+    font-size: 12px !important;
+  }
+
+  .acc-dialog__actions { margin-top: 16px; }
+}
+
+.acc-role-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  background: #fff;
+  color: $ink;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  strong { display: block; font-size: 14px; color: $ink; }
+  small { font-size: 12px; color: $muted; }
+
+  &.is-selected {
+    border-color: $blue;
+    box-shadow: 0 0 0 2px rgba($blue, 0.15);
+
+    .acc-radio {
+      border-color: $blue;
+      background: radial-gradient(circle, $blue 45%, transparent 50%);
+    }
+  }
+}
+
+.acc-radio {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 2px solid #94A3B8;
+  border-radius: 50%;
+}
+
+// Crop box
+.acc-crop {
+  position: relative;
+  margin: 12px auto;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #000;
+  touch-action: none; // so dragging doesn't scroll the page
+  cursor: grab;
+  max-width: 100%;
+}
+
+.acc-crop__img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+// Dark area outside the circle
+.acc-crop__circle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.acc-crop__zoom {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+// Small red text button (Remove photo)
+.acc-link-btn {
+  background: #FF474C;
+  width: 30vw;
+  border: 0;
+  border-radius: 12px;
+  padding: 8px;
+  margin: 0 auto 12px auto;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+// Loading screen (spinner + text)
+.acc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 0;
+  font-size: 13px;
+  color: $muted;
+
+  p { margin: 0; }
+}
+
+// Role colors based on the KitaFix brand palette.
+$role-admin:      #0F172A; // dark navy
+$role-technician: #008C96; // teal
+$role-customer:   #0B5ED7; // blue
+
+.acc-chip,
+.acc-badge {
+  &[data-role='admin']      { background: rgba($role-admin, 0.12);      color: $role-admin; }
+  &[data-role='technician'] { background: rgba($role-technician, 0.12); color: $role-technician; }
+  &[data-role='customer']   { background: rgba($role-customer, 0.12);   color: $role-customer; }
+}
+
+// "Change role" button: an outlined rectangle, so it no longer looks like the role pill
+.acc-btn-outline-small {
+  padding: 7px 14px;
+  border: 1.5px solid $blue;
+  border-radius: 10px;
+  background: #fff;
+  color: $blue;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:active:not(:disabled) { background: $tint; }
+  &:disabled {
+    border-color: $border;
+    color: #94A3B8;
+    cursor: not-allowed;
+  }
+}
+
+// Pictures that can be tapped
+.acc-tappable {
+  cursor: pointer;
+}
+
+// Big picture viewer
+.acc-viewer-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.88);
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+.acc-viewer__img {
+  max-width: 100%;
+  max-height: 80%;
+  border-radius: 16px;
+  object-fit: contain;
+}
+
+.acc-viewer__close {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+// Terms checkbox row: one tidy box, checkbox aligned with the first line of text
+.acc-field .acc-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  background: #F8FAFF;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px; // same height as the checkbox, so they line up
+  color: $ink;
+  cursor: pointer;
+
+  input {
+    appearance: none;
+    -webkit-appearance: none;
+    color-scheme: light;
+    flex: none;
+    display: grid;
+    place-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border: 1.5px solid #94A3B8;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+
+    // The check mark
+    &::after {
+      content: '';
+      width: 10px;
+      height: 5px;
+      margin-top: -2px;
+      border-left: 2.5px solid #fff;
+      border-bottom: 2.5px solid #fff;
+      transform: rotate(-45deg) scale(0);
+      transition: transform 0.12s;
+    }
+
+    &:checked {
+      border-color: $blue;
+      background: $blue;
+
+      &::after { transform: rotate(-45deg) scale(1); }
+    }
+  }
+
+  span { flex: 1; color: $ink; }
+
+  // The "Terms and Privacy Notice" link, inline with the sentence
+  .acc-link {
+    display: inline;
+    font: inherit;
+    font-weight: 600;
+    line-height: inherit;
+    color: $blue;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  &.is-invalid {
+    border-color: $danger;
+    background: rgba($danger, 0.05);
+
+    input { border-color: $danger; }
+  }
+}
+
+// Terms box
+.acc-dialog--terms {
+  max-width: 380px;
+  max-height: 85%;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 20px 20px;
+}
+
+.acc-terms {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 14px;
+  padding: 4px 6px 4px 0;
+  border-top: 1px solid $border;
+  text-align: left;
+
+  h3 { margin: 14px 0 4px; font-size: 13px; font-weight: 600; color: $ink; }
+  p { margin: 0; font-size: 12px; line-height: 1.6; color: $muted; }
+}
+
+// Spacing when the alert sits above a button
+.acc-alert--spaced {
+  margin: 4px 0 8px;
+}
+
+// Deactivate warning box
+.acc-hero-icon--danger {
+  background: rgba($danger, 0.1);
+  color: $danger;
+}
+
+.acc-dialog--danger {
+  h2 { color: $danger; }
+  > p strong { color: $ink; }
+}
+
+.acc-warn-list {
+  margin: 12px 0 0;
+  padding: 12px 14px 12px 30px;
+  border-radius: 12px;
+  background: rgba($danger, 0.06);
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.6;
+  color: $ink;
+
+  li + li { margin-top: 4px; }
+}
+
+.acc-field--confirm {
+  margin-top: 14px;
+  text-align: left;
+
+  label { font-size: 12px; color: $muted; }
+  label strong { color: $danger; letter-spacing: 0.5px; }
+}
+
+// Red button for serious actions
+.acc-btn--danger {
+  background: $danger;
+  box-shadow: 0 10px 22px rgba($danger, 0.25);
+}
+
+// Sort dropdown row
+.acc-sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: $muted;
+
+  .acc-filter { color: $ink; }
+}
+
+// Pagination: Prev, page numbers, Next
+.acc-pager__info {
+  margin: 14px 0 8px;
+  text-align: center;
+  font-size: 12px;
+  color: $muted;
+}
+
+.acc-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-bottom: 8px;
+}
+
+.acc-pager__btn,
+.acc-pager__num {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  background: #fff;
+  color: $ink;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:active:not(:disabled) { background: $tint; }
+
+  &:disabled {
+    color: #94A3B8;
+    background: #F1F5F9;
+    cursor: not-allowed;
+  }
+}
+
+.acc-pager__num.is-active {
+  border-color: $blue;
+  background: $blue;
+  color: #fff;
+}
+
+.acc-pager__gap {
+  min-width: 20px;
+  text-align: center;
+  color: $muted;
+}
+
+// Account ID line in the accounts list
+.acc-list-item__info .acc-id {
+  color: $blue;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+
+// Account ID value with the copy button next to it
+.acc-detail strong.acc-id-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acc-copy {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: $tint;
+  color: $blue;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:active { background: $border; }
+}

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model, output } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonContent, IonFooter, IonHeader, IonIcon, IonModal } from '@ionic/angular';
 import { BOOKING_CONFIG } from '../../data-access/config';
 import {
@@ -15,8 +16,6 @@ import { estimatePriceForRepair, formatCurrency } from '../../pricing/price-esti
 import { RepairExtrasService } from '../../services/repair-extras.service';
 import { RepairsService } from '../../services/repairs.service';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
-
-const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
 
 @Component({
   selector: 'app-repair-detail',
@@ -83,54 +82,19 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
                 }
               </section>
 
-              <!-- Rating: only for completed repairs. Pick stars, then submit. -->
+              <!-- Reviews are Team 4's (libs/insights): one per completed repair, stored in public.reviews. -->
               @if (r.status === 'completed') {
-                <section class="card rate">
-                  <h3>Your rating</h3>
-                  @if (editing()) {
-                    <div class="stars" role="radiogroup" aria-label="Rate this repair from 1 to 5">
-                      @for (n of starList; track n) {
-                        <button
-                          type="button"
-                          class="star"
-                          [class.on]="n <= draft()"
-                          (click)="pick(n)"
-                          role="radio"
-                          [attr.aria-checked]="n === draft()"
-                          [attr.aria-label]="n + ' star' + (n === 1 ? '' : 's')"
-                        >
-                          <ion-icon [name]="n <= draft() ? 'star' : 'star-outline'"></ion-icon>
-                        </button>
-                      }
-                    </div>
-                    <p class="hint">{{ draft() ? draftWord() : 'How was this repair? Tap a star, then submit.' }}</p>
-                    <div class="rate-actions">
-                      @if (saved() > 0) {
-                        <button type="button" class="ghost" (click)="cancelEdit()">Cancel</button>
-                      }
-                      <button type="button" class="submit" [disabled]="draft() === 0" (click)="submitRating()">
-                        <ion-icon name="checkmark-outline"></ion-icon> Submit rating
-                      </button>
-                    </div>
-                  } @else {
-                    <div class="stars done" [attr.aria-label]="'You rated ' + saved() + ' out of 5'">
-                      @for (n of starList; track n) {
-                        <span class="star static" [class.on]="n <= saved()">
-                          <ion-icon [name]="n <= saved() ? 'star' : 'star-outline'"></ion-icon>
-                        </span>
-                      }
-                    </div>
-                    <p class="hint ok">
-                      <ion-icon name="checkmark-circle-outline"></ion-icon>
-                      {{ thanks() ? 'Thanks! ' : '' }}You rated this repair {{ savedWord() }} ({{ saved() }}/5).
-                    </p>
-                    <button type="button" class="link" (click)="editRating()">Edit rating</button>
-                  }
+                <section class="card">
+                  <h3>Your review</h3>
+                  <p class="hint">Tell us how this repair went. You can edit or delete it within 1 hour.</p>
+                  <button type="button" class="submit" (click)="openReview(r)">
+                    <ion-icon name="star-outline"></ion-icon> Leave a review
+                  </button>
                 </section>
               } @else if (r.status !== 'cancelled') {
                 <section class="card">
-                  <h3>Your rating</h3>
-                  <p class="hint"><ion-icon name="lock-closed-outline"></ion-icon> You can rate this repair once it is completed.</p>
+                  <h3>Your review</h3>
+                  <p class="hint"><ion-icon name="lock-closed-outline"></ion-icon> You can review this repair once it is completed.</p>
                 </section>
               }
 
@@ -480,33 +444,6 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
         text-transform: uppercase;
         color: var(--kf-muted);
       }
-      .stars {
-        display: flex;
-        gap: 0.3rem;
-      }
-      .star {
-        padding: 0.1rem;
-        border: 0;
-        background: transparent;
-        color: var(--kf-line);
-        font-size: 2.2rem;
-        line-height: 1;
-        cursor: pointer;
-        transition: transform var(--kf-fast) var(--kf-ease);
-      }
-      .star.static {
-        cursor: default;
-        font-size: 1.9rem;
-      }
-      .star.on {
-        color: var(--kf-warn);
-      }
-      .star.on ion-icon {
-        animation: kf-pop var(--kf-slow) var(--kf-ease);
-      }
-      button.star:active {
-        transform: scale(1.25);
-      }
       .hint {
         display: flex;
         align-items: center;
@@ -515,21 +452,13 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
         font-size: 0.8rem;
         color: var(--kf-muted);
       }
-      .hint.ok {
-        color: var(--kf-green);
-        font-weight: 600;
-      }
       .wide-hint {
         grid-column: 1 / -1;
         margin: 0;
       }
-      .rate-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.8rem;
-      }
       .submit {
-        flex: 1;
+        width: 100%;
+        margin-top: 0.8rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -546,20 +475,6 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
       }
       .submit:active {
         transform: scale(0.97);
-      }
-      .submit:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-        box-shadow: none;
-      }
-      .link {
-        margin-top: 0.5rem;
-        padding: 0.2rem 0;
-        border: 0;
-        background: transparent;
-        color: var(--kf-accent);
-        font: 600 0.82rem var(--kf-font);
-        cursor: pointer;
       }
       .tech,
       .svc {
@@ -725,9 +640,6 @@ const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
         font: 600 0.85rem var(--kf-font);
         cursor: pointer;
       }
-      .rate-actions .ghost {
-        flex: 0 0 32%;
-      }
       .ghost.danger {
         color: var(--kf-danger);
         border-color: color-mix(in srgb, var(--kf-danger) 45%, var(--kf-line));
@@ -806,6 +718,7 @@ export class RepairDetailComponent {
   private readonly booking = inject(RepairsService);
   private readonly extras = inject(RepairExtrasService);
   private readonly config = inject(BOOKING_CONFIG);
+  private readonly router = inject(Router);
 
   readonly repair = input<Repair | null>(null);
   /** Empty = "Book again" is allowed; otherwise the reason it is not. */
@@ -817,12 +730,6 @@ export class RepairDetailComponent {
   readonly reschedule = output<Repair>();
 
   readonly steps = ['Booked', 'In repair', 'Testing', 'Ready'] as const;
-  readonly starList = [1, 2, 3, 4, 5];
-
-  // Rating UI state (the saved rating itself lives in RepairExtrasService).
-  readonly draft = signal(0);
-  readonly editingId = signal<string | null>(null);
-  readonly thanks = signal(false);
 
   readonly tone = computed(() => {
     const r = this.repair();
@@ -857,18 +764,6 @@ export class RepairDetailComponent {
     const r = this.repair();
     return r ? this.extras.isFavorite(r.id) : false;
   });
-  readonly saved = computed(() => {
-    const r = this.repair();
-    return r ? this.extras.ratingOf(r.id) : 0;
-  });
-  readonly savedWord = computed(() => (RATING_WORDS[this.saved()] ?? '').toLowerCase());
-  readonly draftWord = computed(() => RATING_WORDS[this.draft()] ?? '');
-  /** Show the star picker: no rating yet, or the customer pressed "Edit rating". */
-  readonly editing = computed(() => {
-    const r = this.repair();
-    return !!r && (this.saved() === 0 || this.editingId() === r.id);
-  });
-
   readonly isFinished = computed(() => {
     const r = this.repair();
     return !!r && (r.status === 'completed' || r.status === 'cancelled');
@@ -894,30 +789,10 @@ export class RepairDetailComponent {
     if (r) this.extras.toggleFavorite(r.id);
   }
 
-  pick(stars: number): void {
-    if (this.repair()?.status === 'completed') this.draft.set(stars);
-  }
-
-  submitRating(): void {
-    const r = this.repair();
-    if (!r || r.status !== 'completed' || this.draft() < 1) return;
-    this.extras.submitRating(r.id, this.draft());
-    this.draft.set(0);
-    this.editingId.set(null);
-    this.thanks.set(true);
-  }
-
-  editRating(): void {
-    const r = this.repair();
-    if (!r) return;
-    this.draft.set(this.saved());
-    this.thanks.set(false);
-    this.editingId.set(r.id);
-  }
-
-  cancelEdit(): void {
-    this.draft.set(0);
-    this.editingId.set(null);
+  /** Opens Team 4's review page (/tabs/leave-review/:repairId). */
+  openReview(r: Repair): void {
+    this.isOpen.set(false);
+    void this.router.navigate(['/tabs/leave-review', r.id]);
   }
 
   onBookAgain(): void {
@@ -927,8 +802,5 @@ export class RepairDetailComponent {
 
   onDismiss(): void {
     this.isOpen.set(false);
-    this.draft.set(0);
-    this.editingId.set(null);
-    this.thanks.set(false);
   }
 }

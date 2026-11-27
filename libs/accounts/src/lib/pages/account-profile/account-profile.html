@@ -1,0 +1,185 @@
+<ion-content [fullscreen]="true" [scrollY]="!showAvatar() && !showRoleSheet" class="acc-content acc-content--soft">
+  @if (account; as acc) {
+    <!-- Blue header: back button, picture, name and email -->
+    <header class="acc-header">
+      <div class="acc-header__inner">
+        <div class="acc-header__back">
+          <button type="button" (click)="goBack()" aria-label="Back to accounts">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </button>
+          <span>Account profile</span>
+        </div>
+        <div class="acc-header__person">
+          <span class="acc-avatar-sm acc-avatar-sm--glass">
+            <!-- The profile picture (if the account has one). It stays hidden until it loads. -->
+            @if (pictureState[acc.id] !== 'failed') {
+              <img class="acc-avatar-sm__img acc-tappable" alt="Profile picture. Tap to view."
+                [class.is-loaded]="pictureState[acc.id] === 'loaded'"
+                [src]="accountsService.getAvatarUrl(acc)"
+                (click)="openAvatar(acc.id)"
+                (load)="pictureState[acc.id] = 'loaded'"
+                (error)="pictureState[acc.id] = 'failed'" />
+            }
+            <!-- The initials show until the picture has loaded (or when there is no picture) -->
+            @if (pictureState[acc.id] !== 'loaded') {
+              {{ accountsService.getInitials(acc) }}
+            }
+          </span>
+          <div>
+            <h1>{{ (acc.firstName + ' ' + acc.lastName).trim() || 'Name unavailable' }}</h1>
+            <p>{{ acc.email || 'Email unavailable' }}</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="acc-body">
+      @if (acc.profileMissing) { <p class="acc-empty">Profile missing for this Auth user.</p> }
+      <!-- Details -->
+      <div class="acc-card">
+        <div class="acc-detail">
+          <span>Account ID</span>
+          <strong class="acc-id-value">
+            {{ (acc.accountNo | accountId: acc.role) || 'Not available' }}
+            @if (acc.accountNo) {
+              <button type="button" class="acc-copy" aria-label="Copy account ID" (click)="copyAccountId(acc)">
+                <ion-icon [icon]="copyIcon"></ion-icon>
+              </button>
+            }
+          </strong>
+        </div>
+        <div class="acc-detail"><span>Contact no.</span><strong>{{ acc.contactNo || 'Not provided' }}</strong></div>
+        <div class="acc-detail"><span>Address</span><strong>{{ acc.address || 'Not provided' }}</strong></div>
+        <div class="acc-detail"><span>Birthday</span><strong>{{ acc.birthday ? (acc.birthday | date: 'MMMM d, y') : 'Not provided' }}</strong></div>
+        <div class="acc-detail"><span>Gender</span><strong>{{ genderNames[acc.gender] || 'Not provided' }}</strong></div>
+        <div class="acc-detail"><span>Joined</span><strong>{{ acc.joinedDate | date: 'MMM d, y' }}</strong></div>
+        <div class="acc-detail">
+          <span>Status</span>
+          <strong class="acc-status-text" [class.is-active]="acc.isActive">{{ acc.isActive === null ? 'Status unavailable' : acc.isActive ? 'Active' : 'Inactive' }}</strong>
+        </div>
+      </div>
+
+      @if (!acc.profileMissing && !accountsService.canAssignRole(acc)) {
+        <p class="acc-role-text">You cannot change your own role or active status.</p>
+      }
+      <!-- Role and what it can do -->
+      <div class="acc-section-head">
+        <h2>Role &amp; permissions</h2>
+        <button type="button" class="acc-btn-outline-small" [disabled]="!accountsService.canAssignRole(acc) || savingRole() || savingStatus()" (click)="openRoleSheet(acc)">Change role</button>
+      </div>
+      <div class="acc-card acc-card--padded">
+        <span class="acc-chip" [attr.data-role]="acc.role">{{ accountsService.getRole(acc.role).name }}</span>
+        <p class="acc-role-text">{{ accountsService.getRole(acc.role).description }}</p>
+
+        @for (permission of allPermissions; track permission) {
+          <div class="acc-perm" [class.is-denied]="!isAllowed(acc, permission)">
+            <ion-icon [name]="isAllowed(acc, permission) ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+            {{ permission }}
+          </div>
+        }
+      </div>
+
+      <button type="button" class="acc-btn" [class.acc-btn--logout]="acc.isActive" [disabled]="!accountsService.canChangeStatus(acc) || savingRole() || savingStatus()" (click)="openStatusDialog(acc)">
+        {{ acc.isActive === null ? 'Status unavailable' : acc.isActive ? 'Deactivate account' : 'Reactivate account' }}
+      </button>
+    </main>
+
+    <!-- "Assign role" box -->
+    @if (showRoleSheet) {
+      <div slot="fixed" class="acc-sheet-backdrop" (click)="closeRoleSheet()">
+        <div class="acc-sheet" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+          <div class="acc-sheet__handle"></div>
+          <h2>Assign role</h2>
+          <p>Choose a role for {{ (acc.firstName + ' ' + acc.lastName).trim() || acc.email || acc.id }}</p>
+          @if (!(acc.firstName + ' ' + acc.lastName).trim()) {
+            <p>No name provided in this account's profile.</p>
+          }
+
+          @for (role of roles; track role.key) {
+            <button type="button" class="acc-role-option" [class.is-selected]="selectedRole === role.key"
+                    [disabled]="savingRole()"
+                    (click)="selectedRole = role.key">
+              <span class="acc-radio"></span>
+              <span>
+                <strong>{{ role.name }}</strong>
+                <small>{{ role.description }}</small>
+              </span>
+            </button>
+          }
+
+          <p class="acc-sheet__label">{{ selectedRoleInfo.name }} can:</p>
+          <div class="acc-tags">
+            @for (permission of selectedRoleInfo.permissions; track permission) {
+              <span class="acc-tag">{{ permission }}</span>
+            }
+          </div>
+
+          <div class="acc-dialog__actions">
+            <button type="button" class="acc-btn acc-btn--soft" [disabled]="savingRole()" (click)="closeRoleSheet()">Cancel</button>
+            <button type="button" class="acc-btn" [disabled]="savingRole() || !selectedRole" (click)="saveRole()">{{ savingRole() ? 'Saving…' : 'Save role' }}</button>
+          </div>
+          @if (roleError()) { <p class="acc-role-text" role="alert">{{ roleError() }}</p> }
+        </div>
+      </div>
+    }
+
+    <!-- "Deactivate / Activate?" box -->
+    @if (showStatusDialog) {
+      <div slot="fixed" class="acc-dialog-backdrop">
+        <div class="acc-dialog" role="dialog" aria-modal="true">
+          <h2>{{ acc.isActive ? 'Deactivate account?' : 'Reactivate account?' }}</h2>
+          <p>
+            @if (acc.isActive) {
+              {{ (acc.firstName + ' ' + acc.lastName).trim() || acc.email || acc.id }} will be blocked from protected account pages and actions until reactivated.
+            } @else {
+              {{ (acc.firstName + ' ' + acc.lastName).trim() || acc.email || acc.id }} will be able to access protected account pages again.
+            }
+          </p>
+          <p>This changes account access. It does not delete the user or revoke their sign-in session.</p>
+          @if (statusError()) { <p class="acc-role-text" role="alert">{{ statusError() }}</p> }
+          <div class="acc-dialog__actions">
+            <button type="button" class="acc-btn acc-btn--outline" [disabled]="savingStatus()" (click)="showStatusDialog = false">Cancel</button>
+            <button type="button" class="acc-btn" [disabled]="savingStatus()" (click)="confirmStatusChange(acc)">{{ savingStatus() ? 'Saving...' : 'Yes' }}</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Big picture viewer -->
+    @if (showAvatar()) {
+      <div slot="fixed" class="acc-viewer-backdrop" (click)="showAvatar.set(false)">
+        <img class="acc-viewer__img" [src]="accountsService.getAvatarUrl(acc)" alt="Profile picture" />
+        <button type="button" class="acc-viewer__close" aria-label="Close" (click)="showAvatar.set(false)">&times;</button>
+      </div>
+    }
+  } @else {
+    <!-- Header with the back button, so the user can always go back -->
+    <header class="acc-header">
+      <div class="acc-header__inner">
+        <div class="acc-header__back">
+          <button type="button" (click)="goBack()" aria-label="Back to accounts">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </button>
+          <span>Account profile</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="acc-body">
+      @if (isLoading) {
+        <!-- Still loading: just a spinner, no buttons -->
+        <div class="acc-loading" role="status">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Loading account...</p>
+        </div>
+      } @else {
+        <!-- Error or the id doesn't exist -->
+        <p class="acc-empty" role="alert">{{ accountsService.error || 'Account not found.' }}</p>
+        @if (accountsService.error) {
+          <button type="button" class="acc-btn-small" (click)="ionViewWillEnter()">Retry</button>
+        }
+        <button type="button" class="acc-btn" (click)="goBack()">Back to accounts</button>
+      }
+    </main>
+  }
+</ion-content>
