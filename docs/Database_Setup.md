@@ -12,7 +12,7 @@ A shared hosted project already exists and the app in this repo points at it
 | --- | --- |
 | Project ref | `pkfataaehrjdipdbrthz` |
 | API URL | `https://pkfataaehrjdipdbrthz.supabase.co` |
-| Migration status | 0001-0025 applied (0090 recorded, file retired); 0030-0032, 0040, 0091, 0092, 0097 applied 27 Nov (see `docs/Group_Merge.md`) |
+| Migration status | 0001-0025 applied (0090 recorded, file retired); 0030-0032, 0040, 0091, 0092, 0097 applied 27 Nov; 0093 pending (see `docs/Group_Merge.md`) |
 | App config | `src/environments/environment.ts`, `useMockData: false` |
 
 Migrations were applied with the **Management API** (access token only, no DB
@@ -63,6 +63,7 @@ This deletes the local database and re-runs **everything** in
 | 0040 | `0040_team4_insights.sql` | Team 4: `reviews` table + rules, 3 report views (not yet on hosted) |
 | 0091 | `0091_accounts_live_export.sql` | Team 1 (exported from hosted): profile fields, account number, sign-up fill, terms, deactivate, admin account RPCs, `avatars` bucket |
 | 0092 | `0092_profiles_privacy.sql` | personal profile columns readable only by the owner (`my_profile` view) and admins (`admin_read_accounts`); others see names of staff / their own customers only |
+| 0093 | `0093_admin_functions_cleanup.sql` | one set of admin account functions (Team 1's); `updated_at` on switch on/off |
 | 0097 | `0097_merge_accounts_reconcile.sql` | merge fix: profile column grants for Team 1 fields, technicians kept in step with role |
 
 The stub files say right at the top: **delete before merging** - in the group

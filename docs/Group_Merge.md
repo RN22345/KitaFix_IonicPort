@@ -38,14 +38,14 @@ Landing after login (`accountLoginDestination`): customer `/tabs`, admin `/admin
 
 ## Database
 
-Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0025, **0030-0032 (Team 3)**, **0040 (Team 4)**, **0091 (Team 1, exported from hosted)**, **0092 (profile privacy)**, **0097 (merge fix)**.
+Run order on a fresh database: 0001, 0002 (stub, kept), 0020-0025, **0030-0032 (Team 3)**, **0040 (Team 4)**, **0091 (Team 1, exported from hosted)**, **0092 (profile privacy)**, **0093 (one set of admin functions)**, **0097 (merge fix)**.
 
 - **0030-0032 (Team 3)** were written before 0024 and called `public.is_staff()` 10 times. That function is dropped by 0024, so they would fail. They were ported: `is_staff()` became `(select public.is_admin())`, and the `*_staff_*` policies became `*_admin_*`. The logic is unchanged, and each file has a merge note at the top.
   - Stub 0090 was deleted. Its policies are a subset of 0030.
   - Stub 0002 stays, because 0020's `repairs.service_id` foreign key needs `services` to exist first, and 0030 uses `create if not exists`.
 - **0040 (Team 4)** already used the 0024 names. No conflicts.
 - **0091 (Team 1)** replaces Team 1's old 0091-0096 and the stopgap 0098. Team 1 built their part by hand on hosted, so the repo files no longer matched; 0091 is the live definitions copied from hosted (see "Database audit" below).
-  - `admin_assign_account_role` / `admin_set_account_active` overlap 0024's `set_user_role` / `set_user_active`. The app uses Team 1's; the group should pick one set.
+  - `admin_assign_account_role` / `admin_set_account_active` overlapped 0024's `set_user_role` / `set_user_active`. Decision (27 Nov): keep Team 1's, which the app uses. 0093 drops the 0024 pair.
 - **0097 (merge fix):**
   1. Grants UPDATE on Team 1's profile columns. 0024 allowed only `full_name, phone, avatar_url`, so Edit Profile would fail with 42501.
   2. A trigger on `profiles.role` keeps `technicians` in step whichever admin function changed the role. This matters for Team 3: an account promoted from Team 1's screen must exist in `technicians` before it can be assigned in the queue.
@@ -134,8 +134,7 @@ Fixed:
 
 - **Privacy (0092):** policy `profiles_read_authenticated` (0024) let every signed-in user read every profile row, and after Team 1 that included `address`, `birthday`, `gender`, `contact_no` and `account_no`. Fixed; see "What changed for each group" below.
 
-Open, for the group:
-- Two admin function sets (see Database above).
+- **One set of admin functions (0093):** 0024's unused `set_user_role` / `set_user_active` are dropped; Team 1's `admin_assign_account_role` / `admin_set_account_active` are the only way to change a role or switch an account on/off. `admin_set_account_active` now also sets `updated_at`; error messages are plainer, error codes unchanged.
 
 ## What changed for each group (27 Nov, after the merge)
 
@@ -150,6 +149,7 @@ Open, for the group:
 **Team 1 - Accounts**
 - Your database work existed only on hosted (made by hand), and the repo's 0091-0096 no longer matched it. It is now exported into `0091_accounts_live_export.sql`, and the old files are removed. Please make future changes as new migration files (rule R2).
 - `admin_read_accounts` now also requires the calling admin to be active, like your other admin functions.
+- Your admin functions are now the only ones (0093 drops 0024's `set_user_role` / `set_user_active`). `admin_set_account_active` also sets `updated_at`. The messages are plainer, but the codes your screens check (42501, P0002) are unchanged.
 - The two overlapping avatar policy sets are merged into one set (`avatars_*_own`) with the same rules, plus delete.
 - `accounts-auth.ts`: the three own-profile reads go through `readOwnProfile()`, which reads `my_profile`. The Edit Profile save asks back only `id` (`.select('id')`).
 - Tests: the fakes in `profile.save.test.cjs` and `accounts-auth.login.test.cjs` now expect `my_profile` for reads. Still 51 of 83 pass; the same 32 failed before the merge on `group-a`.

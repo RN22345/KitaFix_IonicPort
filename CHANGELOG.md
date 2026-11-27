@@ -13,6 +13,7 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 - After a Team 1 logout, other teams' screens could still show the previous user's data or role. Logging out now restarts the app, as Team 2's sign-out already did, and the app also restarts if a different user signs in.
 - Team 1's database part existed only on hosted (built by hand). `0091_accounts_live_export.sql` is that live state copied into the repo, and replaces the stale 0091-0096 and the stopgap 0098. It also makes `admin_read_accounts` refuse a switched-off admin and merges two duplicate avatar policy sets.
 - Every signed-in user could read every profile, including address, birthday, gender, contact number and account number. `0092_profiles_privacy.sql` limits that table to names and pictures of yourself, shop staff and (for technicians) their own customers; your own full row comes from the new `my_profile` view.
+- Two sets of admin functions did the same jobs. `0093_admin_functions_cleanup.sql` keeps Team 1's (used by the Accounts screens), drops 0024's unused `set_user_role` / `set_user_active`, and makes switching an account on/off update `updated_at`.
 - `0025_team2_perf.sql` (on hosted since 18 Nov) was missing from main.
 - Leftover `staff` names in Team 3/4 code renamed to `admin` (`adminOnlyGuard`, `INSIGHTS_ADMIN_ROUTES`, actor role).
 - `tools/supabase/gen-types.mjs` regenerates `libs/shared-types` from hosted; `inspect-hosted.mjs --full` exports the live structure.
