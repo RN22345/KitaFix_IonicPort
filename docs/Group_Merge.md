@@ -173,6 +173,7 @@ Fixed:
 **Everyone**
 - Reviews are now shown to all signed-in users, anonymously (migration 0094). The `reviews` table rules from Team 4 are unchanged (own row and admins only). Two new functions return safe copies: `get_public_reviews(p_limit)` gives rating, comment, reply, date, service and technician name, with nothing about the customer (max 20 rows), and `get_technician_ratings()` gives the average and count per technician. Signed-out users get nothing.
 - Note: reviews were never the cause of the profile leak. That was 0024's open `profiles` read rule together with Team 1's personal columns (fixed in 0092).
+- Technicians made before 0097 had no row in `technicians`, so nobody could be picked on the Book page. `0099_technicians_backfill.sql` adds those rows. It also makes the 0097 trigger react to switching an account on or off: a switched-off technician is no longer bookable, and switching them back on restores it.
 
 **Team 1 - Accounts**
 - For customers, My Account, Edit Profile and Change Password now open inside the customer tabs at `/tabs/account`, `/tabs/account/edit` and `/tabs/account/password`, so the tab bar stays visible. The old paths (`/accounts/my-account` and so on) still work: customers are sent to the tab version (`src/app/customer-account.guard.ts`); technicians and admins keep the old pages.

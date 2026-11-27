@@ -11,6 +11,9 @@ versioning follows [Semantic Versioning](https://semver.org/) loosely
 - Anonymous public reviews: `0094_public_reviews.sql` adds `get_public_reviews` and `get_technician_ratings`. Home shows "What customers say"; the technician picker shows ratings. No customer names or ids are returned.
 - Customers' My Account, Edit Profile and Change Password open inside the customer tabs (`/tabs/account...`); the old paths redirect customers there.
 
+### Fixed (second pass after the merge)
+- No technician could be picked when booking: people made technician before 0097 had no `technicians` row. `0099_technicians_backfill.sql` adds them and keeps the row in step when an account is switched on or off.
+
 ### Changed (second pass after the merge)
 - The customer tab bar has four equal tabs (Home, Book, Repairs, Account); the large raised Book button is removed.
 - Team 1's account styles use CSS variables, so the pages follow the dark theme inside the tabs.
