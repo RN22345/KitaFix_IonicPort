@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { barChartOutline, chatbubblesOutline, homeOutline, peopleOutline, trashOutline } from 'ionicons/icons';
+import { barChartOutline, chatbubblesOutline, constructOutline, homeOutline, peopleOutline, trashOutline } from 'ionicons/icons';
 
 /**
  * Admin area of Team 4 at /staff. Its own small tab bar, so the customer's
@@ -24,6 +24,10 @@ import { barChartOutline, chatbubblesOutline, homeOutline, peopleOutline, trashO
           <ion-icon name="bar-chart-outline"></ion-icon>
           <ion-label>Insights</ion-label>
         </ion-tab-button>
+        <ion-tab-button href="/ops">
+          <ion-icon name="construct-outline"></ion-icon>
+          <ion-label>Repairs</ion-label>
+        </ion-tab-button>
         <ion-tab-button href="/accounts-list">
           <ion-icon name="people-outline"></ion-icon>
           <ion-label>Accounts</ion-label>
@@ -34,6 +38,6 @@ import { barChartOutline, chatbubblesOutline, homeOutline, peopleOutline, trashO
 })
 export class StaffShellPage {
   constructor() {
-    addIcons({ 'home-outline': homeOutline, 'chatbubbles-outline': chatbubblesOutline, 'bar-chart-outline': barChartOutline, 'trash-outline': trashOutline, 'people-outline': peopleOutline });
+    addIcons({ 'home-outline': homeOutline, 'chatbubbles-outline': chatbubblesOutline, 'bar-chart-outline': barChartOutline, 'trash-outline': trashOutline, 'people-outline': peopleOutline, 'construct-outline': constructOutline });
   }
 }

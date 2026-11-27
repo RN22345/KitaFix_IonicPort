@@ -37,6 +37,9 @@ export type TechnicianUpdate = Tables['technicians']['Update'];
 /* Team 3 - Shop & Repair Operations                                          */
 /* -------------------------------------------------------------------------- */
 
+export type RepairServiceLogRow = Tables['repair_service_logs']['Row'];
+export type RepairServiceLogInsert = Tables['repair_service_logs']['Insert'];
+
 export type ServiceRow = Tables['services']['Row'];
 export type ServiceInsert = Tables['services']['Insert'];
 export type ServiceUpdate = Tables['services']['Update'];

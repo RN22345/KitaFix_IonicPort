@@ -6,7 +6,7 @@ import { accountsLoggedInRedirect, accountsRecoveryGuard, accountsRoleGuard } fr
  * (rule R7).
  *   Team 1 (accounts)  - login, signup, profile, admin account screens
  *   Team 2 (booking)   - customer tabs: /tabs/...
- *   Team 3 (repair ops) - pending (technician screens)
+ *   Team 3 (repair ops) - /ops: admin portal, repair queue, service catalog
  *   Team 4 (insights)  - /tabs/leave-review/:repairId and the /admin shell
  * Who may open what is Team 1's accountsRoleGuard.
  */
@@ -37,6 +37,19 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [adminOnly],
     loadChildren: () => import('@kitafix/insights').then((m) => m.INSIGHTS_STAFF_ROUTES),
+  },
+  {
+    // Team 3 shop screens. staffOnlyGuard inside sends technicians to the queue.
+    path: 'ops',
+    canActivate: [accountsRoleGuard(['admin', 'technician'])],
+    canActivateChild: [accountsRoleGuard(['admin', 'technician'])],
+    loadComponent: () => import('./ops/ops-tabs.page').then((m) => m.OpsTabsPage),
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('@kitafix/repair-ops').then((m) => m.REPAIR_OPS_ROUTES),
+      },
+    ],
   },
 
   // Team 1 - accounts

@@ -73,7 +73,7 @@ test('the three backend roles resolve to their landing routes', async () => {
   for (const role of ['customer', 'technician', 'admin']) {
     const h = setup({ role });
     assert.equal(await h.auth.login('test@example.com', 'mock'), role);
-    const landing = { customer: '/tabs', technician: '/accounts-my-account', admin: '/admin' };
+    const landing = { customer: '/tabs', technician: '/ops/repair-queue', admin: '/admin' };
     assert.equal(h.exports.accountLoginDestination(role), landing[role]);
   }
   for (const role of [null, undefined, 'staff', 'AD', 'owner']) {
