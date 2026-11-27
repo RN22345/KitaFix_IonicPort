@@ -131,6 +131,13 @@ export type Database = {
             foreignKeyName: "repair_ops_history_changed_by_fkey"
             columns: ["changed_by"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repair_ops_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -178,6 +185,13 @@ export type Database = {
           technician_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "repair_service_logs_logged_by_fkey"
+            columns: ["logged_by"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "repair_service_logs_logged_by_fkey"
             columns: ["logged_by"]
@@ -298,7 +312,21 @@ export type Database = {
             foreignKeyName: "repairs_confirmed_by_fkey"
             columns: ["confirmed_by"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repairs_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repairs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
             referencedColumns: ["id"]
           },
           {
@@ -379,6 +407,13 @@ export type Database = {
             foreignKeyName: "reviews_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -387,6 +422,13 @@ export type Database = {
             columns: ["repair_id"]
             isOneToOne: true
             referencedRelation: "repairs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_replied_by_fkey"
+            columns: ["replied_by"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
             referencedColumns: ["id"]
           },
           {
@@ -458,6 +500,13 @@ export type Database = {
             foreignKeyName: "technicians_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "technicians_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -465,6 +514,66 @@ export type Database = {
       }
     }
     Views: {
+      my_profile: {
+        Row: {
+          account_no: string | null
+          active: boolean | null
+          address: string | null
+          avatar_url: string | null
+          birthday: string | null
+          contact_no: string | null
+          created_at: string | null
+          first_name: string | null
+          full_name: string | null
+          gender: string | null
+          id: string | null
+          last_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          terms_accepted_at: string | null
+          terms_version: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_no?: string | null
+          active?: boolean | null
+          address?: string | null
+          avatar_url?: string | null
+          birthday?: string | null
+          contact_no?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_no?: string | null
+          active?: boolean | null
+          address?: string | null
+          avatar_url?: string | null
+          birthday?: string | null
+          contact_no?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       repair_status_events: {
         Row: {
           changed_at: string | null
@@ -494,6 +603,13 @@ export type Database = {
           repair_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "repair_ops_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "repair_ops_history_changed_by_fkey"
             columns: ["changed_by"]
@@ -587,20 +703,13 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      profile_is_my_repair_customer: {
+        Args: { p_profile: string }
+        Returns: boolean
+      }
       record_terms_acceptance: {
         Args: { accepted_version: string }
         Returns: string
-      }
-      set_user_active: {
-        Args: { is_active: boolean; target: string }
-        Returns: undefined
-      }
-      set_user_role: {
-        Args: {
-          new_role: Database["public"]["Enums"]["user_role"]
-          target: string
-        }
-        Returns: undefined
       }
       t3_can_log_service: {
         Args: { p_repair_id: string; p_technician_id: string }
