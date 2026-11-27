@@ -44,6 +44,19 @@ export function suggestService(
   return matches.reduce((best, service) => (service.base_price > best.base_price ? service : best));
 }
 
+/**
+ * True when the service is the one that fixes a picked issue. A booking's stored
+ * service can be a fallback (serviceForIssues) that does not fit the problem;
+ * such a service must not be shown to the customer or charged (FSD 2.6, 2.9).
+ */
+export function serviceFixesIssues(
+  service: Pick<ServiceOption, 'name'> | null | undefined,
+  issues: readonly IssueFlagKey[],
+): boolean {
+  const covered = issueCoveredBy(service);
+  return covered !== null && issues.includes(covered);
+}
+
 const GENERAL_SERVICE_WORDS = ['diagnos', 'general', 'inspection', 'assessment', 'check-up', 'checkup'];
 
 /**

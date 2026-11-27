@@ -1,6 +1,6 @@
 import { ServiceOption } from '../models/catalog.model';
 import { ISSUE_DEFINITIONS, IssueFlagKey, Repair } from '../models/repair.model';
-import { issueCoveredBy } from './service-match';
+import { issueCoveredBy, serviceFixesIssues } from './service-match';
 
 export interface PriceEstimate {
   base: number;
@@ -34,7 +34,11 @@ export function estimatePriceForRepair(
   service: ServiceOption | null | undefined,
 ): PriceEstimate {
   const issues = ISSUE_DEFINITIONS.filter((issue) => repair[issue.key]).map((issue) => issue.key);
-  return estimatePrice(service, issues);
+  // return estimatePrice(service, issues);
+  
+  // The stored service can be a fallback (serviceForIssues) that fixes none of the picked
+  // issues. It must not be charged, so My Repairs matches the Review step (dev issue #15).
+  return estimatePrice(service && serviceFixesIssues(service, issues) ? service : null, issues);
 }
 
 export function formatCurrency(amount: number, currency: string): string {
