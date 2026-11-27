@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ServiceOption } from '../models/catalog.model';
-import { issueCoveredBy, serviceForIssues, suggestService } from './service-match';
+import { issueCoveredBy, serviceFixesIssues, serviceForIssues, suggestService } from './service-match';
 
 const services = [
   { id: 's1', name: 'Screen Replacement', base_price: 1499 },
@@ -48,5 +48,17 @@ describe('serviceForIssues', () => {
     expect(serviceForIssues(withDiagnosis, ['issue_camera'])?.name).toBe('General Diagnosis');
     expect(serviceForIssues(services, ['issue_camera'])?.name).toBe('Software Reset');
     expect(serviceForIssues([], ['issue_camera'])).toBeNull();
+  });
+});
+
+describe('serviceFixesIssues', () => {
+  it('is true only when the service fixes one of the picked issues', () => {
+    expect(serviceFixesIssues(services[1], ['issue_battery', 'issue_camera'])).toBe(true);
+    expect(serviceFixesIssues(services[1], ['issue_camera'])).toBe(false);
+  });
+
+  it('is false for general services and for no service', () => {
+    expect(serviceFixesIssues(services[3], ['issue_screen'])).toBe(false);
+    expect(serviceFixesIssues(null, ['issue_screen'])).toBe(false);
   });
 });

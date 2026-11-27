@@ -1,6 +1,6 @@
 import { ServiceOption } from '../models/catalog.model';
 import { ISSUE_DEFINITIONS, IssueFlagKey, Repair } from '../models/repair.model';
-import { issueCoveredBy } from './service-match';
+import { issueCoveredBy, serviceFixesIssues } from './service-match';
 
 export interface PriceEstimate {
   base: number;
@@ -34,7 +34,7 @@ export function estimatePriceForRepair(
   service: ServiceOption | null | undefined,
 ): PriceEstimate {
   const issues = ISSUE_DEFINITIONS.filter((issue) => repair[issue.key]).map((issue) => issue.key);
-  return estimatePrice(service, issues);
+  return estimatePrice(serviceFixesIssues(service, issues) ? service : null, issues);
 }
 
 export function formatCurrency(amount: number, currency: string): string {

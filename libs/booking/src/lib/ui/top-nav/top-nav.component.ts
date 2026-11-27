@@ -36,7 +36,7 @@ function readLocation(): string {
         <span class="loc-pin"><ion-icon name="location-outline"></ion-icon></span>
         <span class="loc-text">
           <small>Your location</small>
-          <strong>{{ location() || 'Set your location' }}</strong>
+          <strong>{{ location() || 'Set location' }}</strong>
         </span>
         <ion-icon name="chevron-down-outline" class="caret"></ion-icon>
       </button>
